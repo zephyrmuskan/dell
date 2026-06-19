@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from "react";
 import { WorkflowProvider, useWorkflow } from './context/WorkflowContext';
 import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
@@ -8,7 +8,7 @@ import { ValidationScreen } from './screens/ValidationScreen';
 import { DecisionScreen } from './screens/DecisionScreen';
 import { AnimatePresence } from 'framer-motion';
 import { ShieldCheck } from 'lucide-react';
-
+import LandingPage from "./screens/LandingPage";
 const MainLayout: React.FC = () => {
   const { currentScreen, showSuccessToast } = useWorkflow();
 
@@ -65,7 +65,28 @@ const MainLayout: React.FC = () => {
   );
 };
 
+
 function App() {
+  const [showDashboard, setShowDashboard] = useState(false);
+
+  useEffect(() => {
+    const handler = (event: MessageEvent) => {
+      if (event.data === "ENTER_APP") {
+        setShowDashboard(true);
+      }
+    };
+
+    window.addEventListener("message", handler);
+
+    return () => {
+      window.removeEventListener("message", handler);
+    };
+  }, []);
+
+  if (!showDashboard) {
+    return <LandingPage />;
+  }
+
   return (
     <WorkflowProvider>
       <MainLayout />
