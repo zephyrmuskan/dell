@@ -116,13 +116,20 @@ def generate_shap_importance(event_type, action, confidence):
             {"feature": "Approved Location VPN Validation", "val": -16, "type": "negative"}
         ]
 
-def generate_subagents(confidence):
+def generate_subagents(dev_type, confidence):
     """Generate Multi-Agent steps details."""
+    if dev_type == "Endpoint Device":
+        details = f"Flagged background software updates. Confidence score restricted to {confidence}%."
+    elif dev_type == "Server":
+        details = f"Flagged scheduled DB maintenance window. Confidence score restricted to {confidence}%."
+    else: # User Account
+        details = f"Flagged global corporate VPN routing. Confidence score restricted to {confidence}%."
+
     steps = [
         {"name": "Ingestion Agent", "status": "completed", "score": 100, "details": "Telemetry and SIEM log streams parsed cleanly."},
         {"name": "Threat Intel Matcher", "status": "completed", "score": 92, "details": "Compared IOC markers to 3 public malware dictionaries."},
-        {"name": "UEBA Anomaly Baseline", "status": "completed", "score": 85, "details": "Detected deviation score of 4.2 in user geolocation habits."},
-        {"name": "Devil's Advocate Falsifier", "status": "completed", "score": 30, "details": f"Flagged recent patch record and VPN gateway match. Confidence restricted to {confidence}%."}
+        {"name": "UEBA Anomaly Baseline", "status": "completed", "score": 85, "details": "Detected deviation score in user habits."},
+        {"name": "Devil's Advocate Falsifier", "status": "completed", "score": 30, "details": details}
     ]
     return steps
 
@@ -187,12 +194,27 @@ def main():
         
         alt_action = "Monitor for 24 Hours" if idx == 0 else "Schedule Patch for Off-Hours" if idx == 1 else "Send MFA Push Challenge"
         
+        if dev_type == "Endpoint Device":
+            advocate_points = [
+                "Active daemon logs indicate local security agent resolved the threat file signature internally.",
+                "High behavioral entropy may be caused by normal background compression or system indexing.",
+                "Unusual command sequence anomaly matched standard system host software update actions."
+            ]
+        elif dev_type == "Server":
+            advocate_points = [
+                "Public interface access is protected by upstream perimeter firewalls and subnet rules.",
+                f"Data ingestion confidence is moderate ({conf_pct}%), meaning transient log dropouts could skew risk metrics.",
+                "Behavioral baseline deviation matches typical weekly database maintenance routines."
+            ]
+        else: # User Account
+            advocate_points = [
+                "Active Directory authentication logs show session IP belongs to approved corporate VPN gateway ranges.",
+                "Simultaneous parallel sessions are expected for user accounts running automated cloud storage sync tools.",
+                f"Risk rating ({risk_pct}%) is elevated but user completed standard MFA challenges successfully."
+            ]
+
         devils_advocate = {
-            "points": [
-                f"PatchHistory: Recently installed windows KB{random.randint(5000000, 5099999)} matches baseline updates.",
-                "Active connection logs indicate system host outbound traffic is baseline normal.",
-                "Anomaly threshold deviation is close to typical deviation baseline."
-            ],
+            "points": advocate_points,
             "alternativeAction": alt_action
         }
         
@@ -232,7 +254,7 @@ def main():
             "devilsAdvocate": devils_advocate,
             "timeMachine": time_machine,
             "shapImportance": generate_shap_importance(threat["event_type"], action, conf_pct),
-            "subagents": generate_subagents(conf_pct),
+            "subagents": generate_subagents(dev_type, conf_pct),
             "similarCasesList": generate_similar_cases(action)
         })
 

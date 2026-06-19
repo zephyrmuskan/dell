@@ -215,13 +215,37 @@ def main():
             
         shap_factors = sorted(shap_factors, key=lambda x: x["val"], reverse=True)
 
+        vec_vals = active_features[dev_id]
+        risk = vec_vals[0]
+        conf = vec_vals[1]
+        deviation = vec_vals[2]
+        entropy = vec_vals[3]
+
+        if dev_type == "Endpoint Device":
+            advocate_points = [
+                "Active daemon logs indicate local security agent resolved the threat file signature internally.",
+                f"High behavioral entropy ({entropy}) may be caused by normal background compression or system indexing.",
+                f"Unusual command sequence anomaly matched standard system host software update actions."
+            ]
+            advocate_details = f"Flagged background software updates. Confidence score restricted to {confidence_pct}%."
+        elif dev_type == "Server":
+            advocate_points = [
+                "Public interface access is protected by upstream perimeter firewalls and subnet rules.",
+                f"Data ingestion confidence is moderate ({int(conf * 100)}%), meaning transient log dropouts could skew risk metrics.",
+                f"Baseline behavioral deviation ({deviation}) matches typical weekly database maintenance routines."
+            ]
+            advocate_details = f"Flagged scheduled DB maintenance window. Confidence score restricted to {confidence_pct}%."
+        else: # User Account
+            advocate_points = [
+                "Active Directory authentication logs show session IP belongs to approved corporate VPN gateway ranges.",
+                "Simultaneous parallel sessions are expected for user accounts running automated cloud storage sync tools.",
+                f"Risk rating ({int(risk * 100)}%) is elevated but user completed standard MFA challenges successfully."
+            ]
+            advocate_details = f"Flagged global corporate VPN routing. Confidence score restricted to {confidence_pct}%."
+
         alt_action = "Monitor for 24 Hours" if idx == 0 else "Schedule Patch for Off-Hours" if idx == 1 else "Send MFA Push Challenge"
         devils_advocate = {
-            "points": [
-                f"PatchHistory: Recently installed windows KB{random.randint(5000000, 5099999)} matches baseline updates.",
-                "Active connection logs indicate system host outbound traffic is baseline normal.",
-                "Anomaly threshold deviation is close to typical deviation baseline."
-            ],
+            "points": advocate_points,
             "alternativeAction": alt_action
         }
         
@@ -252,7 +276,7 @@ def main():
             {"name": "Ingestion Agent", "status": "completed", "score": 100, "details": "SIEM log stream parsed successfully."},
             {"name": "Threat Intel Matcher", "status": "completed", "score": 92, "details": "Mapped IOC markers against malware dictionaries."},
             {"name": "UEBA Anomaly Classifier", "status": "completed", "score": test_accuracy, "details": f"Random Forest evaluated deviation score (accuracy: {test_accuracy}%)."},
-            {"name": "Devil's Advocate Falsifier", "status": "completed", "score": 30, "details": f"Flagged patch history. Confidence score restricted to {confidence_pct}%."}
+            {"name": "Devil's Advocate Falsifier", "status": "completed", "score": 30, "details": advocate_details}
         ]
 
         # Similar cases modal list
