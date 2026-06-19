@@ -47,10 +47,10 @@ export const DecisionScreen: React.FC = () => {
 
   // Replay steps configuration
   const steps = [
-    { label: 'Threat Detected', icon: ShieldAlert, active: true, done: true },
-    { label: 'AI Analysis', icon: Cpu, active: true, done: true },
-    { label: 'Recommendation Generated', icon: BookmarkCheck, active: true, done: true },
-    { label: 'Human Decision', icon: UserCheck, active: true, done: false }
+    { label: 'Issue Found', icon: ShieldAlert, active: true, done: true },
+    { label: 'AI Checked', icon: Cpu, active: true, done: true },
+    { label: 'Suggestion Built', icon: BookmarkCheck, active: true, done: true },
+    { label: 'Human Action', icon: UserCheck, active: true, done: false }
   ];
 
   return (
@@ -71,7 +71,7 @@ export const DecisionScreen: React.FC = () => {
           <span>Back to Trust Validation</span>
         </button>
         <div>
-          <h2 className="text-xl font-black text-slate-900 m-0">Human Decision Center</h2>
+          <h2 className="text-xl font-black text-slate-900 m-0">MDM Command Center</h2>
         </div>
       </div>
 
@@ -127,7 +127,7 @@ export const DecisionScreen: React.FC = () => {
 
           {/* Choose Action */}
           <div className="space-y-4">
-            <h3 className="text-sm font-bold text-slate-800 m-0">Choose Action</h3>
+            <h3 className="text-sm font-bold text-slate-800 m-0">Select Action</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {/* Approve Card */}
               <button
@@ -143,7 +143,7 @@ export const DecisionScreen: React.FC = () => {
                 </div>
                 <div className="mt-4">
                   <p className="text-xs m-0">Approve</p>
-                  <p className="text-[9px] text-slate-400 font-medium mt-0.5">Execute Recommendation</p>
+                  <p className="text-[9px] text-slate-400 font-semibold mt-0.5">Apply suggested rule</p>
                 </div>
               </button>
 
@@ -160,8 +160,8 @@ export const DecisionScreen: React.FC = () => {
                   <X className="h-5 w-5" />
                 </div>
                 <div className="mt-4">
-                  <p className="text-xs m-0">Reject</p>
-                  <p className="text-[9px] text-slate-400 font-medium mt-0.5">Dismiss as False Positive</p>
+                  <p className="text-xs m-0">Dismiss Alert</p>
+                  <p className="text-[9px] text-slate-400 font-semibold mt-0.5">No action needed (alert matches safe behavior)</p>
                 </div>
               </button>
 
@@ -178,8 +178,8 @@ export const DecisionScreen: React.FC = () => {
                   <AlertOctagon className="h-5 w-5" />
                 </div>
                 <div className="mt-4">
-                  <p className="text-xs m-0">Escalate</p>
-                  <p className="text-[9px] text-slate-400 font-medium mt-0.5">Flag to Security Team</p>
+                  <p className="text-xs m-0">Send for Help</p>
+                  <p className="text-[9px] text-slate-400 font-semibold mt-0.5">Ask advanced security team to verify</p>
                 </div>
               </button>
 
@@ -196,8 +196,8 @@ export const DecisionScreen: React.FC = () => {
                   <HelpCircle className="h-5 w-5" />
                 </div>
                 <div className="mt-4">
-                  <p className="text-xs m-0">More Details</p>
-                  <p className="text-[9px] text-slate-400 font-medium mt-0.5">Request Deep Audit Log</p>
+                  <p className="text-xs m-0">Ask for Explanation</p>
+                  <p className="text-[9px] text-slate-400 font-semibold mt-0.5">Get plain language details</p>
                 </div>
               </button>
             </div>
@@ -206,13 +206,13 @@ export const DecisionScreen: React.FC = () => {
           {/* Override Justification Notes */}
           <div className="space-y-2">
             <div className="flex justify-between items-center">
-              <label className="text-xs font-bold text-slate-800">Override Justification Notes (Optional)</label>
-              <span className="text-[10px] font-semibold text-slate-400">Added to Audit Logs</span>
+              <label className="text-xs font-bold text-slate-800">Reason for action (Optional)</label>
+              <span className="text-[10px] font-semibold text-slate-400">Saved to fleet audit trail</span>
             </div>
             <textarea
               value={decisionNotes}
               onChange={(e) => setDecisionNotes(e.target.value)}
-              placeholder="Provide context, rationalization, or comments regarding this action..."
+              placeholder="Explain your decision for audit purposes..."
               className="w-full h-24 p-4 rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-brand-blue/50 focus:border-brand-blue text-xs font-semibold placeholder:text-slate-400 transition-all"
             />
           </div>

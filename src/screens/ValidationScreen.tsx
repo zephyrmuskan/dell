@@ -67,11 +67,26 @@ export const ValidationScreen: React.FC = () => {
     );
   };
 
+  const getFriendlyAgentName = (name: string) => {
+    const translations: Record<string, string> = {
+      "Ingestion Agent": "Information Collection",
+      "Threat Intel Matcher": "Security Database Verification",
+      "UEBA Anomaly Classifier": "Normal Behavior Analysis",
+      "Devil's Advocate Falsifier": "Alternative Explanations Check",
+      "Heuristic Inspector": "Behavior Scanner",
+      "Containment Evaluator": "Isolation Assessment",
+      "Traffic Profiler": "Data Size Analyzer",
+      "Geo Tracker": "Location Checker",
+      "Devil's Advocate": "Alternative Explanations Check"
+    };
+    return translations[name] || name;
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, x: 15 }}
       animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: -15 }}
+      exit={{ opacity: 0, y: -15 }}
       transition={{ duration: 0.35, ease: 'easeOut' }}
       className="space-y-6"
     >
@@ -82,10 +97,10 @@ export const ValidationScreen: React.FC = () => {
           className="flex items-center space-x-2 text-xs font-bold text-slate-500 hover:text-slate-900 transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
-          <span>Back to Recommendation Analysis</span>
+          <span>Back to Device Analysis</span>
         </button>
         <div>
-          <h2 className="text-xl font-black text-slate-900 m-0">AI Validation & Verification</h2>
+          <h2 className="text-xl font-black text-slate-900 m-0">Verification Checks</h2>
         </div>
       </div>
 
@@ -99,9 +114,9 @@ export const ValidationScreen: React.FC = () => {
                 <div className="p-1.5 bg-brand-blue/10 rounded-lg text-brand-blue border border-brand-blue/20">
                   <Dna className="h-4 w-4" />
                 </div>
-                <h3 className="text-sm font-bold text-slate-900 m-0">AI Trust DNA</h3>
+                <h3 className="text-sm font-bold text-slate-900 m-0">Security Score Components</h3>
               </div>
-              <span title="Trust DNA maps underlying model parameters and input data quality metrics.">
+              <span title="Displays the check ratings and quality score of our compliance scans.">
                 <HelpCircle className="h-3.5 w-3.5 text-slate-400 cursor-help" />
               </span>
             </div>
@@ -113,18 +128,18 @@ export const ValidationScreen: React.FC = () => {
 
             {/* Progress Bars */}
             <div className="space-y-3 pt-1">
-              <ProgressBar label="Data Quality" value={trustDNA.dataQuality} color="emerald" />
-              <ProgressBar label="Policy Match" value={trustDNA.policyMatch} color="emerald" />
-              <ProgressBar label="Fleet Similarity" value={trustDNA.fleetSimilarity} color="blue" />
-              <ProgressBar label="Threat Intel Match" value={trustDNA.threatIntelMatch} color="blue" />
-              <ProgressBar label="Unknown Risk Factors" value={trustDNA.unknownRisk} color="amber" />
+              <ProgressBar label="Reliability of Source Logs" value={trustDNA.dataQuality} color="emerald" />
+              <ProgressBar label="Matches Organization Rules" value={trustDNA.policyMatch} color="emerald" />
+              <ProgressBar label="Similar Behavior in Other Devices" value={trustDNA.fleetSimilarity} color="blue" />
+              <ProgressBar label="Matches Known Security Threats" value={trustDNA.threatIntelMatch} color="blue" />
+              <ProgressBar label="Unexplained Activities" value={trustDNA.unknownRisk} color="amber" />
             </div>
 
             {/* Multi-Agent Handoff Visualizer */}
             <div className="space-y-4 pt-4 border-t border-slate-100">
               <div className="flex justify-between items-center">
-                <h4 className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider m-0">Multi-Agent Handoff Visualizer</h4>
-                <span className="text-[9px] font-bold text-slate-400 bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded uppercase tracking-wider">Consensus Flow</span>
+                <h4 className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider m-0">Check Progress Steps</h4>
+                <span className="text-[9px] font-bold text-slate-400 bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded uppercase tracking-wider">Analysis Steps</span>
               </div>
               
               <div className="relative pl-0.5 space-y-5">
@@ -179,7 +194,7 @@ export const ValidationScreen: React.FC = () => {
                       <div className="ml-4 flex-1 bg-slate-50/60 hover:bg-slate-50 border border-slate-100 hover:border-slate-200/80 p-3 rounded-xl transition-all duration-300">
                         <div className="flex justify-between items-center">
                           <span className={`text-[10px] font-black tracking-tight ${isAdvocate ? 'text-brand-amber' : 'text-slate-800'}`}>
-                            {step.name}
+                            {getFriendlyAgentName(step.name)}
                           </span>
                           <span className="text-[9px] font-extrabold text-slate-400 bg-white border border-slate-200/50 px-1.5 py-0.5 rounded font-mono">
                             Conf: {step.score}%
@@ -205,15 +220,15 @@ export const ValidationScreen: React.FC = () => {
                 <div className="p-1.5 bg-brand-red/10 rounded-lg text-brand-red border border-brand-red/20">
                   <AlertTriangle className="h-4 w-4 animate-pulse-slow" />
                 </div>
-                <h3 className="text-sm font-bold text-slate-900 m-0">AI Devil's Advocate</h3>
+                <h3 className="text-sm font-bold text-slate-900 m-0">Alternative Risk Checks</h3>
               </div>
-              <span title="Falsification logs: analysis of indicators that contradict the recommendation.">
+              <span title="Checks that search for assumptions or contradictions in the initial threat report.">
                 <HelpCircle className="h-3.5 w-3.5 text-slate-400 cursor-help" />
               </span>
             </div>
 
             <div>
-              <h4 className="text-xs font-extrabold text-slate-400 uppercase tracking-wider">Why this recommendation may be wrong:</h4>
+              <h4 className="text-xs font-extrabold text-slate-400 uppercase tracking-wider">What could make this recommendation incorrect:</h4>
             </div>
 
             <ul className="space-y-3 pl-0 list-none m-0">
@@ -228,7 +243,7 @@ export const ValidationScreen: React.FC = () => {
 
           {/* Alternative Action */}
           <div className="pt-6 border-t border-slate-100 mt-6">
-            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-2">Recommended Alternative Action</p>
+            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-2">Suggested Alternative Action</p>
             <button
               onClick={() => setSelectedAltAction(!selectedAltAction)}
               className={`w-full flex items-center justify-between p-3 rounded-xl border transition-all duration-300 ${
@@ -260,9 +275,9 @@ export const ValidationScreen: React.FC = () => {
                 <div className="p-1.5 bg-brand-amber/10 rounded-lg text-brand-amber border border-brand-amber/20">
                   <History className="h-4 w-4" />
                 </div>
-                <h3 className="text-sm font-bold text-slate-900 m-0">Trust Time Machine</h3>
+                <h3 className="text-sm font-bold text-slate-900 m-0">Historical System Performance</h3>
               </div>
-              <span title="Historical accuracy and feedback stats on similar security triggers.">
+              <span title="How accurate this recommendation has been for similar compliance triggers in the past.">
                 <HelpCircle className="h-3.5 w-3.5 text-slate-400 cursor-help" />
               </span>
             </div>
@@ -274,8 +289,8 @@ export const ValidationScreen: React.FC = () => {
 
             {/* Based on... */}
             <div className="text-center">
-              <p className="text-xs font-extrabold text-slate-800 m-0">Based on {timeMachine.cases} Similar Cases</p>
-              <p className="text-[10px] text-slate-400 font-medium">Historical baseline evaluation</p>
+              <p className="text-xs font-extrabold text-slate-800 m-0">Based on {timeMachine.cases} similar cases in the past</p>
+              <p className="text-[10px] text-slate-400 font-medium">Past accuracy baseline</p>
             </div>
 
             {/* Breakdown Bars */}
@@ -283,7 +298,7 @@ export const ValidationScreen: React.FC = () => {
               <div className="flex items-center justify-between text-xs font-semibold text-slate-600">
                 <div className="flex items-center space-x-2">
                   <span className="h-2 w-2 rounded-full bg-brand-emerald" />
-                  <span>Correct Recommendations</span>
+                  <span>Correct system alerts</span>
                 </div>
                 <span className="font-extrabold text-slate-800">{timeMachine.breakdown.correct} ({Math.round(timeMachine.breakdown.correct / timeMachine.cases * 100)}%)</span>
               </div>
@@ -291,7 +306,7 @@ export const ValidationScreen: React.FC = () => {
               <div className="flex items-center justify-between text-xs font-semibold text-slate-600">
                 <div className="flex items-center space-x-2">
                   <span className="h-2 w-2 rounded-full bg-brand-red" />
-                  <span>False Positives</span>
+                  <span>Alerts with no real issues found</span>
                 </div>
                 <span className="font-extrabold text-slate-800">{timeMachine.breakdown.falsePositives} ({Math.round(timeMachine.breakdown.falsePositives / timeMachine.cases * 100)}%)</span>
               </div>
@@ -299,7 +314,7 @@ export const ValidationScreen: React.FC = () => {
               <div className="flex items-center justify-between text-xs font-semibold text-slate-600">
                 <div className="flex items-center space-x-2">
                   <span className="h-2 w-2 rounded-full bg-brand-amber" />
-                  <span>Escalated / Outlier Cases</span>
+                  <span>Unusual cases sent for human help</span>
                 </div>
                 <span className="font-extrabold text-slate-800">{timeMachine.breakdown.escalated} ({Math.round(timeMachine.breakdown.escalated / timeMachine.cases * 100)}%)</span>
               </div>
@@ -311,7 +326,7 @@ export const ValidationScreen: React.FC = () => {
                 onClick={() => setIsModalOpen(true)}
                 className="w-full flex items-center justify-center space-x-2 py-2.5 rounded-xl border border-brand-amber/30 hover:border-brand-amber bg-brand-amber/5 hover:bg-brand-amber/10 text-xs font-bold text-brand-amber transition-all duration-200 active:scale-95"
               >
-                <span>Explore Similar Cases</span>
+                <span>See similar past cases</span>
               </button>
             </div>
           </div>
@@ -324,7 +339,7 @@ export const ValidationScreen: React.FC = () => {
           onClick={() => setCurrentScreen(4)}
           className="inline-flex items-center space-x-2 px-6 py-3 rounded-xl text-sm font-extrabold text-white bg-brand-blue hover:bg-brand-blue/90 shadow-glow-blue hover:shadow-premium-xl transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0"
         >
-          <span>Proceed to Decision</span>
+          <span>Proceed to Command Center</span>
           <ArrowRight className="h-4 w-4" />
         </button>
       </div>
