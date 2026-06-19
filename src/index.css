@@ -1,0 +1,73 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  
+  --color-brand-blue: #2563EB;
+  --color-brand-emerald: #10B981;
+  --color-brand-amber: #F59E0B;
+  --color-brand-red: #EF4444;
+  --color-brand-slate-dark: #0F172A;
+  --color-brand-slate-light: #F8FAFC;
+  
+  --shadow-premium: 0 4px 20px -2px rgba(0, 0, 0, 0.05), 0 2px 8px -1px rgba(0, 0, 0, 0.03);
+  --shadow-premium-lg: 0 10px 30px -5px rgba(0, 0, 0, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.03);
+  --shadow-premium-xl: 0 20px 40px -10px rgba(0, 0, 0, 0.12), 0 8px 20px -4px rgba(0, 0, 0, 0.06);
+  --shadow-glow-blue: 0 0 15px rgba(37, 99, 235, 0.15);
+  --shadow-glow-emerald: 0 0 15px rgba(16, 185, 129, 0.15);
+}
+
+/* Base Styles */
+@layer base {
+  body {
+    @apply font-sans text-slate-800 bg-[#F1F5F9] antialiased select-none overflow-x-hidden;
+    background-image: 
+      radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.03) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.03) 0px, transparent 50%);
+  }
+
+  /* Custom Scrollbar for premium feel */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-slate-300 rounded-full transition-all duration-300;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-slate-400;
+  }
+}
+
+/* Glassmorphism helpers */
+@layer utilities {
+  .glass-panel {
+    @apply bg-white/70 backdrop-blur-md border border-white/40 shadow-premium;
+  }
+  .glass-card {
+    @apply bg-white/85 backdrop-blur-lg border border-slate-200/50 shadow-premium-lg hover:shadow-premium-xl transition-all duration-300;
+  }
+  .glass-sidebar {
+    @apply bg-[#0B0F19]/95 backdrop-blur-xl border-r border-slate-800;
+  }
+}
+
+/* Keyframe animations */
+@keyframes pulse-slow {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.01); }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+#root {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+}

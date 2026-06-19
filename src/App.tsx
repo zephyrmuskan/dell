@@ -1,0 +1,76 @@
+import React from 'react';
+import { WorkflowProvider, useWorkflow } from './context/WorkflowContext';
+import { Sidebar } from './components/Sidebar';
+import { Header } from './components/Header';
+import { DashboardScreen } from './screens/DashboardScreen';
+import { AnalysisScreen } from './screens/AnalysisScreen';
+import { ValidationScreen } from './screens/ValidationScreen';
+import { DecisionScreen } from './screens/DecisionScreen';
+import { AnimatePresence } from 'framer-motion';
+import { ShieldCheck } from 'lucide-react';
+
+const MainLayout: React.FC = () => {
+  const { currentScreen, showSuccessToast } = useWorkflow();
+
+  const renderScreen = () => {
+    switch (currentScreen) {
+      case 1:
+        return <DashboardScreen key="dashboard" />;
+      case 2:
+        return <AnalysisScreen key="analysis" />;
+      case 3:
+        return <ValidationScreen key="validation" />;
+      case 4:
+        return <DecisionScreen key="decision" />;
+      default:
+        return <DashboardScreen key="dashboard" />;
+    }
+  };
+
+  return (
+    <div className="flex h-screen w-screen overflow-hidden bg-slate-50 font-sans text-slate-800 antialiased selection:bg-brand-blue selection:text-white">
+      {/* Dark Sidebar */}
+      <Sidebar />
+
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+        {/* Top Header */}
+        <Header />
+
+        {/* Content Body Container */}
+        <main className="flex-1 overflow-y-auto px-8 py-8 relative">
+          <AnimatePresence mode="wait">
+            {renderScreen()}
+          </AnimatePresence>
+        </main>
+
+        {/* Success Toast */}
+        <AnimatePresence>
+          {showSuccessToast && (
+            <div className="fixed bottom-6 right-6 z-50 flex items-center bg-white/95 backdrop-blur-md border border-brand-emerald/40 shadow-premium-xl rounded-2xl p-4 space-x-3.5 max-w-sm animate-pulse-slow">
+              <div className="p-2 bg-brand-emerald/10 text-brand-emerald rounded-xl border border-brand-emerald/20 flex-shrink-0">
+                <ShieldCheck className="h-5 w-5" />
+              </div>
+              <div>
+                <h4 className="text-xs font-black text-slate-900 m-0">Decision Audit Submitted</h4>
+                <p className="text-[10px] text-slate-500 font-semibold mt-0.5 leading-normal">
+                  Incident quarantine protocols triggered. Central telemetry audit log updated successfully.
+                </p>
+              </div>
+            </div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+};
+
+function App() {
+  return (
+    <WorkflowProvider>
+      <MainLayout />
+    </WorkflowProvider>
+  );
+}
+
+export default App;
