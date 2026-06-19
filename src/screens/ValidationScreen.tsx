@@ -144,6 +144,25 @@ export const ValidationScreen: React.FC = () => {
                     return <Scale className="h-3.5 w-3.5" />;
                   };
 
+                  const getMDMStepDetails = (recId: string, name: string, originalDetails: string) => {
+                    const isIntune = !(recId.startsWith('DEV') || recId.startsWith('USR') || recId.startsWith('EKS'));
+                    const sourceSystem = isIntune ? 'Microsoft Intune Graph API' : 'VMware Workspace ONE UEM REST API';
+                    
+                    if (name.includes('Ingestion')) {
+                      return `Queries ${sourceSystem} for endpoint hardware compliance status, local OS event logs, and compliance policy settings.`;
+                    }
+                    if (name.includes('Intel')) {
+                      return `Correlates active processes with global CVE databases, Microsoft Security Copilot threat signals, and Workspace ONE Intelligence risk scores.`;
+                    }
+                    if (name.includes('Anomaly') || name.includes('Classifier')) {
+                      return `Evaluates behavioral deviation of host operations relative to the active compliance fleet baseline.`;
+                    }
+                    if (name.includes('Devil')) {
+                      return `Challenges assumptions by verifying active update rings, smart groups, and authorized IT administrator policy overrides.`;
+                    }
+                    return originalDetails;
+                  };
+
                   return (
                     <div key={idx} className="relative flex items-start group">
                       {/* Vertical line connection */}
@@ -166,8 +185,8 @@ export const ValidationScreen: React.FC = () => {
                             Conf: {step.score}%
                           </span>
                         </div>
-                        <p className="text-[10px] text-slate-500 font-medium leading-normal mt-1 m-0">
-                          {step.details}
+                        <p className="text-[10px] text-slate-500 font-semibold leading-normal mt-1 m-0">
+                          {getMDMStepDetails(activeRec.id, step.name, step.details)}
                         </p>
                       </div>
                     </div>

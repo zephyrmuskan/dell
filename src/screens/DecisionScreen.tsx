@@ -93,7 +93,7 @@ export const DecisionScreen: React.FC = () => {
           {/* Recommendation Review */}
           <GlassCard className="space-y-4">
             <h3 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-3 m-0">Recommendation Summary</h3>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs font-semibold">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4 text-xs font-semibold">
               <div className="bg-slate-50 p-3 rounded-xl border border-slate-200/50">
                 <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Target Recommendation</span>
                 <span className="text-slate-800 font-extrabold text-sm block mt-1">
@@ -112,6 +112,14 @@ export const DecisionScreen: React.FC = () => {
                 <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Criticality Risk</span>
                 <span className={`font-extrabold text-sm block mt-1 ${activeRec.severity === 'Critical' ? 'text-brand-red' : 'text-brand-amber'}`}>
                   {activeRec.severity}
+                </span>
+              </div>
+              <div className="bg-slate-50 p-3 rounded-xl border border-slate-200/50">
+                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">MDM Target Gateway</span>
+                <span className="text-slate-800 font-extrabold text-sm block mt-1">
+                  {!(activeRec.id.startsWith('DEV') || activeRec.id.startsWith('USR') || activeRec.id.startsWith('EKS'))
+                    ? 'Microsoft Intune'
+                    : 'Workspace ONE'}
                 </span>
               </div>
             </div>
@@ -288,6 +296,12 @@ export const DecisionScreen: React.FC = () => {
       {/* Submit footer */}
       <div className="flex flex-col md:flex-row md:justify-between items-center gap-4 pt-4 border-t border-slate-200/60">
         <div>
+          {selectedAction && (
+            <p className="text-xs font-bold text-slate-500 flex items-center m-0">
+              <span className="h-1.5 w-1.5 rounded-full bg-brand-blue mr-1.5 animate-ping" />
+              This will dispatch the command to {!(activeRec.id.startsWith('DEV') || activeRec.id.startsWith('USR') || activeRec.id.startsWith('EKS')) ? 'Microsoft Intune Graph API' : 'VMware Workspace ONE REST API'}.
+            </p>
+          )}
           {errorMsg && (
             <p className="text-xs font-bold text-brand-red flex items-center m-0">
               <span className="h-1.5 w-1.5 rounded-full bg-brand-red mr-1.5 animate-ping" />

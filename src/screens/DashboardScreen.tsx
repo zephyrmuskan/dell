@@ -23,11 +23,25 @@ export const DashboardScreen: React.FC = () => {
 
   // Aggregated card data
   const metrics = [
-    { label: 'Total Alerts', value: dashboardStats.total_alerts, color: 'text-brand-blue bg-brand-blue/5 border-brand-blue/20', icon: Shield },
-    { label: 'Critical', value: dashboardStats.critical, color: 'text-brand-red bg-brand-red/5 border-brand-red/20 animate-pulse-slow', icon: CriticalIcon },
-    { label: 'High Priority', value: dashboardStats.high, color: 'text-brand-amber bg-brand-amber/5 border-brand-amber/20', icon: AlertTriangle },
-    { label: 'Medium Priority', value: dashboardStats.medium, color: 'text-indigo-500 bg-indigo-500/5 border-indigo-500/20', icon: Info },
+    { label: 'Total Fleet Alerts', value: dashboardStats.total_alerts, color: 'text-brand-blue bg-brand-blue/5 border-brand-blue/20', icon: Shield },
+    { label: 'Critical Threats', value: dashboardStats.critical, color: 'text-brand-red bg-brand-red/5 border-brand-red/20 animate-pulse-slow', icon: CriticalIcon },
+    { label: 'High Priority Rules', value: dashboardStats.high, color: 'text-brand-amber bg-brand-amber/5 border-brand-amber/20', icon: AlertTriangle },
+    { label: 'Medium Compliance', value: dashboardStats.medium, color: 'text-indigo-500 bg-indigo-500/5 border-indigo-500/20', icon: Info },
   ];
+
+  const getGatewayBadge = (id: string) => {
+    if (id.startsWith('DEV') || id.startsWith('USR') || id.startsWith('EKS')) {
+      return {
+        style: 'bg-indigo-50 text-indigo-700 border-indigo-200/80',
+        label: 'Workspace ONE UEM'
+      };
+    } else {
+      return {
+        style: 'bg-sky-50 text-sky-700 border-sky-200/80',
+        label: 'Microsoft Intune'
+      };
+    }
+  };
 
   return (
     <motion.div
@@ -39,8 +53,8 @@ export const DashboardScreen: React.FC = () => {
     >
       {/* Title */}
       <div>
-        <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight m-0">Today's Security Overview</h2>
-        <p className="text-sm text-slate-500 font-medium">Real-time threat monitoring and AI autonomous decision suggestions.</p>
+        <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight m-0">Fleet Compliance & Security Gateway</h2>
+        <p className="text-sm text-slate-500 font-medium">Real-time threat monitoring and autonomous policy recommendations for Microsoft Intune & VMware Workspace ONE fleets.</p>
       </div>
 
       {/* Metrics Grid */}
@@ -50,7 +64,7 @@ export const DashboardScreen: React.FC = () => {
           return (
             <GlassCard 
               key={idx} 
-              className="relative overflow-hidden group hover:-translate-y-1 hover:border-slate-300 transition-all duration-300"
+              className="relative overflow-hidden group hover:-translate-y-1 hover:border-brand-blue/30 transition-all duration-300"
             >
               <div className="flex items-center justify-between">
                 <div>
@@ -71,22 +85,23 @@ export const DashboardScreen: React.FC = () => {
       <div className="space-y-4">
         <div className="flex justify-between items-center">
           <div>
-            <h3 className="text-lg font-bold text-slate-900 m-0">AI Action Recommendations</h3>
-            <p className="text-xs text-slate-500">Autonomous suggestions derived from system telemetry patterns.</p>
+            <h3 className="text-lg font-bold text-slate-900 m-0">Compliance Policy Recommendations</h3>
+            <p className="text-xs text-slate-500">Suggested remediation actions derived from MDM compliance sensor telemetry.</p>
           </div>
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-brand-blue/10 text-brand-blue border border-brand-blue/20">
             <Cpu className="h-3 w-3 mr-1" />
-            {recommendations.filter(r => r.status === 'Pending').length} Recommendations Pending Review
+            {recommendations.filter(r => r.status === 'Pending').length} Pending Actions
           </span>
         </div>
 
-        <GlassCard className="p-0 overflow-hidden border-slate-200/60 bg-white/90">
+        <GlassCard className="p-0 overflow-hidden border-slate-200 bg-white shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-200/80 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
                   <th className="px-6 py-4">Severity</th>
                   <th className="px-6 py-4">Asset Details</th>
+                  <th className="px-6 py-4">MDM Gateway</th>
                   <th className="px-6 py-4">Suggested Recommendation</th>
                   <th className="px-6 py-4">Confidence</th>
                   <th className="px-6 py-4">Data Sources</th>
@@ -116,6 +131,8 @@ export const DashboardScreen: React.FC = () => {
                     }
                   }
 
+                  const gwBadge = getGatewayBadge(rec.id);
+
                   return (
                     <tr 
                       key={rec.id}
@@ -127,6 +144,11 @@ export const DashboardScreen: React.FC = () => {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="font-bold text-slate-900">{rec.id}</div>
                         <div className="text-xs text-slate-500 font-medium">{rec.type}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold border ${gwBadge.style}`}>
+                          {gwBadge.label}
+                        </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap font-semibold text-slate-700">
                         {rec.action}

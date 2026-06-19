@@ -4,27 +4,27 @@
 @theme {
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
   
-  --color-brand-blue: #2563EB;
+  --color-brand-blue: #0078d4;
   --color-brand-emerald: #10B981;
   --color-brand-amber: #F59E0B;
   --color-brand-red: #EF4444;
   --color-brand-slate-dark: #0F172A;
   --color-brand-slate-light: #F8FAFC;
   
-  --shadow-premium: 0 4px 20px -2px rgba(0, 0, 0, 0.05), 0 2px 8px -1px rgba(0, 0, 0, 0.03);
-  --shadow-premium-lg: 0 10px 30px -5px rgba(0, 0, 0, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.03);
-  --shadow-premium-xl: 0 20px 40px -10px rgba(0, 0, 0, 0.12), 0 8px 20px -4px rgba(0, 0, 0, 0.06);
-  --shadow-glow-blue: 0 0 15px rgba(37, 99, 235, 0.15);
+  --shadow-premium: 0 4px 20px -2px rgba(0, 0, 0, 0.04), 0 2px 8px -1px rgba(0, 0, 0, 0.02);
+  --shadow-premium-lg: 0 10px 30px -5px rgba(0, 0, 0, 0.06), 0 4px 12px -2px rgba(0, 0, 0, 0.02);
+  --shadow-premium-xl: 0 20px 40px -10px rgba(0, 0, 0, 0.1), 0 8px 20px -4px rgba(0, 0, 0, 0.04);
+  --shadow-glow-blue: 0 0 15px rgba(0, 120, 212, 0.15);
   --shadow-glow-emerald: 0 0 15px rgba(16, 185, 129, 0.15);
 }
 
 /* Base Styles */
 @layer base {
   body {
-    @apply font-sans text-slate-800 bg-[#F1F5F9] antialiased select-none overflow-x-hidden;
+    @apply font-sans text-slate-800 bg-[#F4F6F9] antialiased select-none overflow-x-hidden;
     background-image: 
-      radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.03) 0px, transparent 50%),
-      radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.03) 0px, transparent 50%);
+      radial-gradient(at 0% 0%, rgba(0, 120, 212, 0.06) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(15, 98, 254, 0.04) 0px, transparent 50%);
   }
 
   /* Custom Scrollbar for premium feel */
@@ -46,13 +46,13 @@
 /* Glassmorphism helpers */
 @layer utilities {
   .glass-panel {
-    @apply bg-white/70 backdrop-blur-md border border-white/40 shadow-premium;
+    @apply bg-white/80 backdrop-blur-md border border-white/50 shadow-premium;
   }
   .glass-card {
-    @apply bg-white/85 backdrop-blur-lg border border-slate-200/50 shadow-premium-lg hover:shadow-premium-xl transition-all duration-300;
+    @apply bg-white border border-slate-200/70 shadow-premium hover:shadow-premium-lg transition-all duration-300;
   }
   .glass-sidebar {
-    @apply bg-[#0B0F19]/95 backdrop-blur-xl border-r border-slate-800;
+    @apply bg-white backdrop-blur-xl border-r border-slate-200/80 shadow-sm;
   }
 }
 

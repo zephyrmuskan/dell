@@ -69,29 +69,111 @@ export const AnalysisScreen: React.FC = () => {
       {/* Grid panels */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Section: Why this recommendation? */}
-        <div className="lg:col-span-7 flex flex-col space-y-4">
-          <div className="flex items-center space-x-2">
-            <FileText className="h-5 w-5 text-slate-500" />
-            <h3 className="text-base font-bold text-slate-800 m-0">Why this recommendation?</h3>
+        <div className="lg:col-span-7 flex flex-col space-y-6">
+          <div className="space-y-4">
+            <div className="flex items-center space-x-2">
+              <FileText className="h-5 w-5 text-slate-500" />
+              <h3 className="text-base font-bold text-slate-800 m-0">Why this recommendation?</h3>
+            </div>
+
+            <div className="space-y-3">
+              {why.map((reason, idx) => {
+                const [title, description] = reason.split(' - ');
+                return (
+                  <GlassCard key={idx} className="p-4 flex items-start space-x-3.5 bg-white/95 border-slate-200/40 hover:-translate-y-0.5">
+                    <div className="p-1 bg-brand-emerald/10 rounded-full border border-brand-emerald/30 text-brand-emerald mt-0.5">
+                      <CheckCircle2 className="h-4.5 w-4.5" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-slate-900 m-0">{title}</h4>
+                      {description && (
+                        <p className="text-xs text-slate-500 font-medium mt-0.5">{description}</p>
+                      )}
+                    </div>
+                  </GlassCard>
+                );
+              })}
+            </div>
           </div>
 
-          <div className="flex-1 space-y-3">
-            {why.map((reason, idx) => {
-              const [title, description] = reason.split(' - ');
+          {/* MDM Command Dispatch Payload */}
+          <div className="space-y-4 pt-4 border-t border-slate-200/60">
+            <div className="flex items-center space-x-2">
+              <div className="p-1 bg-brand-blue/10 rounded-lg text-brand-blue border border-brand-blue/20">
+                <FileText className="h-4.5 w-4.5" />
+              </div>
+              <h3 className="text-sm font-bold text-slate-800 m-0">MDM Gateway Action Payload</h3>
+            </div>
+
+            {(() => {
+              const isIntune = !(id.startsWith('DEV') || id.startsWith('USR') || id.startsWith('EKS'));
+              const payload = isIntune
+                ? action.toLowerCase().includes('quarantine')
+                  ? {
+                      gateway: 'Microsoft Intune',
+                      method: 'POST',
+                      url: `https://graph.microsoft.com/v1.0/deviceManagement/managedDevices('${id}')/retire`,
+                      body: { keepEnrollmentData: false, wipeDevice: false }
+                    }
+                  : action.toLowerCase().includes('patch')
+                  ? {
+                      gateway: 'Microsoft Intune',
+                      method: 'POST',
+                      url: `https://graph.microsoft.com/v1.0/deviceManagement/deviceCompliancePolicies('${id}')/assign`,
+                      body: { targetGroup: "Update-Ring-Win11-Critical", forceReboot: true }
+                    }
+                  : {
+                      gateway: 'Microsoft Intune',
+                      method: 'PATCH',
+                      url: `https://graph.microsoft.com/v1.0/identity/conditionalAccess/policies('CAP-088-ENFORCE-MFA')`,
+                      body: { state: "enabled", targetUsers: [id] }
+                    }
+                : action.toLowerCase().includes('quarantine')
+                ? {
+                    gateway: 'VMware Workspace ONE UEM',
+                    method: 'POST',
+                    url: `https://as711.awmdm.com/API/mdm/devices/${id}/commands?command=quarantine`,
+                    body: { CustomMessage: "Quarantined due to anomalous behavior telemetry." }
+                  }
+                : action.toLowerCase().includes('patch')
+                ? {
+                    gateway: 'VMware Workspace ONE UEM',
+                    method: 'POST',
+                    url: `https://as711.awmdm.com/API/mdm/smartgroups/SG-DB-SERVERS-PATCH/install`,
+                    body: { PatchId: 10482, Schedule: "Immediate" }
+                  }
+                : {
+                    gateway: 'VMware Workspace ONE Access',
+                    method: 'POST',
+                    url: `https://access.workspaceone.com/API/v1/users/${id}/mfaChallenge`,
+                    body: { triggerType: "StepUpAuthentication", provider: "DUO_MFA" }
+                  };
+
               return (
-                <GlassCard key={idx} className="p-4 flex items-start space-x-3.5 bg-white/90 border-slate-200/40 hover:-translate-y-0.5">
-                  <div className="p-1 bg-brand-emerald/10 rounded-full border border-brand-emerald/30 text-brand-emerald mt-0.5">
-                    <CheckCircle2 className="h-4.5 w-4.5" />
+                <GlassCard className="p-5 bg-slate-900 border-slate-950 text-slate-100 font-mono text-xs rounded-xl space-y-3 relative overflow-hidden select-text">
+                  <div className="absolute top-0 right-0 bg-slate-800 text-slate-400 px-3 py-1 rounded-bl-lg font-sans text-[9px] font-black uppercase tracking-wider">
+                    {payload.gateway} API Request
                   </div>
-                  <div>
-                    <h4 className="text-sm font-bold text-slate-900 m-0">{title}</h4>
-                    {description && (
-                      <p className="text-xs text-slate-500 font-medium mt-0.5">{description}</p>
-                    )}
+                  
+                  <div className="space-y-1">
+                    <span className="text-[10px] text-slate-500 font-bold block uppercase tracking-wide">Request Endpoint</span>
+                    <div className="flex items-center space-x-2 text-slate-200">
+                      <span className="font-extrabold text-sky-400 bg-sky-950/50 px-2 py-0.5 rounded border border-sky-900/60 text-[10px]">
+                        {payload.method}
+                      </span>
+                      <span className="break-all font-semibold select-all">{payload.url}</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-1 pt-2 border-t border-slate-800/80">
+                    <span className="text-[10px] text-slate-500 font-bold block uppercase tracking-wide">JSON Body Payload</span>
+                    <pre className="text-[11px] text-emerald-400 select-all p-3 bg-slate-950 rounded-lg overflow-x-auto leading-relaxed border border-slate-800/80">
+                      {JSON.stringify(payload.body, null, 2)}
+                    </pre>
                   </div>
                 </GlassCard>
               );
-            })}
+            })()}
           </div>
         </div>
 

@@ -52,9 +52,9 @@ const MainLayout: React.FC = () => {
                 <ShieldCheck className="h-5 w-5" />
               </div>
               <div>
-                <h4 className="text-xs font-black text-slate-900 m-0">Decision Audit Submitted</h4>
+                <h4 className="text-xs font-black text-slate-900 m-0">MDM Command Dispatched</h4>
                 <p className="text-[10px] text-slate-500 font-semibold mt-0.5 leading-normal">
-                  Incident quarantine protocols triggered. Central telemetry audit log updated successfully.
+                  MDM policy command dispatched successfully. Real-time configuration updates pushed to the managing tenant.
                 </p>
               </div>
             </div>
