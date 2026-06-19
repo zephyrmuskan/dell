@@ -95,25 +95,25 @@ def generate_shap_importance(event_type, action, confidence):
     """Generate SHAP values matching event type."""
     if event_type.lower() == "endpoint":
         return [
-            {"feature": "Malware Signature Match", "val": 35, "type": "positive"},
-            {"feature": "Failed Logins Spike", "val": 25, "type": "positive"},
-            {"feature": "Policy Deflection (Antivirus Disabled)", "val": 20, "type": "positive"},
-            {"feature": "Parent Process Net.exe Execution", "val": 15, "type": "positive"},
-            {"feature": "Host Firewall Active", "val": -8, "type": "negative"}
+            {"feature": "Matches Known Virus Profile", "val": 35, "type": "positive"},
+            {"feature": "Spike in Failed Password Attempts", "val": 25, "type": "positive"},
+            {"feature": "Device Antivirus Turned Off", "val": 20, "type": "positive"},
+            {"feature": "Strange Background Command Execution", "val": 15, "type": "positive"},
+            {"feature": "Local Firewalls Running", "val": -8, "type": "negative"}
         ]
     elif event_type.lower() == "cloud" or "patch" in action.lower():
         return [
-            {"feature": "Vulnerability CVE Exposure Score", "val": 38, "type": "positive"},
-            {"feature": "Exposed Port 3389 in Perimeter Scan", "val": 22, "type": "positive"},
-            {"feature": "Unsanitized API Input Detections", "val": 15, "type": "positive"},
-            {"feature": "AWS Security Group Restriction", "val": -10, "type": "negative"}
+            {"feature": "Severity of Known Software Vulnerabilities", "val": 38, "type": "positive"},
+            {"feature": "Open Network Port Flagged", "val": 22, "type": "positive"},
+            {"feature": "Unsecured Cloud API Commands", "val": 15, "type": "positive"},
+            {"feature": "Protected Cloud Network Rule Active", "val": -10, "type": "negative"}
         ]
     else:
         return [
-            {"feature": "Impossible Travel Speed Detection", "val": 32, "type": "positive"},
-            {"feature": "HR DB Restrict Access Attempt", "val": 28, "type": "positive"},
-            {"feature": "Simultaneous Active Device Sessions", "val": 20, "type": "positive"},
-            {"feature": "Approved Location VPN Validation", "val": -16, "type": "negative"}
+            {"feature": "Impossible Travel Distance Alert", "val": 32, "type": "positive"},
+            {"feature": "Attempted Access to Restricted Personnel Files", "val": 28, "type": "positive"},
+            {"feature": "Multiple Logins from Different Locations", "val": 20, "type": "positive"},
+            {"feature": "Verified Company VPN Connection", "val": -16, "type": "negative"}
         ]
 
 def generate_subagents(dev_type, confidence):
@@ -176,10 +176,10 @@ def main():
         risk_pct = int(threat["meta_risk_score"] * 100)
         
         why_list = [
-            f"Unusual threat indicator detected - MITRE Technique: {threat['mitre_technique']}",
-            f"Telemetry baseline anomaly - risk rating evaluated at {risk_pct}% risk level",
-            f"Faker-simulated process deviation - unusual behavioral signature matches description: '{threat['description']}'",
-            f"Raw payload trace - audit snippet: '{threat['raw_log'][:75]}...'"
+            f"Unusual action pattern: Threat technique identified matches standard security catalog '{threat['mitre_technique']}'",
+            f"Threat analysis: The AI classifies this action with a {risk_pct}% risk rating.",
+            f"Activity description: Behavior matches signature: '{threat['description']}'",
+            f"Verification snippet: Raw log audit snippet: '{threat['raw_log'][:75]}...'"
         ]
         
         score = int((conf_pct + (100 - risk_pct) * 0.5) / 1.5)

@@ -18,10 +18,10 @@
       ],
       "status": "Pending",
       "why": [
-        "Unusual threat indicator detected - ML Feature Value: 8.5 baseline deviation",
-        "Telemetry baseline anomaly - model predicted severity 'Critical' at 87% risk level",
-        "Faker-simulated process deviation - classification entropy calculated as 4.2",
-        "Raw log audit - verified by AI model consensus (prediction confidence: 100%)"
+        "Behavior change: System activity is 8.5 times different from the normal routine.",
+        "Threat analysis: AI classifies this action as a 'Critical' concern with 87% severity level.",
+        "Activity randomness: Log sequences indicate an unpredictability score of 4.2.",
+        "Verification check: Confirmed by automated verification agents with a 100% reliability rating."
       ],
       "nutritionLabel": {
         "evidenceStrength": 3,
@@ -31,63 +31,63 @@
           "Malware Database",
           "SIEM Event Collector"
         ],
-        "similarCases": 1800,
-        "limitations": "Telemetry profile not fully baseline calibrated.",
+        "similarCases": 516,
+        "limitations": "AI is still learning normal behavior patterns for this account or device.",
         "model": "Gemini 1.5 Pro"
       },
       "trustDNA": {
         "score": 71,
-        "dataQuality": 88,
-        "policyMatch": 97,
-        "fleetSimilarity": 83,
-        "threatIntelMatch": 84,
+        "dataQuality": 92,
+        "policyMatch": 94,
+        "fleetSimilarity": 73,
+        "threatIntelMatch": 82,
         "unknownRisk": 43
       },
       "devilsAdvocate": {
         "points": [
-          "Active daemon logs indicate local security agent resolved the threat file signature internally.",
-          "High behavioral entropy (4.2) may be caused by normal background compression or system indexing.",
-          "Unusual command sequence anomaly matched standard system host software update actions."
+          "Local antivirus reports it already handled this file block.",
+          "High activity randomness (4.2) might just be background file search or backup.",
+          "The strange order of commands matches standard system software updates."
         ],
         "alternativeAction": "Monitor for 24 Hours"
       },
       "timeMachine": {
         "accuracy": 100,
-        "cases": 150,
+        "cases": 43,
         "breakdown": {
-          "correct": 150,
-          "falsePositives": 7,
-          "escalated": -7
+          "correct": 43,
+          "falsePositives": 2,
+          "escalated": -2
         }
       },
       "shapImportance": [
         {
-          "feature": "Baseline Behavioral Deviation",
-          "val": 54,
+          "feature": "Deviation From Normal Routine",
+          "val": 55,
           "type": "positive"
         },
         {
-          "feature": "Information Entropy Density",
-          "val": 38,
+          "feature": "Activity Unpredictability Level",
+          "val": 37,
           "type": "positive"
         },
         {
-          "feature": "Telemetry Risk Score",
-          "val": 15,
+          "feature": "Overall Threat Severity Score",
+          "val": 16,
           "type": "negative"
         },
         {
-          "feature": "Data Ingestion Confidence",
+          "feature": "Data Source Reliability",
           "val": 11,
           "type": "negative"
         },
         {
-          "feature": "High-Frequency Access Pattern",
+          "feature": "Rapid Repeated Access Actions",
           "val": 10,
           "type": "negative"
         },
         {
-          "feature": "Unusual Command Sequence",
+          "feature": "Unusual Ordering of Steps",
           "val": 10,
           "type": "negative"
         }
@@ -97,47 +97,47 @@
           "name": "Ingestion Agent",
           "status": "completed",
           "score": 100,
-          "details": "SIEM log stream parsed successfully."
+          "details": "Telemetry and log data read successfully."
         },
         {
           "name": "Threat Intel Matcher",
           "status": "completed",
           "score": 92,
-          "details": "Mapped IOC markers against malware dictionaries."
+          "details": "Checked system actions against known threat catalogs."
         },
         {
           "name": "UEBA Anomaly Classifier",
           "status": "completed",
           "score": 100,
-          "details": "Random Forest evaluated deviation score (accuracy: 100%)."
+          "details": "AI engine evaluated differences from normal behavior (accuracy: 100%)."
         },
         {
           "name": "Devil's Advocate Falsifier",
           "status": "completed",
           "score": 30,
-          "details": "Flagged background software updates. Confidence score restricted to 100%."
+          "details": "Identified normal background software updates. System confidence set to 100%."
         }
       ],
       "similarCasesList": [
         {
-          "case_id": "CASE-0834",
-          "date": "2026-04-29",
+          "case_id": "CASE-0879",
+          "date": "2026-05-01",
+          "outcome": "True Positive",
+          "decision": "Approved",
+          "analyst": "Admin AD",
+          "description": "Triggered Quarantine Device under similar telemetry profile. Resolved with zero breach escalation."
+        },
+        {
+          "case_id": "CASE-0830",
+          "date": "2026-05-22",
           "outcome": "False Positive",
           "decision": "Rejected",
-          "analyst": "Analyst JT",
+          "analyst": "Operator SM",
           "description": "Triggered Quarantine Device under high baseline. Deemed false trigger."
         },
         {
-          "case_id": "CASE-0898",
-          "date": "2026-05-07",
-          "outcome": "False Positive",
-          "decision": "Rejected",
-          "analyst": "Security AI",
-          "description": "Triggered Quarantine Device under high baseline. Deemed false trigger."
-        },
-        {
-          "case_id": "CASE-0895",
-          "date": "2026-05-13",
+          "case_id": "CASE-0838",
+          "date": "2026-06-09",
           "outcome": "True Positive",
           "decision": "Approved",
           "analyst": "Analyst JT",
@@ -145,19 +145,19 @@
         },
         {
           "case_id": "CASE-0882",
-          "date": "2026-06-06",
-          "outcome": "True Positive",
-          "decision": "Approved",
-          "analyst": "Admin AD",
-          "description": "Triggered Quarantine Device under similar telemetry profile. Resolved with zero breach escalation."
+          "date": "2026-06-14",
+          "outcome": "False Positive",
+          "decision": "Rejected",
+          "analyst": "Operator SM",
+          "description": "Triggered Quarantine Device under high baseline. Deemed false trigger."
         },
         {
-          "case_id": "CASE-0874",
-          "date": "2026-05-25",
-          "outcome": "True Positive",
-          "decision": "Approved",
-          "analyst": "Analyst JT",
-          "description": "Triggered Quarantine Device under similar telemetry profile. Resolved with zero breach escalation."
+          "case_id": "CASE-0827",
+          "date": "2026-04-25",
+          "outcome": "False Positive",
+          "decision": "Rejected",
+          "analyst": "Operator SM",
+          "description": "Triggered Quarantine Device under high baseline. Deemed false trigger."
         }
       ]
     },
@@ -166,17 +166,17 @@
       "type": "Server",
       "action": "Patch Deployment",
       "severity": "High",
-      "confidence": 86,
+      "confidence": 83,
       "sources": [
         "Vulnerability DB",
         "Telemetry"
       ],
       "status": "Pending",
       "why": [
-        "Unusual threat indicator detected - ML Feature Value: 5.1 baseline deviation",
-        "Telemetry baseline anomaly - model predicted severity 'High' at 72% risk level",
-        "Faker-simulated process deviation - classification entropy calculated as 3.0",
-        "Raw log audit - verified by AI model consensus (prediction confidence: 86%)"
+        "Behavior change: System activity is 5.1 times different from the normal routine.",
+        "Threat analysis: AI classifies this action as a 'High' concern with 72% severity level.",
+        "Activity randomness: Log sequences indicate an unpredictability score of 3.0.",
+        "Verification check: Confirmed by automated verification agents with a 83% reliability rating."
       ],
       "nutritionLabel": {
         "evidenceStrength": 4,
@@ -186,63 +186,63 @@
           "Malware Database",
           "SIEM Event Collector"
         ],
-        "similarCases": 708,
-        "limitations": "Telemetry profile not fully baseline calibrated.",
+        "similarCases": 1728,
+        "limitations": "AI is still learning normal behavior patterns for this account or device.",
         "model": "Gemini 1.5 Flash"
       },
       "trustDNA": {
-        "score": 71,
-        "dataQuality": 92,
-        "policyMatch": 83,
-        "fleetSimilarity": 82,
-        "threatIntelMatch": 82,
+        "score": 70,
+        "dataQuality": 98,
+        "policyMatch": 82,
+        "fleetSimilarity": 70,
+        "threatIntelMatch": 83,
         "unknownRisk": 36
       },
       "devilsAdvocate": {
         "points": [
-          "Public interface access is protected by upstream perimeter firewalls and subnet rules.",
-          "Data ingestion confidence is moderate (65%), meaning transient log dropouts could skew risk metrics.",
-          "Baseline behavioral deviation (5.1) matches typical weekly database maintenance routines."
+          "Internet access is guarded by main network firewalls.",
+          "The data reading reliability is 65%, meaning connection lag could skew results.",
+          "The behavioral difference (5.1) matches standard weekly database maintenance."
         ],
         "alternativeAction": "Schedule Patch for Off-Hours"
       },
       "timeMachine": {
         "accuracy": 100,
-        "cases": 59,
+        "cases": 144,
         "breakdown": {
-          "correct": 59,
-          "falsePositives": 2,
-          "escalated": -2
+          "correct": 144,
+          "falsePositives": 7,
+          "escalated": -7
         }
       },
       "shapImportance": [
         {
-          "feature": "Baseline Behavioral Deviation",
-          "val": 50,
+          "feature": "Deviation From Normal Routine",
+          "val": 51,
           "type": "positive"
         },
         {
-          "feature": "Information Entropy Density",
-          "val": 40,
+          "feature": "Activity Unpredictability Level",
+          "val": 39,
           "type": "positive"
         },
         {
-          "feature": "Telemetry Risk Score",
+          "feature": "Overall Threat Severity Score",
           "val": 17,
           "type": "negative"
         },
         {
-          "feature": "Data Ingestion Confidence",
+          "feature": "Data Source Reliability",
           "val": 11,
           "type": "negative"
         },
         {
-          "feature": "High-Frequency Access Pattern",
+          "feature": "Rapid Repeated Access Actions",
           "val": 10,
           "type": "negative"
         },
         {
-          "feature": "Unusual Command Sequence",
+          "feature": "Unusual Ordering of Steps",
           "val": 10,
           "type": "negative"
         }
@@ -252,63 +252,63 @@
           "name": "Ingestion Agent",
           "status": "completed",
           "score": 100,
-          "details": "SIEM log stream parsed successfully."
+          "details": "Telemetry and log data read successfully."
         },
         {
           "name": "Threat Intel Matcher",
           "status": "completed",
           "score": 92,
-          "details": "Mapped IOC markers against malware dictionaries."
+          "details": "Checked system actions against known threat catalogs."
         },
         {
           "name": "UEBA Anomaly Classifier",
           "status": "completed",
           "score": 100,
-          "details": "Random Forest evaluated deviation score (accuracy: 100%)."
+          "details": "AI engine evaluated differences from normal behavior (accuracy: 100%)."
         },
         {
           "name": "Devil's Advocate Falsifier",
           "status": "completed",
           "score": 30,
-          "details": "Flagged scheduled DB maintenance window. Confidence score restricted to 86%."
+          "details": "Identified standard database maintenance. System confidence set to 83%."
         }
       ],
       "similarCasesList": [
         {
-          "case_id": "CASE-0846",
-          "date": "2026-05-01",
+          "case_id": "CASE-0823",
+          "date": "2026-05-08",
+          "outcome": "False Positive",
+          "decision": "Rejected",
+          "analyst": "Security AI",
+          "description": "Triggered Patch Deployment under high baseline. Deemed false trigger."
+        },
+        {
+          "case_id": "CASE-0867",
+          "date": "2026-06-11",
+          "outcome": "True Positive",
+          "decision": "Approved",
+          "analyst": "Admin AD",
+          "description": "Triggered Patch Deployment under similar telemetry profile. Resolved with zero breach escalation."
+        },
+        {
+          "case_id": "CASE-0870",
+          "date": "2026-04-28",
           "outcome": "False Positive",
           "decision": "Rejected",
           "analyst": "Operator SM",
           "description": "Triggered Patch Deployment under high baseline. Deemed false trigger."
         },
         {
-          "case_id": "CASE-0841",
-          "date": "2026-06-13",
+          "case_id": "CASE-0836",
+          "date": "2026-06-10",
           "outcome": "True Positive",
           "decision": "Approved",
-          "analyst": "Operator SM",
+          "analyst": "Admin AD",
           "description": "Triggered Patch Deployment under similar telemetry profile. Resolved with zero breach escalation."
         },
         {
-          "case_id": "CASE-0888",
-          "date": "2026-04-26",
-          "outcome": "True Positive",
-          "decision": "Approved",
-          "analyst": "Analyst JT",
-          "description": "Triggered Patch Deployment under similar telemetry profile. Resolved with zero breach escalation."
-        },
-        {
-          "case_id": "CASE-0854",
-          "date": "2026-05-19",
-          "outcome": "False Positive",
-          "decision": "Rejected",
-          "analyst": "Operator SM",
-          "description": "Triggered Patch Deployment under high baseline. Deemed false trigger."
-        },
-        {
-          "case_id": "CASE-0855",
-          "date": "2026-05-09",
+          "case_id": "CASE-0825",
+          "date": "2026-05-28",
           "outcome": "False Positive",
           "decision": "Rejected",
           "analyst": "Operator SM",
@@ -321,17 +321,17 @@
       "type": "User Account",
       "action": "Security Escalation",
       "severity": "Medium",
-      "confidence": 98,
+      "confidence": 95,
       "sources": [
         "Auth Logs",
         "Directory"
       ],
       "status": "Pending",
       "why": [
-        "Unusual threat indicator detected - ML Feature Value: 3.2 baseline deviation",
-        "Telemetry baseline anomaly - model predicted severity 'Medium' at 54% risk level",
-        "Faker-simulated process deviation - classification entropy calculated as 2.1",
-        "Raw log audit - verified by AI model consensus (prediction confidence: 98%)"
+        "Behavior change: System activity is 3.2 times different from the normal routine.",
+        "Threat analysis: AI classifies this action as a 'Medium' concern with 54% severity level.",
+        "Activity randomness: Log sequences indicate an unpredictability score of 2.1.",
+        "Verification check: Confirmed by automated verification agents with a 95% reliability rating."
       ],
       "nutritionLabel": {
         "evidenceStrength": 4,
@@ -341,63 +341,63 @@
           "Malware Database",
           "SIEM Event Collector"
         ],
-        "similarCases": 1344,
-        "limitations": "Telemetry profile not fully baseline calibrated.",
+        "similarCases": 924,
+        "limitations": "AI is still learning normal behavior patterns for this account or device.",
         "model": "Gemini 1.5 Flash"
       },
       "trustDNA": {
-        "score": 81,
-        "dataQuality": 97,
-        "policyMatch": 85,
-        "fleetSimilarity": 79,
-        "threatIntelMatch": 78,
+        "score": 80,
+        "dataQuality": 88,
+        "policyMatch": 93,
+        "fleetSimilarity": 85,
+        "threatIntelMatch": 90,
         "unknownRisk": 27
       },
       "devilsAdvocate": {
         "points": [
-          "Active Directory authentication logs show session IP belongs to approved corporate VPN gateway ranges.",
-          "Simultaneous parallel sessions are expected for user accounts running automated cloud storage sync tools.",
-          "Risk rating (54%) is elevated but user completed standard MFA challenges successfully."
+          "Login logs confirm the location matches approved company VPN ranges.",
+          "Double active sessions are normal for users running automated cloud sync tools.",
+          "Threat score is 54%, but the user passed all security login verifications (MFA)."
         ],
         "alternativeAction": "Send MFA Push Challenge"
       },
       "timeMachine": {
         "accuracy": 100,
-        "cases": 112,
+        "cases": 77,
         "breakdown": {
-          "correct": 112,
-          "falsePositives": 5,
-          "escalated": -5
+          "correct": 77,
+          "falsePositives": 3,
+          "escalated": -3
         }
       },
       "shapImportance": [
         {
-          "feature": "Baseline Behavioral Deviation",
+          "feature": "Deviation From Normal Routine",
           "val": 48,
           "type": "positive"
         },
         {
-          "feature": "Information Entropy Density",
+          "feature": "Activity Unpredictability Level",
           "val": 41,
           "type": "positive"
         },
         {
-          "feature": "Telemetry Risk Score",
+          "feature": "Overall Threat Severity Score",
           "val": 18,
           "type": "negative"
         },
         {
-          "feature": "Data Ingestion Confidence",
+          "feature": "Data Source Reliability",
           "val": 11,
           "type": "negative"
         },
         {
-          "feature": "High-Frequency Access Pattern",
+          "feature": "Rapid Repeated Access Actions",
           "val": 10,
           "type": "negative"
         },
         {
-          "feature": "Unusual Command Sequence",
+          "feature": "Unusual Ordering of Steps",
           "val": 10,
           "type": "negative"
         }
@@ -407,66 +407,66 @@
           "name": "Ingestion Agent",
           "status": "completed",
           "score": 100,
-          "details": "SIEM log stream parsed successfully."
+          "details": "Telemetry and log data read successfully."
         },
         {
           "name": "Threat Intel Matcher",
           "status": "completed",
           "score": 92,
-          "details": "Mapped IOC markers against malware dictionaries."
+          "details": "Checked system actions against known threat catalogs."
         },
         {
           "name": "UEBA Anomaly Classifier",
           "status": "completed",
           "score": 100,
-          "details": "Random Forest evaluated deviation score (accuracy: 100%)."
+          "details": "AI engine evaluated differences from normal behavior (accuracy: 100%)."
         },
         {
           "name": "Devil's Advocate Falsifier",
           "status": "completed",
           "score": 30,
-          "details": "Flagged global corporate VPN routing. Confidence score restricted to 98%."
+          "details": "Identified login from company VPN location. System confidence set to 95%."
         }
       ],
       "similarCasesList": [
         {
-          "case_id": "CASE-0861",
-          "date": "2026-05-20",
+          "case_id": "CASE-0834",
+          "date": "2026-04-21",
+          "outcome": "False Positive",
+          "decision": "Rejected",
+          "analyst": "Admin AD",
+          "description": "Triggered Security Escalation under high baseline. Deemed false trigger."
+        },
+        {
+          "case_id": "CASE-0860",
+          "date": "2026-05-24",
+          "outcome": "False Positive",
+          "decision": "Rejected",
+          "analyst": "Operator SM",
+          "description": "Triggered Security Escalation under high baseline. Deemed false trigger."
+        },
+        {
+          "case_id": "CASE-0842",
+          "date": "2026-04-30",
+          "outcome": "False Positive",
+          "decision": "Rejected",
+          "analyst": "Admin AD",
+          "description": "Triggered Security Escalation under high baseline. Deemed false trigger."
+        },
+        {
+          "case_id": "CASE-0897",
+          "date": "2026-05-25",
           "outcome": "False Positive",
           "decision": "Rejected",
           "analyst": "Security AI",
           "description": "Triggered Security Escalation under high baseline. Deemed false trigger."
         },
         {
-          "case_id": "CASE-0850",
-          "date": "2026-05-06",
+          "case_id": "CASE-0832",
+          "date": "2026-05-15",
           "outcome": "True Positive",
           "decision": "Approved",
-          "analyst": "Analyst JT",
-          "description": "Triggered Security Escalation under similar telemetry profile. Resolved with zero breach escalation."
-        },
-        {
-          "case_id": "CASE-0867",
-          "date": "2026-05-26",
-          "outcome": "False Positive",
-          "decision": "Rejected",
-          "analyst": "Analyst JT",
-          "description": "Triggered Security Escalation under high baseline. Deemed false trigger."
-        },
-        {
-          "case_id": "CASE-0850",
-          "date": "2026-06-05",
-          "outcome": "False Positive",
-          "decision": "Rejected",
-          "analyst": "Security AI",
-          "description": "Triggered Security Escalation under high baseline. Deemed false trigger."
-        },
-        {
-          "case_id": "CASE-0843",
-          "date": "2026-05-14",
-          "outcome": "True Positive",
-          "decision": "Approved",
-          "analyst": "Analyst JT",
+          "analyst": "Admin AD",
           "description": "Triggered Security Escalation under similar telemetry profile. Resolved with zero breach escalation."
         }
       ]
@@ -485,10 +485,10 @@
       ],
       "status": "Pending",
       "why": [
-        "Mass file renaming detected - Entropy calculated as 4.8",
-        "Shadow copy deletion attempted - Command 'vssadmin.exe delete shadows' blocked",
-        "Unsigned binary Execution - Binary 'decryptor.exe' executed in Temp folder",
-        "Raw log trail: File isolate recommendation generated for DEV-8890"
+        "Mass file renaming: Unusually high speed file modifications detected.",
+        "Attempted backup deletion: Command to delete backup copies was blocked.",
+        "Unknown program started: Unidentified application run from temporary folder.",
+        "Verification trace: Auto-isolation checklist triggered for DEV-8890"
       ],
       "nutritionLabel": {
         "evidenceStrength": 5,
@@ -498,7 +498,7 @@
           "CrowdStrike Feed"
         ],
         "similarCases": 142,
-        "limitations": "Endpoint offline state inhibits complete memory dump",
+        "limitations": "Device is currently offline, preventing full diagnostic logs.",
         "model": "Gemini 1.5 Pro"
       },
       "trustDNA": {
@@ -527,22 +527,22 @@
       },
       "shapImportance": [
         {
-          "feature": "Entropy Variance",
+          "feature": "File Write Frequency",
           "val": 45,
           "type": "positive"
         },
         {
-          "feature": "Unusual Command Sequence",
+          "feature": "Unusual Ordering of Steps",
           "val": 30,
           "type": "positive"
         },
         {
-          "feature": "Telemetry Risk Score",
+          "feature": "Overall Threat Severity Score",
           "val": 20,
           "type": "positive"
         },
         {
-          "feature": "Baseline Behavioral Deviation",
+          "feature": "Deviation From Normal Routine",
           "val": -5,
           "type": "negative"
         }
@@ -552,25 +552,25 @@
           "name": "Ingestion Agent",
           "status": "completed",
           "score": 100,
-          "details": "Parsed DEV-8890 host process logs"
+          "details": "Telemetry and log data read successfully."
         },
         {
           "name": "Heuristic Inspector",
           "status": "completed",
           "score": 98,
-          "details": "Flagged high file system entropy anomaly"
+          "details": "Flagged unusually high speed file modifications."
         },
         {
           "name": "Containment Evaluator",
           "status": "completed",
           "score": 95,
-          "details": "Determined containment score meets auto-isolation rules"
+          "details": "AI verified threat matches rule set for automatic protection."
         },
         {
           "name": "Devil's Advocate",
           "status": "completed",
           "score": 10,
-          "details": "No baseline software matches decrypter signatures."
+          "details": "AI agent verified signature does not match normal tools."
         }
       ],
       "similarCasesList": [
@@ -604,10 +604,10 @@
       ],
       "status": "Pending",
       "why": [
-        "Bulk DB dump transfer - 4.5 GB of outbound traffic to unauthorized server",
-        "Unusual database query execution - SELECT * executed on customer catalog database",
-        "Connection over port 443 - outbound SSH tunneling bypass detection",
-        "Raw log trail: NetFlow outbound spike detected from SQL-Host SRV-1022"
+        "Large data transfer: 4.5 GB of database records sent to unapproved external server.",
+        "Suspicious database search: Accessing list of all records in customer catalogs.",
+        "Encrypted network bypass: Attempted network connection over port 443.",
+        "Verification trace: Network traffic spike tracked from SQL-Host SRV-1022"
       ],
       "nutritionLabel": {
         "evidenceStrength": 4,
@@ -617,7 +617,7 @@
           "IP Reputation DB"
         ],
         "similarCases": 88,
-        "limitations": "SSL encryption hides actual data payload stream",
+        "limitations": "Encrypted connection prevents verification of exact data payload.",
         "model": "Gemini 1.5 Flash"
       },
       "trustDNA": {
@@ -646,22 +646,22 @@
       },
       "shapImportance": [
         {
-          "feature": "Telemetry Risk Score",
+          "feature": "Overall Threat Severity Score",
           "val": 50,
           "type": "positive"
         },
         {
-          "feature": "Unusual Command Sequence",
+          "feature": "Unusual Ordering of Steps",
           "val": 25,
           "type": "positive"
         },
         {
-          "feature": "Information Entropy Density",
+          "feature": "Activity Unpredictability Level",
           "val": 15,
           "type": "positive"
         },
         {
-          "feature": "Baseline Behavioral Deviation",
+          "feature": "Deviation From Normal Routine",
           "val": -20,
           "type": "negative"
         }
@@ -671,25 +671,25 @@
           "name": "Ingestion Agent",
           "status": "completed",
           "score": 100,
-          "details": "Parsed router NetFlow records"
+          "details": "Telemetry and log data read successfully."
         },
         {
           "name": "Traffic Profiler",
           "status": "completed",
           "score": 90,
-          "details": "Identified anomalous payload volume"
+          "details": "Flagged unusually large transfer payload volume."
         },
         {
           "name": "Geo Tracker",
           "status": "completed",
           "score": 85,
-          "details": "Destination IP resolved to unapproved country"
+          "details": "Target server location resolved to unapproved country."
         },
         {
           "name": "Devil's Advocate",
           "status": "completed",
           "score": 35,
-          "details": "Outbound matches cloud migration endpoints."
+          "details": "Transfer matches standard cloud replication addresses."
         }
       ],
       "similarCasesList": [
@@ -698,7 +698,7 @@
           "date": "2026-05-18",
           "outcome": "True Positive",
           "decision": "Approved",
-          "analyst": "Analyst JT",
+          "analyst": "Admin AD",
           "description": "SSH tunneling threat neutralized"
         },
         {
@@ -714,52 +714,52 @@
   },
   "activity_logs": [
     {
-      "time": "15:15 PM",
+      "time": "15:38 PM",
       "event": "Faker System Telemetry: Memory footprint spikes on node DEV1248",
       "type": "system"
     },
     {
-      "time": "15:17 PM",
+      "time": "15:40 PM",
       "event": "Faker Security Probe: Scanning detected on port 80/443 of SRV-0451",
       "type": "system"
     },
     {
-      "time": "15:19 PM",
+      "time": "15:42 PM",
       "event": "Faker System Audit: Active directory password failure threshold reached for USR-7782",
       "type": "system"
     },
     {
-      "time": "15:21 PM",
+      "time": "15:44 PM",
       "event": "SIEM Collector: Received event type auth for target USR-7782-Session",
       "type": "system"
     },
     {
-      "time": "15:23 PM",
+      "time": "15:46 PM",
       "event": "SIEM Collector: Endpoint anomaly log compiled for host DEV1248",
       "type": "system"
     },
     {
-      "time": "15:25 PM",
+      "time": "15:48 PM",
       "event": "TrustLens AI: Spawning threat-classification agent sequence",
       "type": "ai"
     },
     {
-      "time": "15:27 PM",
+      "time": "15:50 PM",
       "event": "Random Forest Agent: Processing model weights (X_test split evaluation completed)",
       "type": "ai"
     },
     {
-      "time": "15:29 PM",
+      "time": "15:52 PM",
       "event": "Random Forest Agent: Model test accuracy evaluated at 100% accuracy rating",
       "type": "ai"
     },
     {
-      "time": "15:31 PM",
+      "time": "15:54 PM",
       "event": "TrustLens AI: Threat features matched and isolated",
       "type": "ai"
     },
     {
-      "time": "15:33 PM",
+      "time": "15:56 PM",
       "event": "Operator Alert: SOC recommendations table updated. Pending human audit.",
       "type": "system"
     }

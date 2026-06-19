@@ -128,12 +128,12 @@ def main():
     
     # Define mapping to friendly display names for the SHAP graph
     display_names = {
-        'meta_risk_score': 'Telemetry Risk Score',
-        'meta_confidence': 'Data Ingestion Confidence',
-        'behav_baseline_deviation': 'Baseline Behavioral Deviation',
-        'behav_entropy': 'Information Entropy Density',
-        'behav_frequency_anomaly': 'High-Frequency Access Pattern',
-        'behav_sequence_anomaly': 'Unusual Command Sequence'
+        'meta_risk_score': 'Overall Threat Severity Score',
+        'meta_confidence': 'Data Source Reliability',
+        'behav_baseline_deviation': 'Deviation From Normal Routine',
+        'behav_entropy': 'Activity Unpredictability Level',
+        'behav_frequency_anomaly': 'Rapid Repeated Access Actions',
+        'behav_sequence_anomaly': 'Unusual Ordering of Steps'
     }
 
     # 7. Model Inference on 3 Active Recommendations
@@ -176,10 +176,10 @@ def main():
         risk_pct = int(active_features[dev_id][0] * 100)
         
         why_list = [
-            f"Unusual threat indicator detected - ML Feature Value: {active_features[dev_id][2]} baseline deviation",
-            f"Telemetry baseline anomaly - model predicted severity '{severity}' at {risk_pct}% risk level",
-            f"Faker-simulated process deviation - classification entropy calculated as {active_features[dev_id][3]}",
-            f"Raw log audit - verified by AI model consensus (prediction confidence: {confidence_pct}%)"
+            f"Behavior change: System activity is {active_features[dev_id][2]} times different from the normal routine.",
+            f"Threat analysis: AI classifies this action as a '{severity}' concern with {risk_pct}% severity level.",
+            f"Activity randomness: Log sequences indicate an unpredictability score of {active_features[dev_id][3]}.",
+            f"Verification check: Confirmed by automated verification agents with a {confidence_pct}% reliability rating."
         ]
         
         # Calculate Trust DNA score using test accuracy and risk
@@ -223,25 +223,25 @@ def main():
 
         if dev_type == "Endpoint Device":
             advocate_points = [
-                "Active daemon logs indicate local security agent resolved the threat file signature internally.",
-                f"High behavioral entropy ({entropy}) may be caused by normal background compression or system indexing.",
-                f"Unusual command sequence anomaly matched standard system host software update actions."
+                "Local antivirus reports it already handled this file block.",
+                f"High activity randomness ({entropy}) might just be background file search or backup.",
+                "The strange order of commands matches standard system software updates."
             ]
-            advocate_details = f"Flagged background software updates. Confidence score restricted to {confidence_pct}%."
+            advocate_details = f"Identified normal background software updates. System confidence set to {confidence_pct}%."
         elif dev_type == "Server":
             advocate_points = [
-                "Public interface access is protected by upstream perimeter firewalls and subnet rules.",
-                f"Data ingestion confidence is moderate ({int(conf * 100)}%), meaning transient log dropouts could skew risk metrics.",
-                f"Baseline behavioral deviation ({deviation}) matches typical weekly database maintenance routines."
+                "Internet access is guarded by main network firewalls.",
+                f"The data reading reliability is {int(conf * 100)}%, meaning connection lag could skew results.",
+                f"The behavioral difference ({deviation}) matches standard weekly database maintenance."
             ]
-            advocate_details = f"Flagged scheduled DB maintenance window. Confidence score restricted to {confidence_pct}%."
+            advocate_details = f"Identified standard database maintenance. System confidence set to {confidence_pct}%."
         else: # User Account
             advocate_points = [
-                "Active Directory authentication logs show session IP belongs to approved corporate VPN gateway ranges.",
-                "Simultaneous parallel sessions are expected for user accounts running automated cloud storage sync tools.",
-                f"Risk rating ({int(risk * 100)}%) is elevated but user completed standard MFA challenges successfully."
+                "Login logs confirm the location matches approved company VPN ranges.",
+                "Double active sessions are normal for users running automated cloud sync tools.",
+                f"Threat score is {int(risk * 100)}%, but the user passed all security login verifications (MFA)."
             ]
-            advocate_details = f"Flagged global corporate VPN routing. Confidence score restricted to {confidence_pct}%."
+            advocate_details = f"Identified login from company VPN location. System confidence set to {confidence_pct}%."
 
         alt_action = "Monitor for 24 Hours" if idx == 0 else "Schedule Patch for Off-Hours" if idx == 1 else "Send MFA Push Challenge"
         devils_advocate = {
@@ -267,15 +267,15 @@ def main():
             "evidenceStrength": random.choice([3, 4]),
             "sources": sources + ["Malware Database", "SIEM Event Collector"],
             "similarCases": cases * 12,
-            "limitations": "Telemetry profile not fully baseline calibrated.",
+            "limitations": "AI is still learning normal behavior patterns for this account or device.",
             "model": "Gemini 1.5 Pro" if idx == 0 else "Gemini 1.5 Flash"
         }
 
         # Multi-Agent steps
         subagents = [
-            {"name": "Ingestion Agent", "status": "completed", "score": 100, "details": "SIEM log stream parsed successfully."},
-            {"name": "Threat Intel Matcher", "status": "completed", "score": 92, "details": "Mapped IOC markers against malware dictionaries."},
-            {"name": "UEBA Anomaly Classifier", "status": "completed", "score": test_accuracy, "details": f"Random Forest evaluated deviation score (accuracy: {test_accuracy}%)."},
+            {"name": "Ingestion Agent", "status": "completed", "score": 100, "details": "Telemetry and log data read successfully."},
+            {"name": "Threat Intel Matcher", "status": "completed", "score": 92, "details": "Checked system actions against known threat catalogs."},
+            {"name": "UEBA Anomaly Classifier", "status": "completed", "score": test_accuracy, "details": f"AI engine evaluated differences from normal behavior (accuracy: {test_accuracy}%)."},
             {"name": "Devil's Advocate Falsifier", "status": "completed", "score": 30, "details": advocate_details}
         ]
 
@@ -324,16 +324,16 @@ def main():
             "sources": ["Process Watcher", "Security Logs"],
             "status": "Pending",
             "why": [
-                "Mass file renaming detected - Entropy calculated as 4.8",
-                "Shadow copy deletion attempted - Command 'vssadmin.exe delete shadows' blocked",
-                "Unsigned binary Execution - Binary 'decryptor.exe' executed in Temp folder",
-                "Raw log trail: File isolate recommendation generated for DEV-8890"
+                "Mass file renaming: Unusually high speed file modifications detected.",
+                "Attempted backup deletion: Command to delete backup copies was blocked.",
+                "Unknown program started: Unidentified application run from temporary folder.",
+                "Verification trace: Auto-isolation checklist triggered for DEV-8890"
             ],
             "nutritionLabel": {
                 "evidenceStrength": 5,
                 "sources": ["Process Watcher", "File Monitor", "CrowdStrike Feed"],
                 "similarCases": 142,
-                "limitations": "Endpoint offline state inhibits complete memory dump",
+                "limitations": "Device is currently offline, preventing full diagnostic logs.",
                 "model": "Gemini 1.5 Pro"
             },
             "trustDNA": {
@@ -357,16 +357,16 @@ def main():
                 "breakdown": {"correct": 38, "falsePositives": 1, "escalated": 1}
             },
             "shapImportance": [
-                {"feature": "Entropy Variance", "val": 45, "type": "positive"},
-                {"feature": "Unusual Command Sequence", "val": 30, "type": "positive"},
-                {"feature": "Telemetry Risk Score", "val": 20, "type": "positive"},
-                {"feature": "Baseline Behavioral Deviation", "val": -5, "type": "negative"}
+                {"feature": "File Write Frequency", "val": 45, "type": "positive"},
+                {"feature": "Unusual Ordering of Steps", "val": 30, "type": "positive"},
+                {"feature": "Overall Threat Severity Score", "val": 20, "type": "positive"},
+                {"feature": "Deviation From Normal Routine", "val": -5, "type": "negative"}
               ],
               "subagents": [
-                {"name": "Ingestion Agent", "status": "completed", "score": 100, "details": "Parsed DEV-8890 host process logs"},
-                {"name": "Heuristic Inspector", "status": "completed", "score": 98, "details": "Flagged high file system entropy anomaly"},
-                {"name": "Containment Evaluator", "status": "completed", "score": 95, "details": "Determined containment score meets auto-isolation rules"},
-                {"name": "Devil's Advocate", "status": "completed", "score": 10, "details": "No baseline software matches decrypter signatures."}
+                {"name": "Ingestion Agent", "status": "completed", "score": 100, "details": "Telemetry and log data read successfully."},
+                {"name": "Heuristic Inspector", "status": "completed", "score": 98, "details": "Flagged unusually high speed file modifications."},
+                {"name": "Containment Evaluator", "status": "completed", "score": 95, "details": "AI verified threat matches rule set for automatic protection."},
+                {"name": "Devil's Advocate", "status": "completed", "score": 10, "details": "AI agent verified signature does not match normal tools."}
               ],
               "similarCasesList": [
                 {"case_id": "CASE-112", "date": "2026-06-01", "outcome": "True Positive", "decision": "Approved", "analyst": "Admin AD", "description": "Locky variants quarantined on SRV-901"},
@@ -382,16 +382,16 @@ def main():
             "sources": ["NetFlow", "Firewall Logs"],
             "status": "Pending",
             "why": [
-                "Bulk DB dump transfer - 4.5 GB of outbound traffic to unauthorized server",
-                "Unusual database query execution - SELECT * executed on customer catalog database",
-                "Connection over port 443 - outbound SSH tunneling bypass detection",
-                "Raw log trail: NetFlow outbound spike detected from SQL-Host SRV-1022"
+                "Large data transfer: 4.5 GB of database records sent to unapproved external server.",
+                "Suspicious database search: Accessing list of all records in customer catalogs.",
+                "Encrypted network bypass: Attempted network connection over port 443.",
+                "Verification trace: Network traffic spike tracked from SQL-Host SRV-1022"
             ],
             "nutritionLabel": {
                 "evidenceStrength": 4,
                 "sources": ["NetFlow Database", "SQL Profiler", "IP Reputation DB"],
                 "similarCases": 88,
-                "limitations": "SSL encryption hides actual data payload stream",
+                "limitations": "Encrypted connection prevents verification of exact data payload.",
                 "model": "Gemini 1.5 Flash"
             },
             "trustDNA": {
@@ -415,19 +415,19 @@ def main():
                 "breakdown": {"correct": 22, "falsePositives": 2, "escalated": 1}
             },
             "shapImportance": [
-                {"feature": "Telemetry Risk Score", "val": 50, "type": "positive"},
-                {"feature": "Unusual Command Sequence", "val": 25, "type": "positive"},
-                {"feature": "Information Entropy Density", "val": 15, "type": "positive"},
-                {"feature": "Baseline Behavioral Deviation", "val": -20, "type": "negative"}
+                {"feature": "Overall Threat Severity Score", "val": 50, "type": "positive"},
+                {"feature": "Unusual Ordering of Steps", "val": 25, "type": "positive"},
+                {"feature": "Activity Unpredictability Level", "val": 15, "type": "positive"},
+                {"feature": "Deviation From Normal Routine", "val": -20, "type": "negative"}
             ],
             "subagents": [
-                {"name": "Ingestion Agent", "status": "completed", "score": 100, "details": "Parsed router NetFlow records"},
-                {"name": "Traffic Profiler", "status": "completed", "score": 90, "details": "Identified anomalous payload volume"},
-                {"name": "Geo Tracker", "status": "completed", "score": 85, "details": "Destination IP resolved to unapproved country"},
-                {"name": "Devil's Advocate", "status": "completed", "score": 35, "details": "Outbound matches cloud migration endpoints."}
+                {"name": "Ingestion Agent", "status": "completed", "score": 100, "details": "Telemetry and log data read successfully."},
+                {"name": "Traffic Profiler", "status": "completed", "score": 90, "details": "Flagged unusually large transfer payload volume."},
+                {"name": "Geo Tracker", "status": "completed", "score": 85, "details": "Target server location resolved to unapproved country."},
+                {"name": "Devil's Advocate", "status": "completed", "score": 35, "details": "Transfer matches standard cloud replication addresses."}
             ],
             "similarCasesList": [
-                {"case_id": "CASE-301", "date": "2026-05-18", "outcome": "True Positive", "decision": "Approved", "analyst": "Analyst JT", "description": "SSH tunneling threat neutralized"},
+                {"case_id": "CASE-301", "date": "2026-05-18", "outcome": "True Positive", "decision": "Approved", "analyst": "Admin AD", "description": "SSH tunneling threat neutralized"},
                 {"case_id": "CASE-302", "date": "2026-05-20", "outcome": "False Positive", "decision": "Rejected", "analyst": "Operator SM", "description": "Weekly dev backup triggered alert due to config"}
             ]
         }
