@@ -4,7 +4,6 @@ import random
 from datetime import datetime, timedelta
 from faker import Faker
 
-# Try to import datasets
 try:
     from datasets import load_dataset
     HAS_DATASETS = True
@@ -13,7 +12,7 @@ except Exception:
 
 fake = Faker()
 
-# Define fallsbacks if HF download fails
+# Define fallbacks if HF download fails
 FALLBACK_THREATS = [
     {
         "event_id": "evt-77823-x",
@@ -44,8 +43,8 @@ FALLBACK_THREATS = [
     {
         "event_id": "evt-12489-y",
         "event_type": "auth",
-        "meta_risk_score": 0.64,
-        "meta_confidence": 0.60,
+        "meta_risk_score": 0.50,
+        "meta_confidence": 0.85,
         "severity": "Medium",
         "description": "Impossible travel login detected: Simultaneous session in US and UK",
         "raw_log": "AuthLog: user=USR-7782 status=SUCCESS location_1='Chicago, US' location_2='London, UK'",
@@ -59,31 +58,20 @@ FALLBACK_THREATS = [
 def load_siem_dataset():
     """Load darkknight25/Advanced_SIEM_Dataset or fallback to generated SIEM records."""
     if not HAS_DATASETS:
-        print("[!] HF datasets library not available. Using synthetic schema data.")
         return FALLBACK_THREATS
 
     print("[*] Attempting to download darkknight25/Advanced_SIEM_Dataset from Hugging Face...")
     try:
-        # Load train split of the dataset
         ds = load_dataset("darkknight25/Advanced_SIEM_Dataset", split="train")
         df = ds.to_pandas()
-        
-        # Flattened dataset processing
-        print(f"[+] Successfully loaded dataset. Total records: {len(df)}")
-        
-        # Sample interesting records matching our requirements
         processed_threats = []
         
-        # Look for Critical, High, Medium severity threats across categories
         for s_level in ["Critical", "High", "Medium"]:
             sub_df = df[df["severity"].str.lower() == s_level.lower()] if "severity" in df.columns else df
             if len(sub_df) == 0:
                 sub_df = df
             
-            # Select 1 record
             sample_row = sub_df.sample(n=1).iloc[0]
-            
-            # Build threat record mapping
             processed_threats.append({
                 "event_id": str(sample_row.get("event_id", fake.uuid4())),
                 "event_type": str(sample_row.get("event_type", "endpoint")),
@@ -99,42 +87,67 @@ def load_siem_dataset():
             })
             
         return processed_threats
-
     except Exception as e:
-        print(f"[!] Could not download or process Hugging Face dataset ({e}).")
-        print("[!] Falling back to local high-fidelity SIEM mock schema...")
+        print(f"[!] Falling back to local SIEM mock schema: {e}")
         return FALLBACK_THREATS
 
-def generate_faker_telemetry(device_id):
-    """Generate Faker simulated telemetry logs for device."""
-    telemetry = []
-    # 5 random background system events
-    for _ in range(5):
-        event_time = (datetime.now() - timedelta(minutes=random.randint(10, 60))).strftime("%H:%M:%S")
-        ip = fake.ipv4_private()
-        processes = ["chrome.exe", "svchost.exe", "powershell.exe", "msmpeng.exe", "explorer.exe"]
-        telemetry.append(f"Telemetry [{event_time}]: host={device_id} proc={random.choice(processes)} conn={ip} status=ACTIVE cpu={random.randint(1, 12)}% mem={random.randint(10, 70)}%")
-    return telemetry
+def generate_shap_importance(event_type, action, confidence):
+    """Generate SHAP values matching event type."""
+    if event_type.lower() == "endpoint":
+        return [
+            {"feature": "Malware Signature Match", "val": 35, "type": "positive"},
+            {"feature": "Failed Logins Spike", "val": 25, "type": "positive"},
+            {"feature": "Policy Deflection (Antivirus Disabled)", "val": 20, "type": "positive"},
+            {"feature": "Parent Process Net.exe Execution", "val": 15, "type": "positive"},
+            {"feature": "Host Firewall Active", "val": -8, "type": "negative"}
+        ]
+    elif event_type.lower() == "cloud" or "patch" in action.lower():
+        return [
+            {"feature": "Vulnerability CVE Exposure Score", "val": 38, "type": "positive"},
+            {"feature": "Exposed Port 3389 in Perimeter Scan", "val": 22, "type": "positive"},
+            {"feature": "Unsanitized API Input Detections", "val": 15, "type": "positive"},
+            {"feature": "AWS Security Group Restriction", "val": -10, "type": "negative"}
+        ]
+    else:
+        return [
+            {"feature": "Impossible Travel Speed Detection", "val": 32, "type": "positive"},
+            {"feature": "HR DB Restrict Access Attempt", "val": 28, "type": "positive"},
+            {"feature": "Simultaneous Active Device Sessions", "val": 20, "type": "positive"},
+            {"feature": "Approved Location VPN Validation", "val": -16, "type": "negative"}
+        ]
 
-def generate_faker_patch_events(device_id):
-    """Generate patch events using Faker."""
-    patches = []
-    for _ in range(2):
-        event_time = (datetime.now() - timedelta(days=random.randint(1, 6))).strftime("%Y-%m-%d %H:%M:%S")
-        patch_id = f"KB{random.randint(5000000, 5099999)}"
-        patches.append(f"PatchHistory [{event_time}]: host={device_id} patch={patch_id} status=INSTALLED result=SUCCESS")
-    return patches
+def generate_subagents(confidence):
+    """Generate Multi-Agent steps details."""
+    steps = [
+        {"name": "Ingestion Agent", "status": "completed", "score": 100, "details": "Telemetry and SIEM log streams parsed cleanly."},
+        {"name": "Threat Intel Matcher", "status": "completed", "score": 92, "details": "Compared IOC markers to 3 public malware dictionaries."},
+        {"name": "UEBA Anomaly Baseline", "status": "completed", "score": 85, "details": "Detected deviation score of 4.2 in user geolocation habits."},
+        {"name": "Devil's Advocate Falsifier", "status": "completed", "score": 30, "details": f"Flagged recent patch record and VPN gateway match. Confidence restricted to {confidence}%."}
+    ]
+    return steps
+
+def generate_similar_cases(action):
+    """Generate similarity table records."""
+    outcomes = ["True Positive", "False Positive"]
+    analysts = ["Admin AD", "Operator SM", "Security AI", "Analyst JT"]
+    cases = []
+    
+    for i in range(5):
+        past_date = (datetime.now() - timedelta(days=random.randint(5, 60))).strftime("%Y-%m-%d")
+        outcome = random.choice(outcomes)
+        cases.append({
+            "case_id": f"CASE-08{random.randint(10, 99)}",
+            "date": past_date,
+            "outcome": outcome,
+            "decision": "Approved" if outcome == "True Positive" else "Rejected",
+            "analyst": random.choice(analysts),
+            "description": f"Triggered {action} under similar telemetry profile. Resolved with zero breach escalation." if outcome == "True Positive" else f"Triggered {action} under high baseline. Deemed false trigger caused by script."
+        })
+    return cases
 
 def main():
-    # Load dataset
     threat_records = load_siem_dataset()
     
-    # We want exactly 3 main recommendations matching our 3 dashboard devices:
-    # 1. DEV1248 (Quarantine Device - Critical)
-    # 2. SRV-0451 (Patch Deployment - High)
-    # 3. USR-7782 (Security Escalation - Medium)
-    
-    target_recommendations = []
     ids = ["DEV1248", "SRV-0451", "USR-7782"]
     types = ["Endpoint Device", "Server", "User Account"]
     actions = ["Quarantine Device", "Patch Deployment", "Security Escalation"]
@@ -144,18 +157,17 @@ def main():
         ["Auth Logs", "Directory"]
     ]
     
+    recommendations = []
+    
     for idx, threat in enumerate(threat_records):
-        # Override metadata to fit our 3 screens flow
         dev_id = ids[idx]
         dev_type = types[idx]
         action = actions[idx]
         sources = sources_list[idx]
         
-        # Calculate scores
         conf_pct = int(threat["meta_confidence"] * 100)
         risk_pct = int(threat["meta_risk_score"] * 100)
         
-        # Synthesize explainable AI reasoning checklist
         why_list = [
             f"Unusual threat indicator detected - MITRE Technique: {threat['mitre_technique']}",
             f"Telemetry baseline anomaly - risk rating evaluated at {risk_pct}% risk level",
@@ -163,7 +175,6 @@ def main():
             f"Raw payload trace - audit snippet: '{threat['raw_log'][:75]}...'"
         ]
         
-        # Synthesize trust DNA parameters based on risk and confidence
         score = int((conf_pct + (100 - risk_pct) * 0.5) / 1.5)
         trust_dna = {
             "score": score,
@@ -174,19 +185,17 @@ def main():
             "unknownRisk": risk_pct // 2
         }
         
-        # Alternative action
         alt_action = "Monitor for 24 Hours" if idx == 0 else "Schedule Patch for Off-Hours" if idx == 1 else "Send MFA Push Challenge"
         
         devils_advocate = {
             "points": [
-                f"Faker-simulated patch activity detected: {random.choice(generate_faker_patch_events(dev_id))}",
-                f"Active connection logs indicate system host outbound traffic is baseline normal.",
-                f"Anomaly threshold deviation is close to typical deviation baseline."
+                f"PatchHistory: Recently installed windows KB{random.randint(5000000, 5099999)} matches baseline updates.",
+                "Active connection logs indicate system host outbound traffic is baseline normal.",
+                "Anomaly threshold deviation is close to typical deviation baseline."
             ],
             "alternativeAction": alt_action
         }
         
-        # Time Machine breakdown
         cases = random.randint(25, 150)
         correct = int(cases * 0.90)
         false_positives = int(cases * 0.07)
@@ -201,7 +210,6 @@ def main():
             }
         }
         
-        # Nutrition Label
         nutrition_label = {
             "evidenceStrength": random.choice([3, 4]),
             "sources": sources + ["Malware Database", "SIEM Event Collector"],
@@ -210,7 +218,7 @@ def main():
             "model": "Gemini 1.5 Pro" if idx == 0 else "Gemini 1.5 Flash"
         }
         
-        target_recommendations.append({
+        recommendations.append({
             "id": dev_id,
             "type": dev_type,
             "action": action,
@@ -222,10 +230,132 @@ def main():
             "nutritionLabel": nutrition_label,
             "trustDNA": trust_dna,
             "devilsAdvocate": devils_advocate,
-            "timeMachine": time_machine
+            "timeMachine": time_machine,
+            "shapImportance": generate_shap_importance(threat["event_type"], action, conf_pct),
+            "subagents": generate_subagents(conf_pct),
+            "similarCasesList": generate_similar_cases(action)
         })
 
-    # Generate Synthetic IT Telemetry Logs using Faker
+    # Prepare Scenario Injection Payloads
+    scenarios = {
+        "ransomware": {
+            "id": "DEV-8890",
+            "type": "Endpoint Device",
+            "action": "Isolate Host Endpoint",
+            "severity": "Critical",
+            "confidence": 94,
+            "sources": ["Process Watcher", "Security Logs"],
+            "status": "Pending",
+            "why": [
+                "Mass file renaming detected - Unusual entropy matched ransomware baseline patterns",
+                "Shadow copy deletion attempted - Command 'vssadmin.exe delete shadows' blocked",
+                "Unsigned binary Execution - Binary 'decryptor.exe' executed in Temp folder",
+                "Raw log trail: File isolate recommendation generated forDEV-8890"
+            ],
+            "nutritionLabel": {
+                "evidenceStrength": 5,
+                "sources": ["Process Watcher", "File Monitor", "CrowdStrike Feed"],
+                "similarCases": 142,
+                "limitations": "Endpoint offline state inhibits complete memory dump",
+                "model": "Gemini 1.5 Pro"
+            },
+            "trustDNA": {
+                "score": 95,
+                "dataQuality": 98,
+                "policyMatch": 99,
+                "fleetSimilarity": 90,
+                "threatIntelMatch": 97,
+                "unknownRisk": 10
+            },
+            "devilsAdvocate": {
+                "points": [
+                    "User was running official bulk batch compression utility tool.",
+                    "File server backup synced successfully 2 minutes prior."
+                ],
+                "alternativeAction": "Snapshot and Monitor File Writes"
+            },
+            "timeMachine": {
+                "accuracy": 97,
+                "cases": 40,
+                "breakdown": {"correct": 38, "falsePositives": 1, "escalated": 1}
+            },
+            "shapImportance": [
+                {"feature": "File Write Frequency", "val": 45, "type": "positive"},
+                {"feature": "VSSADMIN Command Call", "val": 30, "type": "positive"},
+                {"feature": "Entropy Variance", "val": 20, "type": "positive"},
+                {"feature": "Endpoint Agent Active", "val": -5, "type": "negative"}
+            ],
+            "subagents": [
+                {"name": "Ingestion Agent", "status": "completed", "score": 100, "details": "Parsed DEV-8890 host process logs"},
+                {"name": "Heuristic Inspector", "status": "completed", "score": 98, "details": "Flagged high file system entropy anomaly"},
+                {"name": "Containment Evaluator", "status": "completed", "score": 95, "details": "Determined containment score meets auto-isolation rules"},
+                {"name": "Devil's Advocate", "status": "completed", "score": 10, "details": "No baseline software matches decrypter signatures."}
+            ],
+            "similarCasesList": [
+                {"case_id": "CASE-112", "date": "2026-06-01", "outcome": "True Positive", "decision": "Approved", "analyst": "Admin AD", "description": "Locky variants quarantined on SRV-901"},
+                {"case_id": "CASE-113", "date": "2026-06-03", "outcome": "True Positive", "decision": "Approved", "analyst": "Operator SM", "description": "WannaCry footprint matched and isolated DEV-8800"}
+            ]
+        },
+        "exfiltration": {
+            "id": "SRV-1022",
+            "type": "Database Server",
+            "action": "Block External Gateway IP",
+            "severity": "High",
+            "confidence": 83,
+            "sources": ["NetFlow", "Firewall Logs"],
+            "status": "Pending",
+            "why": [
+                "Bulk DB dump transfer - 4.5 GB of outbound traffic to unauthorized server",
+                "Unusual database query execution - SELECT * executed on customer catalog database",
+                "Connection over port 443 - outbound SSH tunneling bypass detection",
+                "Raw log trail: NetFlow outbound spike detected from SQL-Host SRV-1022"
+            ],
+            "nutritionLabel": {
+                "evidenceStrength": 4,
+                "sources": ["NetFlow Database", "SQL Profiler", "IP Reputation DB"],
+                "similarCases": 88,
+                "limitations": "SSL encryption hides actual data payload stream",
+                "model": "Gemini 1.5 Flash"
+            },
+            "trustDNA": {
+                "score": 82,
+                "dataQuality": 90,
+                "policyMatch": 85,
+                "fleetSimilarity": 70,
+                "threatIntelMatch": 80,
+                "unknownRisk": 25
+            },
+            "devilsAdvocate": {
+                "points": [
+                    "Outbound IP belongs to official AWS disaster backup repository.",
+                    "Scheduled data migration job was registered in calendar."
+                ],
+                "alternativeAction": "Throttle Bandwidth to 10kb/s"
+            },
+            "timeMachine": {
+                "accuracy": 88,
+                "cases": 25,
+                "breakdown": {"correct": 22, "falsePositives": 2, "escalated": 1}
+            },
+            "shapImportance": [
+                {"feature": "Outbound Bytes Spike", "val": 50, "type": "positive"},
+                {"feature": "Port Tunneling Heuristic", "val": 25, "type": "positive"},
+                {"feature": "Unauthorized Remote IP", "val": 15, "type": "positive"},
+                {"feature": "Migration Cron Active", "val": -20, "type": "negative"}
+            ],
+            "subagents": [
+                {"name": "Ingestion Agent", "status": "completed", "score": 100, "details": "Parsed router NetFlow records"},
+                {"name": "Traffic Profiler", "status": "completed", "score": 90, "details": "Identified anomalous payload volume"},
+                {"name": "Geo Tracker", "status": "completed", "score": 85, "details": "Destination IP resolved to unapproved country"},
+                {"name": "Devil's Advocate", "status": "completed", "score": 35, "details": "Outbound matches cloud migration endpoints."}
+            ],
+            "similarCasesList": [
+                {"case_id": "CASE-301", "date": "2026-05-18", "outcome": "True Positive", "decision": "Approved", "analyst": "Analyst JT", "description": "SSH tunneling threat neutralized"},
+                {"case_id": "CASE-302", "date": "2026-05-20", "outcome": "False Positive", "decision": "Rejected", "analyst": "Operator SM", "description": "Weekly dev backup triggered alert due to stale config"}
+            ]
+        }
+    }
+
     activity_logs = []
     start_time = datetime.now() - timedelta(minutes=20)
     
@@ -250,7 +380,6 @@ def main():
             "type": item["type"]
         })
 
-    # Build full database
     db = {
         "dashboard_stats": {
             "total_alerts": 17,
@@ -258,11 +387,11 @@ def main():
             "high": 7,
             "medium": 5
         },
-        "recommendations": target_recommendations,
+        "recommendations": recommendations,
+        "scenarios": scenarios,
         "activity_logs": activity_logs
     }
     
-    # Save output to src/data/siem_data.json
     os.makedirs("src/data", exist_ok=True)
     with open("src/data/siem_data.json", "w") as f:
         json.dump(db, f, indent=2)

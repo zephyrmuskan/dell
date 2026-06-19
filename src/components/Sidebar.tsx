@@ -6,11 +6,14 @@ import {
   Dna, 
   ClipboardList, 
   RotateCcw,
-  ShieldAlert as ShieldIcon
+  ShieldAlert as ShieldIcon,
+  Flame,
+  Globe,
+  Play
 } from 'lucide-react';
 
 export const Sidebar: React.FC = () => {
-  const { currentScreen, setCurrentScreen, resetDemo } = useWorkflow();
+  const { currentScreen, setCurrentScreen, resetDemo, injectScenario } = useWorkflow();
 
   const navItems = [
     { id: 1, label: 'Dashboard', icon: LayoutDashboard, screen: 1 },
@@ -36,7 +39,6 @@ export const Sidebar: React.FC = () => {
         {/* Navigation Links */}
         <nav className="mt-6 px-4 space-y-1.5">
           {navItems.map((item) => {
-            // Determine if item is active. We map active screen or parent states.
             const isActive = currentScreen === item.screen;
             const Icon = item.icon;
 
@@ -56,6 +58,33 @@ export const Sidebar: React.FC = () => {
             );
           })}
         </nav>
+
+        {/* Simulation Control */}
+        <div className="mt-8 px-4 border-t border-slate-800/40 pt-6">
+          <p className="text-[10px] text-slate-500 font-extrabold tracking-wider uppercase px-4 mb-2.5">Simulation Control</p>
+          <div className="space-y-2">
+            <button
+              onClick={() => injectScenario('ransomware')}
+              className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl border border-slate-800/80 hover:border-slate-700 bg-slate-900/30 text-xs font-bold text-slate-400 hover:text-brand-red transition-all duration-200"
+            >
+              <div className="flex items-center space-x-2.5">
+                <Flame className="h-3.5 w-3.5 text-brand-red" />
+                <span>Ransomware Alert</span>
+              </div>
+              <Play className="h-3 w-3 opacity-60" />
+            </button>
+            <button
+              onClick={() => injectScenario('exfiltration')}
+              className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl border border-slate-800/80 hover:border-slate-700 bg-slate-900/30 text-xs font-bold text-slate-400 hover:text-brand-amber transition-all duration-200"
+            >
+              <div className="flex items-center space-x-2.5">
+                <Globe className="h-3.5 w-3.5 text-brand-amber" />
+                <span>Exfiltration Alert</span>
+              </div>
+              <Play className="h-3 w-3 opacity-60" />
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Profile & Reset Demo */}

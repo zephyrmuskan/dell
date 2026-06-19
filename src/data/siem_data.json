@@ -11,215 +11,755 @@
       "type": "Endpoint Device",
       "action": "Quarantine Device",
       "severity": "Critical",
-      "confidence": 89,
+      "confidence": 100,
       "sources": [
         "Security Logs",
         "Telemetry"
       ],
       "status": "Pending",
       "why": [
-        "Unusual threat indicator detected - MITRE Technique: T1059.003 - Command and Scripting Interpreter: Windows Shell",
-        "Telemetry baseline anomaly - risk rating evaluated at 87% risk level",
-        "Faker-simulated process deviation - unusual behavioral signature matches description: 'Suspicious shell execution spawning process net.exe under user SYSTEM'",
-        "Raw payload trace - audit snippet: 'EndpointLog: host=DEV1248 msg='unusual child process net.exe spawned by cmd...'"
+        "Unusual threat indicator detected - ML Feature Value: 8.5 baseline deviation",
+        "Telemetry baseline anomaly - model predicted severity 'Critical' at 87% risk level",
+        "Faker-simulated process deviation - classification entropy calculated as 4.2",
+        "Raw log audit - verified by AI model consensus (prediction confidence: 100%)"
       ],
       "nutritionLabel": {
-        "evidenceStrength": 4,
+        "evidenceStrength": 3,
         "sources": [
           "Security Logs",
           "Telemetry",
           "Malware Database",
           "SIEM Event Collector"
         ],
-        "similarCases": 1452,
-        "limitations": "Telemetry profile for location 'New York, USA' not fully baseline calibrated.",
+        "similarCases": 1608,
+        "limitations": "Telemetry profile not fully baseline calibrated.",
         "model": "Gemini 1.5 Pro"
       },
       "trustDNA": {
-        "score": 63,
-        "dataQuality": 88,
-        "policyMatch": 93,
-        "fleetSimilarity": 65,
-        "threatIntelMatch": 78,
+        "score": 71,
+        "dataQuality": 89,
+        "policyMatch": 84,
+        "fleetSimilarity": 76,
+        "threatIntelMatch": 86,
         "unknownRisk": 43
       },
       "devilsAdvocate": {
         "points": [
-          "Faker-simulated patch activity detected: PatchHistory [2026-06-17 13:12:38]: host=DEV1248 patch=KB5094087 status=INSTALLED result=SUCCESS",
+          "PatchHistory: Recently installed windows KB5023734 matches baseline updates.",
           "Active connection logs indicate system host outbound traffic is baseline normal.",
           "Anomaly threshold deviation is close to typical deviation baseline."
         ],
         "alternativeAction": "Monitor for 24 Hours"
       },
       "timeMachine": {
-        "accuracy": 90,
-        "cases": 121,
+        "accuracy": 100,
+        "cases": 134,
         "breakdown": {
-          "correct": 108,
-          "falsePositives": 8,
-          "escalated": 5
+          "correct": 134,
+          "falsePositives": 6,
+          "escalated": -6
         }
-      }
+      },
+      "shapImportance": [
+        {
+          "feature": "Baseline Behavioral Deviation",
+          "val": 54,
+          "type": "positive"
+        },
+        {
+          "feature": "Information Entropy Density",
+          "val": 38,
+          "type": "positive"
+        },
+        {
+          "feature": "Telemetry Risk Score",
+          "val": 16,
+          "type": "negative"
+        },
+        {
+          "feature": "Data Ingestion Confidence",
+          "val": 10,
+          "type": "negative"
+        },
+        {
+          "feature": "High-Frequency Access Pattern",
+          "val": 10,
+          "type": "negative"
+        },
+        {
+          "feature": "Unusual Command Sequence",
+          "val": 10,
+          "type": "negative"
+        }
+      ],
+      "subagents": [
+        {
+          "name": "Ingestion Agent",
+          "status": "completed",
+          "score": 100,
+          "details": "SIEM log stream parsed successfully."
+        },
+        {
+          "name": "Threat Intel Matcher",
+          "status": "completed",
+          "score": 92,
+          "details": "Mapped IOC markers against malware dictionaries."
+        },
+        {
+          "name": "UEBA Anomaly Classifier",
+          "status": "completed",
+          "score": 100,
+          "details": "Random Forest evaluated deviation score (accuracy: 100%)."
+        },
+        {
+          "name": "Devil's Advocate Falsifier",
+          "status": "completed",
+          "score": 30,
+          "details": "Flagged patch history. Confidence score restricted to 100%."
+        }
+      ],
+      "similarCasesList": [
+        {
+          "case_id": "CASE-0869",
+          "date": "2026-06-02",
+          "outcome": "True Positive",
+          "decision": "Approved",
+          "analyst": "Analyst JT",
+          "description": "Triggered Quarantine Device under similar telemetry profile. Resolved with zero breach escalation."
+        },
+        {
+          "case_id": "CASE-0843",
+          "date": "2026-05-01",
+          "outcome": "True Positive",
+          "decision": "Approved",
+          "analyst": "Admin AD",
+          "description": "Triggered Quarantine Device under similar telemetry profile. Resolved with zero breach escalation."
+        },
+        {
+          "case_id": "CASE-0869",
+          "date": "2026-06-03",
+          "outcome": "False Positive",
+          "decision": "Rejected",
+          "analyst": "Admin AD",
+          "description": "Triggered Quarantine Device under high baseline. Deemed false trigger."
+        },
+        {
+          "case_id": "CASE-0861",
+          "date": "2026-05-26",
+          "outcome": "True Positive",
+          "decision": "Approved",
+          "analyst": "Operator SM",
+          "description": "Triggered Quarantine Device under similar telemetry profile. Resolved with zero breach escalation."
+        },
+        {
+          "case_id": "CASE-0822",
+          "date": "2026-04-26",
+          "outcome": "True Positive",
+          "decision": "Approved",
+          "analyst": "Security AI",
+          "description": "Triggered Quarantine Device under similar telemetry profile. Resolved with zero breach escalation."
+        }
+      ]
     },
     {
       "id": "SRV-0451",
       "type": "Server",
       "action": "Patch Deployment",
       "severity": "High",
-      "confidence": 65,
+      "confidence": 86,
       "sources": [
         "Vulnerability DB",
         "Telemetry"
       ],
       "status": "Pending",
       "why": [
-        "Unusual threat indicator detected - MITRE Technique: T1190 - Exploit Public-Facing Application",
-        "Telemetry baseline anomaly - risk rating evaluated at 72% risk level",
-        "Faker-simulated process deviation - unusual behavioral signature matches description: 'Critical vulnerability exposure (CVE-2026-1049) detected on public subnet'",
-        "Raw payload trace - audit snippet: 'CloudAudit: service=AWS-EC2 instance=SRV-0451 status=EXPOSED method=TCP-338...'"
+        "Unusual threat indicator detected - ML Feature Value: 5.1 baseline deviation",
+        "Telemetry baseline anomaly - model predicted severity 'High' at 72% risk level",
+        "Faker-simulated process deviation - classification entropy calculated as 3.0",
+        "Raw log audit - verified by AI model consensus (prediction confidence: 86%)"
       ],
       "nutritionLabel": {
-        "evidenceStrength": 3,
+        "evidenceStrength": 4,
         "sources": [
           "Vulnerability DB",
           "Telemetry",
           "Malware Database",
           "SIEM Event Collector"
         ],
-        "similarCases": 1620,
-        "limitations": "Telemetry profile for location 'Virginia, USA' not fully baseline calibrated.",
+        "similarCases": 876,
+        "limitations": "Telemetry profile not fully baseline calibrated.",
         "model": "Gemini 1.5 Flash"
       },
       "trustDNA": {
-        "score": 52,
-        "dataQuality": 92,
-        "policyMatch": 94,
-        "fleetSimilarity": 71,
-        "threatIntelMatch": 78,
+        "score": 71,
+        "dataQuality": 97,
+        "policyMatch": 88,
+        "fleetSimilarity": 82,
+        "threatIntelMatch": 93,
         "unknownRisk": 36
       },
       "devilsAdvocate": {
         "points": [
-          "Faker-simulated patch activity detected: PatchHistory [2026-06-18 13:12:38]: host=SRV-0451 patch=KB5070990 status=INSTALLED result=SUCCESS",
+          "PatchHistory: Recently installed windows KB5002132 matches baseline updates.",
           "Active connection logs indicate system host outbound traffic is baseline normal.",
           "Anomaly threshold deviation is close to typical deviation baseline."
         ],
         "alternativeAction": "Schedule Patch for Off-Hours"
       },
       "timeMachine": {
-        "accuracy": 90,
-        "cases": 135,
+        "accuracy": 100,
+        "cases": 73,
         "breakdown": {
-          "correct": 121,
-          "falsePositives": 9,
-          "escalated": 5
+          "correct": 73,
+          "falsePositives": 3,
+          "escalated": -3
         }
-      }
+      },
+      "shapImportance": [
+        {
+          "feature": "Baseline Behavioral Deviation",
+          "val": 50,
+          "type": "positive"
+        },
+        {
+          "feature": "Information Entropy Density",
+          "val": 40,
+          "type": "positive"
+        },
+        {
+          "feature": "Telemetry Risk Score",
+          "val": 17,
+          "type": "negative"
+        },
+        {
+          "feature": "Data Ingestion Confidence",
+          "val": 11,
+          "type": "negative"
+        },
+        {
+          "feature": "High-Frequency Access Pattern",
+          "val": 10,
+          "type": "negative"
+        },
+        {
+          "feature": "Unusual Command Sequence",
+          "val": 10,
+          "type": "negative"
+        }
+      ],
+      "subagents": [
+        {
+          "name": "Ingestion Agent",
+          "status": "completed",
+          "score": 100,
+          "details": "SIEM log stream parsed successfully."
+        },
+        {
+          "name": "Threat Intel Matcher",
+          "status": "completed",
+          "score": 92,
+          "details": "Mapped IOC markers against malware dictionaries."
+        },
+        {
+          "name": "UEBA Anomaly Classifier",
+          "status": "completed",
+          "score": 100,
+          "details": "Random Forest evaluated deviation score (accuracy: 100%)."
+        },
+        {
+          "name": "Devil's Advocate Falsifier",
+          "status": "completed",
+          "score": 30,
+          "details": "Flagged patch history. Confidence score restricted to 86%."
+        }
+      ],
+      "similarCasesList": [
+        {
+          "case_id": "CASE-0866",
+          "date": "2026-05-05",
+          "outcome": "True Positive",
+          "decision": "Approved",
+          "analyst": "Analyst JT",
+          "description": "Triggered Patch Deployment under similar telemetry profile. Resolved with zero breach escalation."
+        },
+        {
+          "case_id": "CASE-0893",
+          "date": "2026-05-31",
+          "outcome": "False Positive",
+          "decision": "Rejected",
+          "analyst": "Security AI",
+          "description": "Triggered Patch Deployment under high baseline. Deemed false trigger."
+        },
+        {
+          "case_id": "CASE-0817",
+          "date": "2026-04-26",
+          "outcome": "False Positive",
+          "decision": "Rejected",
+          "analyst": "Security AI",
+          "description": "Triggered Patch Deployment under high baseline. Deemed false trigger."
+        },
+        {
+          "case_id": "CASE-0893",
+          "date": "2026-04-23",
+          "outcome": "True Positive",
+          "decision": "Approved",
+          "analyst": "Operator SM",
+          "description": "Triggered Patch Deployment under similar telemetry profile. Resolved with zero breach escalation."
+        },
+        {
+          "case_id": "CASE-0818",
+          "date": "2026-05-03",
+          "outcome": "False Positive",
+          "decision": "Rejected",
+          "analyst": "Operator SM",
+          "description": "Triggered Patch Deployment under high baseline. Deemed false trigger."
+        }
+      ]
     },
     {
       "id": "USR-7782",
       "type": "User Account",
       "action": "Security Escalation",
       "severity": "Medium",
-      "confidence": 60,
+      "confidence": 91,
       "sources": [
         "Auth Logs",
         "Directory"
       ],
       "status": "Pending",
       "why": [
-        "Unusual threat indicator detected - MITRE Technique: T1148 - Impossible Travel Behavior",
-        "Telemetry baseline anomaly - risk rating evaluated at 64% risk level",
-        "Faker-simulated process deviation - unusual behavioral signature matches description: 'Impossible travel login detected: Simultaneous session in US and UK'",
-        "Raw payload trace - audit snippet: 'AuthLog: user=USR-7782 status=SUCCESS location_1='Chicago, US' location_2='...'"
+        "Unusual threat indicator detected - ML Feature Value: 3.2 baseline deviation",
+        "Telemetry baseline anomaly - model predicted severity 'Medium' at 54% risk level",
+        "Faker-simulated process deviation - classification entropy calculated as 2.1",
+        "Raw log audit - verified by AI model consensus (prediction confidence: 91%)"
       ],
       "nutritionLabel": {
-        "evidenceStrength": 4,
+        "evidenceStrength": 3,
         "sources": [
           "Auth Logs",
           "Directory",
           "Malware Database",
           "SIEM Event Collector"
         ],
-        "similarCases": 1164,
-        "limitations": "Telemetry profile for location 'London, UK' not fully baseline calibrated.",
+        "similarCases": 1092,
+        "limitations": "Telemetry profile not fully baseline calibrated.",
         "model": "Gemini 1.5 Flash"
       },
       "trustDNA": {
-        "score": 52,
-        "dataQuality": 96,
-        "policyMatch": 84,
-        "fleetSimilarity": 76,
-        "threatIntelMatch": 87,
-        "unknownRisk": 32
+        "score": 79,
+        "dataQuality": 90,
+        "policyMatch": 94,
+        "fleetSimilarity": 73,
+        "threatIntelMatch": 95,
+        "unknownRisk": 27
       },
       "devilsAdvocate": {
         "points": [
-          "Faker-simulated patch activity detected: PatchHistory [2026-06-13 13:12:38]: host=USR-7782 patch=KB5089436 status=INSTALLED result=SUCCESS",
+          "PatchHistory: Recently installed windows KB5048607 matches baseline updates.",
           "Active connection logs indicate system host outbound traffic is baseline normal.",
           "Anomaly threshold deviation is close to typical deviation baseline."
         ],
         "alternativeAction": "Send MFA Push Challenge"
       },
       "timeMachine": {
-        "accuracy": 90,
-        "cases": 97,
+        "accuracy": 100,
+        "cases": 91,
         "breakdown": {
-          "correct": 87,
-          "falsePositives": 6,
-          "escalated": 4
+          "correct": 91,
+          "falsePositives": 4,
+          "escalated": -4
         }
-      }
+      },
+      "shapImportance": [
+        {
+          "feature": "Baseline Behavioral Deviation",
+          "val": 47,
+          "type": "positive"
+        },
+        {
+          "feature": "Information Entropy Density",
+          "val": 41,
+          "type": "positive"
+        },
+        {
+          "feature": "Telemetry Risk Score",
+          "val": 18,
+          "type": "negative"
+        },
+        {
+          "feature": "Data Ingestion Confidence",
+          "val": 11,
+          "type": "negative"
+        },
+        {
+          "feature": "High-Frequency Access Pattern",
+          "val": 10,
+          "type": "negative"
+        },
+        {
+          "feature": "Unusual Command Sequence",
+          "val": 10,
+          "type": "negative"
+        }
+      ],
+      "subagents": [
+        {
+          "name": "Ingestion Agent",
+          "status": "completed",
+          "score": 100,
+          "details": "SIEM log stream parsed successfully."
+        },
+        {
+          "name": "Threat Intel Matcher",
+          "status": "completed",
+          "score": 92,
+          "details": "Mapped IOC markers against malware dictionaries."
+        },
+        {
+          "name": "UEBA Anomaly Classifier",
+          "status": "completed",
+          "score": 100,
+          "details": "Random Forest evaluated deviation score (accuracy: 100%)."
+        },
+        {
+          "name": "Devil's Advocate Falsifier",
+          "status": "completed",
+          "score": 30,
+          "details": "Flagged patch history. Confidence score restricted to 91%."
+        }
+      ],
+      "similarCasesList": [
+        {
+          "case_id": "CASE-0829",
+          "date": "2026-05-08",
+          "outcome": "True Positive",
+          "decision": "Approved",
+          "analyst": "Analyst JT",
+          "description": "Triggered Security Escalation under similar telemetry profile. Resolved with zero breach escalation."
+        },
+        {
+          "case_id": "CASE-0837",
+          "date": "2026-05-11",
+          "outcome": "True Positive",
+          "decision": "Approved",
+          "analyst": "Security AI",
+          "description": "Triggered Security Escalation under similar telemetry profile. Resolved with zero breach escalation."
+        },
+        {
+          "case_id": "CASE-0820",
+          "date": "2026-05-15",
+          "outcome": "False Positive",
+          "decision": "Rejected",
+          "analyst": "Security AI",
+          "description": "Triggered Security Escalation under high baseline. Deemed false trigger."
+        },
+        {
+          "case_id": "CASE-0873",
+          "date": "2026-04-20",
+          "outcome": "True Positive",
+          "decision": "Approved",
+          "analyst": "Analyst JT",
+          "description": "Triggered Security Escalation under similar telemetry profile. Resolved with zero breach escalation."
+        },
+        {
+          "case_id": "CASE-0899",
+          "date": "2026-05-07",
+          "outcome": "True Positive",
+          "decision": "Approved",
+          "analyst": "Analyst JT",
+          "description": "Triggered Security Escalation under similar telemetry profile. Resolved with zero breach escalation."
+        }
+      ]
     }
   ],
+  "scenarios": {
+    "ransomware": {
+      "id": "DEV-8890",
+      "type": "Endpoint Device",
+      "action": "Isolate Host Endpoint",
+      "severity": "Critical",
+      "confidence": 95,
+      "sources": [
+        "Process Watcher",
+        "Security Logs"
+      ],
+      "status": "Pending",
+      "why": [
+        "Mass file renaming detected - Entropy calculated as 4.8",
+        "Shadow copy deletion attempted - Command 'vssadmin.exe delete shadows' blocked",
+        "Unsigned binary Execution - Binary 'decryptor.exe' executed in Temp folder",
+        "Raw log trail: File isolate recommendation generated for DEV-8890"
+      ],
+      "nutritionLabel": {
+        "evidenceStrength": 5,
+        "sources": [
+          "Process Watcher",
+          "File Monitor",
+          "CrowdStrike Feed"
+        ],
+        "similarCases": 142,
+        "limitations": "Endpoint offline state inhibits complete memory dump",
+        "model": "Gemini 1.5 Pro"
+      },
+      "trustDNA": {
+        "score": 95,
+        "dataQuality": 98,
+        "policyMatch": 99,
+        "fleetSimilarity": 90,
+        "threatIntelMatch": 97,
+        "unknownRisk": 10
+      },
+      "devilsAdvocate": {
+        "points": [
+          "User was running official bulk batch compression utility tool.",
+          "File server backup synced successfully 2 minutes prior."
+        ],
+        "alternativeAction": "Snapshot and Monitor File Writes"
+      },
+      "timeMachine": {
+        "accuracy": 100,
+        "cases": 40,
+        "breakdown": {
+          "correct": 38,
+          "falsePositives": 1,
+          "escalated": 1
+        }
+      },
+      "shapImportance": [
+        {
+          "feature": "Entropy Variance",
+          "val": 45,
+          "type": "positive"
+        },
+        {
+          "feature": "Unusual Command Sequence",
+          "val": 30,
+          "type": "positive"
+        },
+        {
+          "feature": "Telemetry Risk Score",
+          "val": 20,
+          "type": "positive"
+        },
+        {
+          "feature": "Baseline Behavioral Deviation",
+          "val": -5,
+          "type": "negative"
+        }
+      ],
+      "subagents": [
+        {
+          "name": "Ingestion Agent",
+          "status": "completed",
+          "score": 100,
+          "details": "Parsed DEV-8890 host process logs"
+        },
+        {
+          "name": "Heuristic Inspector",
+          "status": "completed",
+          "score": 98,
+          "details": "Flagged high file system entropy anomaly"
+        },
+        {
+          "name": "Containment Evaluator",
+          "status": "completed",
+          "score": 95,
+          "details": "Determined containment score meets auto-isolation rules"
+        },
+        {
+          "name": "Devil's Advocate",
+          "status": "completed",
+          "score": 10,
+          "details": "No baseline software matches decrypter signatures."
+        }
+      ],
+      "similarCasesList": [
+        {
+          "case_id": "CASE-112",
+          "date": "2026-06-01",
+          "outcome": "True Positive",
+          "decision": "Approved",
+          "analyst": "Admin AD",
+          "description": "Locky variants quarantined on SRV-901"
+        },
+        {
+          "case_id": "CASE-113",
+          "date": "2026-06-03",
+          "outcome": "True Positive",
+          "decision": "Approved",
+          "analyst": "Operator SM",
+          "description": "WannaCry footprint matched and isolated DEV-8800"
+        }
+      ]
+    },
+    "exfiltration": {
+      "id": "SRV-1022",
+      "type": "Database Server",
+      "action": "Block External Gateway IP",
+      "severity": "High",
+      "confidence": 83,
+      "sources": [
+        "NetFlow",
+        "Firewall Logs"
+      ],
+      "status": "Pending",
+      "why": [
+        "Bulk DB dump transfer - 4.5 GB of outbound traffic to unauthorized server",
+        "Unusual database query execution - SELECT * executed on customer catalog database",
+        "Connection over port 443 - outbound SSH tunneling bypass detection",
+        "Raw log trail: NetFlow outbound spike detected from SQL-Host SRV-1022"
+      ],
+      "nutritionLabel": {
+        "evidenceStrength": 4,
+        "sources": [
+          "NetFlow Database",
+          "SQL Profiler",
+          "IP Reputation DB"
+        ],
+        "similarCases": 88,
+        "limitations": "SSL encryption hides actual data payload stream",
+        "model": "Gemini 1.5 Flash"
+      },
+      "trustDNA": {
+        "score": 82,
+        "dataQuality": 90,
+        "policyMatch": 85,
+        "fleetSimilarity": 70,
+        "threatIntelMatch": 80,
+        "unknownRisk": 25
+      },
+      "devilsAdvocate": {
+        "points": [
+          "Outbound IP belongs to official AWS disaster backup repository.",
+          "Scheduled data migration job was registered in calendar."
+        ],
+        "alternativeAction": "Throttle Bandwidth to 10kb/s"
+      },
+      "timeMachine": {
+        "accuracy": 100,
+        "cases": 25,
+        "breakdown": {
+          "correct": 22,
+          "falsePositives": 2,
+          "escalated": 1
+        }
+      },
+      "shapImportance": [
+        {
+          "feature": "Telemetry Risk Score",
+          "val": 50,
+          "type": "positive"
+        },
+        {
+          "feature": "Unusual Command Sequence",
+          "val": 25,
+          "type": "positive"
+        },
+        {
+          "feature": "Information Entropy Density",
+          "val": 15,
+          "type": "positive"
+        },
+        {
+          "feature": "Baseline Behavioral Deviation",
+          "val": -20,
+          "type": "negative"
+        }
+      ],
+      "subagents": [
+        {
+          "name": "Ingestion Agent",
+          "status": "completed",
+          "score": 100,
+          "details": "Parsed router NetFlow records"
+        },
+        {
+          "name": "Traffic Profiler",
+          "status": "completed",
+          "score": 90,
+          "details": "Identified anomalous payload volume"
+        },
+        {
+          "name": "Geo Tracker",
+          "status": "completed",
+          "score": 85,
+          "details": "Destination IP resolved to unapproved country"
+        },
+        {
+          "name": "Devil's Advocate",
+          "status": "completed",
+          "score": 35,
+          "details": "Outbound matches cloud migration endpoints."
+        }
+      ],
+      "similarCasesList": [
+        {
+          "case_id": "CASE-301",
+          "date": "2026-05-18",
+          "outcome": "True Positive",
+          "decision": "Approved",
+          "analyst": "Analyst JT",
+          "description": "SSH tunneling threat neutralized"
+        },
+        {
+          "case_id": "CASE-302",
+          "date": "2026-05-20",
+          "outcome": "False Positive",
+          "decision": "Rejected",
+          "analyst": "Operator SM",
+          "description": "Weekly dev backup triggered alert due to config"
+        }
+      ]
+    }
+  },
   "activity_logs": [
     {
-      "time": "12:52 PM",
+      "time": "14:04 PM",
       "event": "Faker System Telemetry: Memory footprint spikes on node DEV1248",
       "type": "system"
     },
     {
-      "time": "12:54 PM",
+      "time": "14:06 PM",
       "event": "Faker Security Probe: Scanning detected on port 80/443 of SRV-0451",
       "type": "system"
     },
     {
-      "time": "12:56 PM",
+      "time": "14:08 PM",
       "event": "Faker System Audit: Active directory password failure threshold reached for USR-7782",
       "type": "system"
     },
     {
-      "time": "12:58 PM",
+      "time": "14:10 PM",
       "event": "SIEM Collector: Received event type auth for target USR-7782-Session",
       "type": "system"
     },
     {
-      "time": "13:00 PM",
+      "time": "14:12 PM",
       "event": "SIEM Collector: Endpoint anomaly log compiled for host DEV1248",
       "type": "system"
     },
     {
-      "time": "13:02 PM",
+      "time": "14:14 PM",
       "event": "TrustLens AI: Spawning threat-classification agent sequence",
       "type": "ai"
     },
     {
-      "time": "13:04 PM",
-      "event": "TrustLens AI: Processing neural baseline deviation weights",
+      "time": "14:16 PM",
+      "event": "Random Forest Agent: Processing model weights (X_test split evaluation completed)",
       "type": "ai"
     },
     {
-      "time": "13:06 PM",
-      "event": "TrustLens AI: Reasoning model Gemini 1.5 Pro loaded threat indicators",
+      "time": "14:18 PM",
+      "event": "Random Forest Agent: Model test accuracy evaluated at 100% accuracy rating",
       "type": "ai"
     },
     {
-      "time": "13:08 PM",
-      "event": "TrustLens AI: Security recommendation actions compiled",
+      "time": "14:20 PM",
+      "event": "TrustLens AI: Threat features matched and isolated",
       "type": "ai"
     },
     {
-      "time": "13:10 PM",
+      "time": "14:22 PM",
       "event": "Operator Alert: SOC recommendations table updated. Pending human audit.",
       "type": "system"
     }

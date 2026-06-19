@@ -4,6 +4,28 @@ import siemData from '../data/siem_data.json';
 export type Severity = 'Critical' | 'High' | 'Medium';
 export type RecommendationStatus = 'Pending' | 'Approved' | 'Rejected' | 'Escalated' | 'Details Requested';
 
+export interface ShapFactor {
+  feature: string;
+  val: number;
+  type: 'positive' | 'negative';
+}
+
+export interface SubagentStep {
+  name: string;
+  status: string;
+  score: number;
+  details: string;
+}
+
+export interface PastCase {
+  case_id: string;
+  date: string;
+  outcome: string;
+  decision: string;
+  analyst: string;
+  description: string;
+}
+
 export interface Recommendation {
   id: string;
   type: string;
@@ -41,6 +63,9 @@ export interface Recommendation {
       escalated: number;
     };
   };
+  shapImportance: ShapFactor[];
+  subagents: SubagentStep[];
+  similarCasesList: PastCase[];
 }
 
 export interface ActivityLogEntry {
@@ -72,6 +97,7 @@ interface WorkflowContextType {
     high: number;
     medium: number;
   };
+  injectScenario: (scenarioId: string) => void;
 }
 
 const initialRecommendations = siemData.recommendations as Recommendation[];
@@ -91,11 +117,43 @@ export const WorkflowProvider: React.FC<{ children: ReactNode }> = ({ children }
 
   const activeRec = recommendations.find((r) => r.id === activeRecId) || recommendations[0];
 
+  const dashboardStats = {
+    total_alerts: initialStats.total_alerts + (recommendations.length - initialRecommendations.length),
+    critical: initialStats.critical + recommendations.filter(r => r.severity === 'Critical' && !initialRecommendations.some(ir => ir.id === r.id)).length,
+    high: initialStats.high + recommendations.filter(r => r.severity === 'High' && !initialRecommendations.some(ir => ir.id === r.id)).length,
+    medium: initialStats.medium + recommendations.filter(r => r.severity === 'Medium' && !initialRecommendations.some(ir => ir.id === r.id)).length,
+  };
+
+  const injectScenario = (scenarioId: string) => {
+    const sc = (siemData.scenarios as any)[scenarioId];
+    if (!sc) return;
+
+    if (recommendations.some((r) => r.id === sc.id)) {
+      setActiveRecId(sc.id);
+      setCurrentScreen(1);
+      return;
+    }
+
+    const newRec: Recommendation = { ...sc, status: 'Pending' };
+    setRecommendations((prev) => [newRec, ...prev]);
+
+    const now = new Date();
+    const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const logMsg = `[SIMULATION] Threat scenario injected: "${sc.action}" recommended for ${sc.id}.`;
+
+    setActivityLog((prev) => [
+      ...prev,
+      { time: timeString, event: logMsg, type: 'system' }
+    ]);
+
+    setActiveRecId(sc.id);
+    setCurrentScreen(1);
+  };
+
   const submitDecision = (
     decision: 'Approved' | 'Rejected' | 'Escalated' | 'Details Requested',
     notes?: string
   ) => {
-    // 1. Update the status of the recommendation
     setRecommendations((prev) =>
       prev.map((rec) => {
         if (rec.id === activeRecId) {
@@ -109,7 +167,6 @@ export const WorkflowProvider: React.FC<{ children: ReactNode }> = ({ children }
       })
     );
 
-    // 2. Append to the log
     const now = new Date();
     const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     
@@ -133,13 +190,9 @@ export const WorkflowProvider: React.FC<{ children: ReactNode }> = ({ children }
 
     setActivityLog((prev) => [...prev, newLog]);
     
-    // 3. Show Success Toast
     setShowSuccessToast(true);
-    
-    // 4. Return to Dashboard
     setCurrentScreen(1);
     
-    // Reset states
     setSelectedAltAction(false);
     setDecisionNotes('');
     
@@ -176,7 +229,8 @@ export const WorkflowProvider: React.FC<{ children: ReactNode }> = ({ children }
         setDecisionNotes,
         showSuccessToast,
         setShowSuccessToast,
-        dashboardStats: initialStats
+        dashboardStats,
+        injectScenario
       }}
     >
       {children}

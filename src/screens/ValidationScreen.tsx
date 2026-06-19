@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useWorkflow } from '../context/WorkflowContext';
 import { GlassCard } from '../components/GlassCard';
 import { ProgressBar } from '../components/ProgressBar';
+import { SimilarCasesModal } from '../components/SimilarCasesModal';
 import { 
   ArrowLeft, 
   ArrowRight, 
@@ -21,7 +22,8 @@ export const ValidationScreen: React.FC = () => {
     setSelectedAltAction 
   } = useWorkflow();
 
-  const { trustDNA, devilsAdvocate, timeMachine } = activeRec;
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { trustDNA, devilsAdvocate, timeMachine, subagents, similarCasesList, action } = activeRec;
 
   // Render SVG circle helper for dials
   const renderCircleDial = (percentage: number, colorClass: string, glowClass: string) => {
@@ -30,24 +32,22 @@ export const ValidationScreen: React.FC = () => {
     const strokeDashoffset = circumference - (percentage / 100) * circumference;
 
     return (
-      <div className="relative flex items-center justify-center h-28 w-28 mx-auto">
+      <div className="relative flex items-center justify-center h-24 w-24 mx-auto">
         <svg className="w-full h-full transform -rotate-90">
-          {/* Background circle */}
           <circle
-            cx="56"
-            cy="56"
+            cx="48"
+            cy="48"
             r={radius}
             className="stroke-slate-100"
-            strokeWidth="8"
+            strokeWidth="7"
             fill="transparent"
           />
-          {/* Animated path circle */}
           <motion.circle
-            cx="56"
-            cy="56"
+            cx="48"
+            cy="48"
             r={radius}
             className={colorClass}
-            strokeWidth="8"
+            strokeWidth="7"
             fill="transparent"
             strokeDasharray={circumference}
             initial={{ strokeDashoffset: circumference }}
@@ -55,9 +55,9 @@ export const ValidationScreen: React.FC = () => {
             transition={{ duration: 1.2, ease: 'easeOut' }}
           />
         </svg>
-        <div className={`absolute flex flex-col items-center justify-center bg-white h-20 w-20 rounded-full border border-slate-200/50 shadow-inner ${glowClass}`}>
-          <span className="text-xl font-extrabold text-slate-800">{percentage}%</span>
-          <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Score</span>
+        <div className={`absolute flex flex-col items-center justify-center bg-white h-18 w-18 rounded-full border border-slate-200/50 shadow-inner ${glowClass}`}>
+          <span className="text-lg font-black text-slate-800">{percentage}%</span>
+          <span className="text-[7px] font-bold text-slate-400 uppercase tracking-widest">Score</span>
         </div>
       </div>
     );
@@ -103,17 +103,41 @@ export const ValidationScreen: React.FC = () => {
             </div>
 
             {/* Score Ring */}
-            <div className="py-2">
+            <div className="py-1">
               {renderCircleDial(trustDNA.score, 'stroke-brand-blue', 'shadow-glow-blue')}
             </div>
 
             {/* Progress Bars */}
-            <div className="space-y-3.5 pt-2">
+            <div className="space-y-3 pt-1">
               <ProgressBar label="Data Quality" value={trustDNA.dataQuality} color="emerald" />
               <ProgressBar label="Policy Match" value={trustDNA.policyMatch} color="emerald" />
               <ProgressBar label="Fleet Similarity" value={trustDNA.fleetSimilarity} color="blue" />
               <ProgressBar label="Threat Intel Match" value={trustDNA.threatIntelMatch} color="blue" />
               <ProgressBar label="Unknown Risk Factors" value={trustDNA.unknownRisk} color="amber" />
+            </div>
+
+            {/* Multi-Agent Collaboration Consensus Graph */}
+            <div className="space-y-3 pt-4 border-t border-slate-100">
+              <h4 className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Multi-Agent Consensus Flow</h4>
+              <div className="relative border-l border-slate-200 ml-2 space-y-4 py-1">
+                {subagents && subagents.map((step, idx) => {
+                  const isAdvocate = step.name.includes("Devil");
+                  return (
+                    <div key={idx} className="relative pl-6">
+                      <span className={`absolute -left-1.5 top-1 h-3 w-3 rounded-full border-2 border-white flex items-center justify-center ${
+                        isAdvocate ? 'bg-brand-amber animate-pulse' : 'bg-brand-emerald'
+                      }`}></span>
+                      <div className="space-y-0.5">
+                        <div className="flex justify-between items-center text-[10px] font-bold">
+                          <span className={isAdvocate ? 'text-brand-amber font-extrabold' : 'text-slate-800'}>{step.name}</span>
+                          <span className="text-slate-400 font-mono">Conf: {step.score}%</span>
+                        </div>
+                        <p className="text-[10px] text-slate-500 font-medium leading-normal m-0">{step.details}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </GlassCard>
@@ -133,12 +157,10 @@ export const ValidationScreen: React.FC = () => {
               </span>
             </div>
 
-            {/* Sub-header */}
             <div>
               <h4 className="text-xs font-extrabold text-slate-400 uppercase tracking-wider">Why this recommendation may be wrong:</h4>
             </div>
 
-            {/* Bullet reasons */}
             <ul className="space-y-3 pl-0 list-none m-0">
               {devilsAdvocate.points.map((point, idx) => (
                 <li key={idx} className="flex items-start space-x-2 text-xs font-semibold text-slate-700 bg-slate-50/50 p-2.5 rounded-xl border border-slate-100">
@@ -191,7 +213,7 @@ export const ValidationScreen: React.FC = () => {
             </div>
 
             {/* Subheader accuracy */}
-            <div className="py-2">
+            <div className="py-1">
               {renderCircleDial(timeMachine.accuracy, 'stroke-brand-amber', 'shadow-glow-amber')}
             </div>
 
@@ -227,6 +249,16 @@ export const ValidationScreen: React.FC = () => {
                 <span className="font-extrabold text-slate-800">{timeMachine.breakdown.escalated} ({Math.round(timeMachine.breakdown.escalated / timeMachine.cases * 100)}%)</span>
               </div>
             </div>
+
+            {/* Similarity Explorer trigger */}
+            <div className="pt-4 border-t border-slate-100">
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="w-full flex items-center justify-center space-x-2 py-2.5 rounded-xl border border-brand-amber/30 hover:border-brand-amber bg-brand-amber/5 hover:bg-brand-amber/10 text-xs font-bold text-brand-amber transition-all duration-200 active:scale-95"
+              >
+                <span>Explore Similar Cases</span>
+              </button>
+            </div>
           </div>
         </GlassCard>
       </div>
@@ -241,6 +273,14 @@ export const ValidationScreen: React.FC = () => {
           <ArrowRight className="h-4 w-4" />
         </button>
       </div>
+
+      {/* Similar Cases Modal */}
+      <SimilarCasesModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        cases={similarCasesList} 
+        action={action} 
+      />
     </motion.div>
   );
 };

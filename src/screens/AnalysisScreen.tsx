@@ -15,7 +15,7 @@ import { motion } from 'framer-motion';
 export const AnalysisScreen: React.FC = () => {
   const { activeRec, setCurrentScreen } = useWorkflow();
 
-  const { id, action, confidence, why, nutritionLabel } = activeRec;
+  const { id, action, confidence, why, nutritionLabel, shapImportance } = activeRec;
 
   return (
     <motion.div
@@ -166,6 +166,52 @@ export const AnalysisScreen: React.FC = () => {
               <span>{nutritionLabel.model}</span>
             </div>
           </div>
+
+          {/* SHAP Feature Importance Card */}
+          <GlassCard className="p-5 border-slate-200/50 bg-white/95 mt-4 space-y-4">
+            <div>
+              <div className="flex justify-between items-center">
+                <h4 className="text-xs font-black text-slate-800 uppercase tracking-wider m-0">SHAP Feature Attribution</h4>
+                <span className="text-[9px] font-semibold text-slate-400">Model Weights</span>
+              </div>
+              <p className="text-[10px] text-slate-500 font-medium mt-1">Impact of local feature values on AI risk score calculation.</p>
+            </div>
+
+            <div className="space-y-3">
+              {shapImportance && shapImportance.map((factor, idx) => {
+                const isPos = factor.type === 'positive';
+                return (
+                  <div key={idx} className="space-y-1">
+                    <div className="flex justify-between items-center text-[10px] font-semibold">
+                      <span className="text-slate-700">{factor.feature}</span>
+                      <span className={isPos ? 'text-brand-red font-bold' : 'text-brand-emerald font-bold'}>
+                        {isPos ? '+' : ''}{factor.val}%
+                      </span>
+                    </div>
+                    <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden flex">
+                      <div 
+                        className={`h-full rounded-full transition-all duration-1000 ${
+                          isPos ? 'bg-brand-red/80' : 'bg-brand-emerald/80'
+                        }`}
+                        style={{ width: `${factor.val}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="flex items-center justify-center space-x-4 border-t border-slate-100 pt-2.5 text-[9px] font-bold uppercase tracking-wider text-slate-500">
+              <div className="flex items-center space-x-1">
+                <span className="h-2 w-2 rounded-full bg-brand-red/80"></span>
+                <span>Elevates Risk</span>
+              </div>
+              <div className="flex items-center space-x-1">
+                <span className="h-2 w-2 rounded-full bg-brand-emerald/80"></span>
+                <span>Reduces Risk</span>
+              </div>
+            </div>
+          </GlassCard>
         </div>
       </div>
 
