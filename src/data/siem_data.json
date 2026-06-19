@@ -1,0 +1,767 @@
+{
+  "dashboard_stats": {
+    "total_alerts": 17,
+    "critical": 5,
+    "high": 7,
+    "medium": 5
+  },
+  "recommendations": [
+    {
+      "id": "DEV1248",
+      "type": "Endpoint Device",
+      "action": "Quarantine Device",
+      "severity": "Critical",
+      "confidence": 100,
+      "sources": [
+        "Security Logs",
+        "Telemetry"
+      ],
+      "status": "Pending",
+      "why": [
+        "Behavior change: System activity is 8.5 times different from the normal routine.",
+        "Threat analysis: AI classifies this action as a 'Critical' concern with 87% severity level.",
+        "Activity randomness: Log sequences indicate an unpredictability score of 4.2.",
+        "Verification check: Confirmed by automated verification agents with a 100% reliability rating."
+      ],
+      "nutritionLabel": {
+        "evidenceStrength": 3,
+        "sources": [
+          "Security Logs",
+          "Telemetry",
+          "Malware Database",
+          "SIEM Event Collector"
+        ],
+        "similarCases": 516,
+        "limitations": "AI is still learning normal behavior patterns for this account or device.",
+        "model": "Gemini 1.5 Pro"
+      },
+      "trustDNA": {
+        "score": 71,
+        "dataQuality": 92,
+        "policyMatch": 94,
+        "fleetSimilarity": 73,
+        "threatIntelMatch": 82,
+        "unknownRisk": 43
+      },
+      "devilsAdvocate": {
+        "points": [
+          "Local antivirus reports it already handled this file block.",
+          "High activity randomness (4.2) might just be background file search or backup.",
+          "The strange order of commands matches standard system software updates."
+        ],
+        "alternativeAction": "Monitor for 24 Hours"
+      },
+      "timeMachine": {
+        "accuracy": 100,
+        "cases": 43,
+        "breakdown": {
+          "correct": 43,
+          "falsePositives": 2,
+          "escalated": -2
+        }
+      },
+      "shapImportance": [
+        {
+          "feature": "Deviation From Normal Routine",
+          "val": 55,
+          "type": "positive"
+        },
+        {
+          "feature": "Activity Unpredictability Level",
+          "val": 37,
+          "type": "positive"
+        },
+        {
+          "feature": "Overall Threat Severity Score",
+          "val": 16,
+          "type": "negative"
+        },
+        {
+          "feature": "Data Source Reliability",
+          "val": 11,
+          "type": "negative"
+        },
+        {
+          "feature": "Rapid Repeated Access Actions",
+          "val": 10,
+          "type": "negative"
+        },
+        {
+          "feature": "Unusual Ordering of Steps",
+          "val": 10,
+          "type": "negative"
+        }
+      ],
+      "subagents": [
+        {
+          "name": "Ingestion Agent",
+          "status": "completed",
+          "score": 100,
+          "details": "Telemetry and log data read successfully."
+        },
+        {
+          "name": "Threat Intel Matcher",
+          "status": "completed",
+          "score": 92,
+          "details": "Checked system actions against known threat catalogs."
+        },
+        {
+          "name": "UEBA Anomaly Classifier",
+          "status": "completed",
+          "score": 100,
+          "details": "AI engine evaluated differences from normal behavior (accuracy: 100%)."
+        },
+        {
+          "name": "Devil's Advocate Falsifier",
+          "status": "completed",
+          "score": 30,
+          "details": "Identified normal background software updates. System confidence set to 100%."
+        }
+      ],
+      "similarCasesList": [
+        {
+          "case_id": "CASE-0879",
+          "date": "2026-05-01",
+          "outcome": "True Positive",
+          "decision": "Approved",
+          "analyst": "Admin AD",
+          "description": "Triggered Quarantine Device under similar telemetry profile. Resolved with zero breach escalation."
+        },
+        {
+          "case_id": "CASE-0830",
+          "date": "2026-05-22",
+          "outcome": "False Positive",
+          "decision": "Rejected",
+          "analyst": "Operator SM",
+          "description": "Triggered Quarantine Device under high baseline. Deemed false trigger."
+        },
+        {
+          "case_id": "CASE-0838",
+          "date": "2026-06-09",
+          "outcome": "True Positive",
+          "decision": "Approved",
+          "analyst": "Analyst JT",
+          "description": "Triggered Quarantine Device under similar telemetry profile. Resolved with zero breach escalation."
+        },
+        {
+          "case_id": "CASE-0882",
+          "date": "2026-06-14",
+          "outcome": "False Positive",
+          "decision": "Rejected",
+          "analyst": "Operator SM",
+          "description": "Triggered Quarantine Device under high baseline. Deemed false trigger."
+        },
+        {
+          "case_id": "CASE-0827",
+          "date": "2026-04-25",
+          "outcome": "False Positive",
+          "decision": "Rejected",
+          "analyst": "Operator SM",
+          "description": "Triggered Quarantine Device under high baseline. Deemed false trigger."
+        }
+      ]
+    },
+    {
+      "id": "SRV-0451",
+      "type": "Server",
+      "action": "Patch Deployment",
+      "severity": "High",
+      "confidence": 83,
+      "sources": [
+        "Vulnerability DB",
+        "Telemetry"
+      ],
+      "status": "Pending",
+      "why": [
+        "Behavior change: System activity is 5.1 times different from the normal routine.",
+        "Threat analysis: AI classifies this action as a 'High' concern with 72% severity level.",
+        "Activity randomness: Log sequences indicate an unpredictability score of 3.0.",
+        "Verification check: Confirmed by automated verification agents with a 83% reliability rating."
+      ],
+      "nutritionLabel": {
+        "evidenceStrength": 4,
+        "sources": [
+          "Vulnerability DB",
+          "Telemetry",
+          "Malware Database",
+          "SIEM Event Collector"
+        ],
+        "similarCases": 1728,
+        "limitations": "AI is still learning normal behavior patterns for this account or device.",
+        "model": "Gemini 1.5 Flash"
+      },
+      "trustDNA": {
+        "score": 70,
+        "dataQuality": 98,
+        "policyMatch": 82,
+        "fleetSimilarity": 70,
+        "threatIntelMatch": 83,
+        "unknownRisk": 36
+      },
+      "devilsAdvocate": {
+        "points": [
+          "Internet access is guarded by main network firewalls.",
+          "The data reading reliability is 65%, meaning connection lag could skew results.",
+          "The behavioral difference (5.1) matches standard weekly database maintenance."
+        ],
+        "alternativeAction": "Schedule Patch for Off-Hours"
+      },
+      "timeMachine": {
+        "accuracy": 100,
+        "cases": 144,
+        "breakdown": {
+          "correct": 144,
+          "falsePositives": 7,
+          "escalated": -7
+        }
+      },
+      "shapImportance": [
+        {
+          "feature": "Deviation From Normal Routine",
+          "val": 51,
+          "type": "positive"
+        },
+        {
+          "feature": "Activity Unpredictability Level",
+          "val": 39,
+          "type": "positive"
+        },
+        {
+          "feature": "Overall Threat Severity Score",
+          "val": 17,
+          "type": "negative"
+        },
+        {
+          "feature": "Data Source Reliability",
+          "val": 11,
+          "type": "negative"
+        },
+        {
+          "feature": "Rapid Repeated Access Actions",
+          "val": 10,
+          "type": "negative"
+        },
+        {
+          "feature": "Unusual Ordering of Steps",
+          "val": 10,
+          "type": "negative"
+        }
+      ],
+      "subagents": [
+        {
+          "name": "Ingestion Agent",
+          "status": "completed",
+          "score": 100,
+          "details": "Telemetry and log data read successfully."
+        },
+        {
+          "name": "Threat Intel Matcher",
+          "status": "completed",
+          "score": 92,
+          "details": "Checked system actions against known threat catalogs."
+        },
+        {
+          "name": "UEBA Anomaly Classifier",
+          "status": "completed",
+          "score": 100,
+          "details": "AI engine evaluated differences from normal behavior (accuracy: 100%)."
+        },
+        {
+          "name": "Devil's Advocate Falsifier",
+          "status": "completed",
+          "score": 30,
+          "details": "Identified standard database maintenance. System confidence set to 83%."
+        }
+      ],
+      "similarCasesList": [
+        {
+          "case_id": "CASE-0823",
+          "date": "2026-05-08",
+          "outcome": "False Positive",
+          "decision": "Rejected",
+          "analyst": "Security AI",
+          "description": "Triggered Patch Deployment under high baseline. Deemed false trigger."
+        },
+        {
+          "case_id": "CASE-0867",
+          "date": "2026-06-11",
+          "outcome": "True Positive",
+          "decision": "Approved",
+          "analyst": "Admin AD",
+          "description": "Triggered Patch Deployment under similar telemetry profile. Resolved with zero breach escalation."
+        },
+        {
+          "case_id": "CASE-0870",
+          "date": "2026-04-28",
+          "outcome": "False Positive",
+          "decision": "Rejected",
+          "analyst": "Operator SM",
+          "description": "Triggered Patch Deployment under high baseline. Deemed false trigger."
+        },
+        {
+          "case_id": "CASE-0836",
+          "date": "2026-06-10",
+          "outcome": "True Positive",
+          "decision": "Approved",
+          "analyst": "Admin AD",
+          "description": "Triggered Patch Deployment under similar telemetry profile. Resolved with zero breach escalation."
+        },
+        {
+          "case_id": "CASE-0825",
+          "date": "2026-05-28",
+          "outcome": "False Positive",
+          "decision": "Rejected",
+          "analyst": "Operator SM",
+          "description": "Triggered Patch Deployment under high baseline. Deemed false trigger."
+        }
+      ]
+    },
+    {
+      "id": "USR-7782",
+      "type": "User Account",
+      "action": "Security Escalation",
+      "severity": "Medium",
+      "confidence": 95,
+      "sources": [
+        "Auth Logs",
+        "Directory"
+      ],
+      "status": "Pending",
+      "why": [
+        "Behavior change: System activity is 3.2 times different from the normal routine.",
+        "Threat analysis: AI classifies this action as a 'Medium' concern with 54% severity level.",
+        "Activity randomness: Log sequences indicate an unpredictability score of 2.1.",
+        "Verification check: Confirmed by automated verification agents with a 95% reliability rating."
+      ],
+      "nutritionLabel": {
+        "evidenceStrength": 4,
+        "sources": [
+          "Auth Logs",
+          "Directory",
+          "Malware Database",
+          "SIEM Event Collector"
+        ],
+        "similarCases": 924,
+        "limitations": "AI is still learning normal behavior patterns for this account or device.",
+        "model": "Gemini 1.5 Flash"
+      },
+      "trustDNA": {
+        "score": 80,
+        "dataQuality": 88,
+        "policyMatch": 93,
+        "fleetSimilarity": 85,
+        "threatIntelMatch": 90,
+        "unknownRisk": 27
+      },
+      "devilsAdvocate": {
+        "points": [
+          "Login logs confirm the location matches approved company VPN ranges.",
+          "Double active sessions are normal for users running automated cloud sync tools.",
+          "Threat score is 54%, but the user passed all security login verifications (MFA)."
+        ],
+        "alternativeAction": "Send MFA Push Challenge"
+      },
+      "timeMachine": {
+        "accuracy": 100,
+        "cases": 77,
+        "breakdown": {
+          "correct": 77,
+          "falsePositives": 3,
+          "escalated": -3
+        }
+      },
+      "shapImportance": [
+        {
+          "feature": "Deviation From Normal Routine",
+          "val": 48,
+          "type": "positive"
+        },
+        {
+          "feature": "Activity Unpredictability Level",
+          "val": 41,
+          "type": "positive"
+        },
+        {
+          "feature": "Overall Threat Severity Score",
+          "val": 18,
+          "type": "negative"
+        },
+        {
+          "feature": "Data Source Reliability",
+          "val": 11,
+          "type": "negative"
+        },
+        {
+          "feature": "Rapid Repeated Access Actions",
+          "val": 10,
+          "type": "negative"
+        },
+        {
+          "feature": "Unusual Ordering of Steps",
+          "val": 10,
+          "type": "negative"
+        }
+      ],
+      "subagents": [
+        {
+          "name": "Ingestion Agent",
+          "status": "completed",
+          "score": 100,
+          "details": "Telemetry and log data read successfully."
+        },
+        {
+          "name": "Threat Intel Matcher",
+          "status": "completed",
+          "score": 92,
+          "details": "Checked system actions against known threat catalogs."
+        },
+        {
+          "name": "UEBA Anomaly Classifier",
+          "status": "completed",
+          "score": 100,
+          "details": "AI engine evaluated differences from normal behavior (accuracy: 100%)."
+        },
+        {
+          "name": "Devil's Advocate Falsifier",
+          "status": "completed",
+          "score": 30,
+          "details": "Identified login from company VPN location. System confidence set to 95%."
+        }
+      ],
+      "similarCasesList": [
+        {
+          "case_id": "CASE-0834",
+          "date": "2026-04-21",
+          "outcome": "False Positive",
+          "decision": "Rejected",
+          "analyst": "Admin AD",
+          "description": "Triggered Security Escalation under high baseline. Deemed false trigger."
+        },
+        {
+          "case_id": "CASE-0860",
+          "date": "2026-05-24",
+          "outcome": "False Positive",
+          "decision": "Rejected",
+          "analyst": "Operator SM",
+          "description": "Triggered Security Escalation under high baseline. Deemed false trigger."
+        },
+        {
+          "case_id": "CASE-0842",
+          "date": "2026-04-30",
+          "outcome": "False Positive",
+          "decision": "Rejected",
+          "analyst": "Admin AD",
+          "description": "Triggered Security Escalation under high baseline. Deemed false trigger."
+        },
+        {
+          "case_id": "CASE-0897",
+          "date": "2026-05-25",
+          "outcome": "False Positive",
+          "decision": "Rejected",
+          "analyst": "Security AI",
+          "description": "Triggered Security Escalation under high baseline. Deemed false trigger."
+        },
+        {
+          "case_id": "CASE-0832",
+          "date": "2026-05-15",
+          "outcome": "True Positive",
+          "decision": "Approved",
+          "analyst": "Admin AD",
+          "description": "Triggered Security Escalation under similar telemetry profile. Resolved with zero breach escalation."
+        }
+      ]
+    }
+  ],
+  "scenarios": {
+    "ransomware": {
+      "id": "DEV-8890",
+      "type": "Endpoint Device",
+      "action": "Isolate Host Endpoint",
+      "severity": "Critical",
+      "confidence": 95,
+      "sources": [
+        "Process Watcher",
+        "Security Logs"
+      ],
+      "status": "Pending",
+      "why": [
+        "Mass file renaming: Unusually high speed file modifications detected.",
+        "Attempted backup deletion: Command to delete backup copies was blocked.",
+        "Unknown program started: Unidentified application run from temporary folder.",
+        "Verification trace: Auto-isolation checklist triggered for DEV-8890"
+      ],
+      "nutritionLabel": {
+        "evidenceStrength": 5,
+        "sources": [
+          "Process Watcher",
+          "File Monitor",
+          "CrowdStrike Feed"
+        ],
+        "similarCases": 142,
+        "limitations": "Device is currently offline, preventing full diagnostic logs.",
+        "model": "Gemini 1.5 Pro"
+      },
+      "trustDNA": {
+        "score": 95,
+        "dataQuality": 98,
+        "policyMatch": 99,
+        "fleetSimilarity": 90,
+        "threatIntelMatch": 97,
+        "unknownRisk": 10
+      },
+      "devilsAdvocate": {
+        "points": [
+          "User was running official bulk batch compression utility tool.",
+          "File server backup synced successfully 2 minutes prior."
+        ],
+        "alternativeAction": "Snapshot and Monitor File Writes"
+      },
+      "timeMachine": {
+        "accuracy": 100,
+        "cases": 40,
+        "breakdown": {
+          "correct": 38,
+          "falsePositives": 1,
+          "escalated": 1
+        }
+      },
+      "shapImportance": [
+        {
+          "feature": "File Write Frequency",
+          "val": 45,
+          "type": "positive"
+        },
+        {
+          "feature": "Unusual Ordering of Steps",
+          "val": 30,
+          "type": "positive"
+        },
+        {
+          "feature": "Overall Threat Severity Score",
+          "val": 20,
+          "type": "positive"
+        },
+        {
+          "feature": "Deviation From Normal Routine",
+          "val": -5,
+          "type": "negative"
+        }
+      ],
+      "subagents": [
+        {
+          "name": "Ingestion Agent",
+          "status": "completed",
+          "score": 100,
+          "details": "Telemetry and log data read successfully."
+        },
+        {
+          "name": "Heuristic Inspector",
+          "status": "completed",
+          "score": 98,
+          "details": "Flagged unusually high speed file modifications."
+        },
+        {
+          "name": "Containment Evaluator",
+          "status": "completed",
+          "score": 95,
+          "details": "AI verified threat matches rule set for automatic protection."
+        },
+        {
+          "name": "Devil's Advocate",
+          "status": "completed",
+          "score": 10,
+          "details": "AI agent verified signature does not match normal tools."
+        }
+      ],
+      "similarCasesList": [
+        {
+          "case_id": "CASE-112",
+          "date": "2026-06-01",
+          "outcome": "True Positive",
+          "decision": "Approved",
+          "analyst": "Admin AD",
+          "description": "Locky variants quarantined on SRV-901"
+        },
+        {
+          "case_id": "CASE-113",
+          "date": "2026-06-03",
+          "outcome": "True Positive",
+          "decision": "Approved",
+          "analyst": "Operator SM",
+          "description": "WannaCry footprint matched and isolated DEV-8800"
+        }
+      ]
+    },
+    "exfiltration": {
+      "id": "SRV-1022",
+      "type": "Database Server",
+      "action": "Block External Gateway IP",
+      "severity": "High",
+      "confidence": 83,
+      "sources": [
+        "NetFlow",
+        "Firewall Logs"
+      ],
+      "status": "Pending",
+      "why": [
+        "Large data transfer: 4.5 GB of database records sent to unapproved external server.",
+        "Suspicious database search: Accessing list of all records in customer catalogs.",
+        "Encrypted network bypass: Attempted network connection over port 443.",
+        "Verification trace: Network traffic spike tracked from SQL-Host SRV-1022"
+      ],
+      "nutritionLabel": {
+        "evidenceStrength": 4,
+        "sources": [
+          "NetFlow Database",
+          "SQL Profiler",
+          "IP Reputation DB"
+        ],
+        "similarCases": 88,
+        "limitations": "Encrypted connection prevents verification of exact data payload.",
+        "model": "Gemini 1.5 Flash"
+      },
+      "trustDNA": {
+        "score": 82,
+        "dataQuality": 90,
+        "policyMatch": 85,
+        "fleetSimilarity": 70,
+        "threatIntelMatch": 80,
+        "unknownRisk": 25
+      },
+      "devilsAdvocate": {
+        "points": [
+          "Outbound IP belongs to official AWS disaster backup repository.",
+          "Scheduled data migration job was registered in calendar."
+        ],
+        "alternativeAction": "Throttle Bandwidth to 10kb/s"
+      },
+      "timeMachine": {
+        "accuracy": 100,
+        "cases": 25,
+        "breakdown": {
+          "correct": 22,
+          "falsePositives": 2,
+          "escalated": 1
+        }
+      },
+      "shapImportance": [
+        {
+          "feature": "Overall Threat Severity Score",
+          "val": 50,
+          "type": "positive"
+        },
+        {
+          "feature": "Unusual Ordering of Steps",
+          "val": 25,
+          "type": "positive"
+        },
+        {
+          "feature": "Activity Unpredictability Level",
+          "val": 15,
+          "type": "positive"
+        },
+        {
+          "feature": "Deviation From Normal Routine",
+          "val": -20,
+          "type": "negative"
+        }
+      ],
+      "subagents": [
+        {
+          "name": "Ingestion Agent",
+          "status": "completed",
+          "score": 100,
+          "details": "Telemetry and log data read successfully."
+        },
+        {
+          "name": "Traffic Profiler",
+          "status": "completed",
+          "score": 90,
+          "details": "Flagged unusually large transfer payload volume."
+        },
+        {
+          "name": "Geo Tracker",
+          "status": "completed",
+          "score": 85,
+          "details": "Target server location resolved to unapproved country."
+        },
+        {
+          "name": "Devil's Advocate",
+          "status": "completed",
+          "score": 35,
+          "details": "Transfer matches standard cloud replication addresses."
+        }
+      ],
+      "similarCasesList": [
+        {
+          "case_id": "CASE-301",
+          "date": "2026-05-18",
+          "outcome": "True Positive",
+          "decision": "Approved",
+          "analyst": "Admin AD",
+          "description": "SSH tunneling threat neutralized"
+        },
+        {
+          "case_id": "CASE-302",
+          "date": "2026-05-20",
+          "outcome": "False Positive",
+          "decision": "Rejected",
+          "analyst": "Operator SM",
+          "description": "Weekly dev backup triggered alert due to config"
+        }
+      ]
+    }
+  },
+  "activity_logs": [
+    {
+      "time": "15:38 PM",
+      "event": "Faker System Telemetry: Memory footprint spikes on node DEV1248",
+      "type": "system"
+    },
+    {
+      "time": "15:40 PM",
+      "event": "Faker Security Probe: Scanning detected on port 80/443 of SRV-0451",
+      "type": "system"
+    },
+    {
+      "time": "15:42 PM",
+      "event": "Faker System Audit: Active directory password failure threshold reached for USR-7782",
+      "type": "system"
+    },
+    {
+      "time": "15:44 PM",
+      "event": "SIEM Collector: Received event type auth for target USR-7782-Session",
+      "type": "system"
+    },
+    {
+      "time": "15:46 PM",
+      "event": "SIEM Collector: Endpoint anomaly log compiled for host DEV1248",
+      "type": "system"
+    },
+    {
+      "time": "15:48 PM",
+      "event": "TrustLens AI: Spawning threat-classification agent sequence",
+      "type": "ai"
+    },
+    {
+      "time": "15:50 PM",
+      "event": "Random Forest Agent: Processing model weights (X_test split evaluation completed)",
+      "type": "ai"
+    },
+    {
+      "time": "15:52 PM",
+      "event": "Random Forest Agent: Model test accuracy evaluated at 100% accuracy rating",
+      "type": "ai"
+    },
+    {
+      "time": "15:54 PM",
+      "event": "TrustLens AI: Threat features matched and isolated",
+      "type": "ai"
+    },
+    {
+      "time": "15:56 PM",
+      "event": "Operator Alert: SOC recommendations table updated. Pending human audit.",
+      "type": "system"
+    }
+  ]
+}
