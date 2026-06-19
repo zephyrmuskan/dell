@@ -10,7 +10,11 @@ import {
   HelpCircle, 
   History,
   Eye,
-  AlertTriangle
+  AlertTriangle,
+  Database,
+  Search,
+  Cpu,
+  Scale
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -116,23 +120,55 @@ export const ValidationScreen: React.FC = () => {
               <ProgressBar label="Unknown Risk Factors" value={trustDNA.unknownRisk} color="amber" />
             </div>
 
-            {/* Multi-Agent Collaboration Consensus Graph */}
-            <div className="space-y-3 pt-4 border-t border-slate-100">
-              <h4 className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Multi-Agent Consensus Flow</h4>
-              <div className="relative border-l border-slate-200 ml-2 space-y-4 py-1">
+            {/* Multi-Agent Handoff Visualizer */}
+            <div className="space-y-4 pt-4 border-t border-slate-100">
+              <div className="flex justify-between items-center">
+                <h4 className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider m-0">Multi-Agent Handoff Visualizer</h4>
+                <span className="text-[9px] font-bold text-slate-400 bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded uppercase tracking-wider">Consensus Flow</span>
+              </div>
+              
+              <div className="relative pl-0.5 space-y-5">
                 {subagents && subagents.map((step, idx) => {
+                  const isLast = idx === subagents.length - 1;
                   const isAdvocate = step.name.includes("Devil");
+                  
+                  // Pick colors based on role
+                  const iconBg = isAdvocate 
+                    ? 'bg-brand-amber/10 text-brand-amber border-brand-amber/30 shadow-glow-amber animate-pulse' 
+                    : 'bg-brand-emerald/10 text-brand-emerald border-brand-emerald/30';
+                  
+                  const getAgentIcon = (name: string) => {
+                    if (name.includes("Ingestion")) return <Database className="h-3.5 w-3.5" />;
+                    if (name.includes("Intel")) return <Search className="h-3.5 w-3.5" />;
+                    if (name.includes("Anomaly") || name.includes("Classifier")) return <Cpu className="h-3.5 w-3.5" />;
+                    return <Scale className="h-3.5 w-3.5" />;
+                  };
+
                   return (
-                    <div key={idx} className="relative pl-6">
-                      <span className={`absolute -left-1.5 top-1 h-3 w-3 rounded-full border-2 border-white flex items-center justify-center ${
-                        isAdvocate ? 'bg-brand-amber animate-pulse' : 'bg-brand-emerald'
-                      }`}></span>
-                      <div className="space-y-0.5">
-                        <div className="flex justify-between items-center text-[10px] font-bold">
-                          <span className={isAdvocate ? 'text-brand-amber font-extrabold' : 'text-slate-800'}>{step.name}</span>
-                          <span className="text-slate-400 font-mono">Conf: {step.score}%</span>
+                    <div key={idx} className="relative flex items-start group">
+                      {/* Vertical line connection */}
+                      {!isLast && (
+                        <div className="absolute left-4.5 top-9 bottom-[-20px] w-[2px] bg-gradient-to-b from-slate-200 via-slate-200 to-transparent"></div>
+                      )}
+                      
+                      {/* Step Indicator with Icon */}
+                      <div className={`z-10 flex items-center justify-center h-9 w-9 rounded-xl border-2 border-white shadow-premium transition-all duration-300 transform group-hover:scale-110 ${iconBg}`}>
+                        {getAgentIcon(step.name)}
+                      </div>
+                      
+                      {/* Content Card */}
+                      <div className="ml-4 flex-1 bg-slate-50/60 hover:bg-slate-50 border border-slate-100 hover:border-slate-200/80 p-3 rounded-xl transition-all duration-300">
+                        <div className="flex justify-between items-center">
+                          <span className={`text-[10px] font-black tracking-tight ${isAdvocate ? 'text-brand-amber' : 'text-slate-800'}`}>
+                            {step.name}
+                          </span>
+                          <span className="text-[9px] font-extrabold text-slate-400 bg-white border border-slate-200/50 px-1.5 py-0.5 rounded font-mono">
+                            Conf: {step.score}%
+                          </span>
                         </div>
-                        <p className="text-[10px] text-slate-500 font-medium leading-normal m-0">{step.details}</p>
+                        <p className="text-[10px] text-slate-500 font-medium leading-normal mt-1 m-0">
+                          {step.details}
+                        </p>
                       </div>
                     </div>
                   );

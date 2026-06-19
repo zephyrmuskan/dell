@@ -3,6 +3,7 @@ import siemData from '../data/siem_data.json';
 
 export type Severity = 'Critical' | 'High' | 'Medium';
 export type RecommendationStatus = 'Pending' | 'Approved' | 'Rejected' | 'Escalated' | 'Details Requested';
+export type AutonomyLevel = 'collaborative' | 'copilot' | 'autonomous';
 
 export interface ShapFactor {
   feature: string;
@@ -98,6 +99,8 @@ interface WorkflowContextType {
     medium: number;
   };
   injectScenario: (scenarioId: string) => void;
+  autonomyLevel: AutonomyLevel;
+  setAutonomyLevel: (level: AutonomyLevel) => void;
 }
 
 const initialRecommendations = siemData.recommendations as Recommendation[];
@@ -115,13 +118,26 @@ export const WorkflowProvider: React.FC<{ children: ReactNode }> = ({ children }
   const [decisionNotes, setDecisionNotes] = useState<string>('');
   const [showSuccessToast, setShowSuccessToast] = useState<boolean>(false);
 
-  const activeRec = recommendations.find((r) => r.id === activeRecId) || recommendations[0];
+  const [autonomyLevel, setAutonomyLevel] = useState<AutonomyLevel>('collaborative');
+
+  const adaptedRecommendations = recommendations.map((rec) => {
+    if (autonomyLevel === 'autonomous') {
+      return { ...rec, status: rec.status === 'Pending' ? 'Approved' : rec.status } as Recommendation;
+    } else if (autonomyLevel === 'copilot') {
+      if (rec.severity === 'Medium') {
+        return { ...rec, status: rec.status === 'Pending' ? 'Approved' : rec.status } as Recommendation;
+      }
+    }
+    return rec;
+  });
+
+  const activeRec = adaptedRecommendations.find((r) => r.id === activeRecId) || adaptedRecommendations[0];
 
   const dashboardStats = {
-    total_alerts: initialStats.total_alerts + (recommendations.length - initialRecommendations.length),
-    critical: initialStats.critical + recommendations.filter(r => r.severity === 'Critical' && !initialRecommendations.some(ir => ir.id === r.id)).length,
-    high: initialStats.high + recommendations.filter(r => r.severity === 'High' && !initialRecommendations.some(ir => ir.id === r.id)).length,
-    medium: initialStats.medium + recommendations.filter(r => r.severity === 'Medium' && !initialRecommendations.some(ir => ir.id === r.id)).length,
+    total_alerts: initialStats.total_alerts + (adaptedRecommendations.length - initialRecommendations.length),
+    critical: initialStats.critical + adaptedRecommendations.filter(r => r.severity === 'Critical' && !initialRecommendations.some(ir => ir.id === r.id)).length,
+    high: initialStats.high + adaptedRecommendations.filter(r => r.severity === 'High' && !initialRecommendations.some(ir => ir.id === r.id)).length,
+    medium: initialStats.medium + adaptedRecommendations.filter(r => r.severity === 'Medium' && !initialRecommendations.some(ir => ir.id === r.id)).length,
   };
 
   const injectScenario = (scenarioId: string) => {
@@ -209,6 +225,7 @@ export const WorkflowProvider: React.FC<{ children: ReactNode }> = ({ children }
     setSelectedAltAction(false);
     setDecisionNotes('');
     setShowSuccessToast(false);
+    setAutonomyLevel('collaborative');
   };
 
   return (
@@ -216,7 +233,7 @@ export const WorkflowProvider: React.FC<{ children: ReactNode }> = ({ children }
       value={{
         currentScreen,
         setCurrentScreen,
-        recommendations,
+        recommendations: adaptedRecommendations,
         activeRecId,
         setActiveRecId,
         activeRec,
@@ -230,7 +247,9 @@ export const WorkflowProvider: React.FC<{ children: ReactNode }> = ({ children }
         showSuccessToast,
         setShowSuccessToast,
         dashboardStats,
-        injectScenario
+        injectScenario,
+        autonomyLevel,
+        setAutonomyLevel
       }}
     >
       {children}

@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 
 export const Sidebar: React.FC = () => {
-  const { currentScreen, setCurrentScreen, resetDemo } = useWorkflow();
+  const { currentScreen, setCurrentScreen, resetDemo, autonomyLevel, setAutonomyLevel } = useWorkflow();
 
   const navItems = [
     { id: 1, label: 'Dashboard', icon: LayoutDashboard, screen: 1 },
@@ -55,7 +55,51 @@ export const Sidebar: React.FC = () => {
             );
           })}
         </nav>
+        
+        {/* Autonomy Dial */}
+        <div className="mt-8 px-4 border-t border-slate-800/40 pt-6">
+          <p className="text-[10px] text-slate-500 font-extrabold tracking-wider uppercase px-4 mb-3">AI Autonomy Level</p>
+          
+          <div className="bg-slate-900/60 p-1.5 rounded-xl border border-slate-800/80 flex flex-col space-y-1">
+            {(['collaborative', 'copilot', 'autonomous'] as const).map((level) => {
+              const active = autonomyLevel === level;
+              const labels = {
+                collaborative: 'Collaborative',
+                copilot: 'Co-Pilot',
+                autonomous: 'Autonomous'
+              };
+              const activeColors = {
+                collaborative: 'bg-slate-700 text-white shadow-sm',
+                copilot: 'bg-brand-blue text-white shadow-glow-blue',
+                autonomous: 'bg-brand-emerald text-white shadow-glow-emerald'
+              };
 
+              return (
+                <button
+                  key={level}
+                  onClick={() => setAutonomyLevel(level)}
+                  className={`px-3 py-2 rounded-lg text-[11px] font-bold transition-all duration-200 text-center ${
+                    active 
+                      ? activeColors[level] 
+                      : 'text-slate-500 hover:text-slate-300 hover:bg-slate-800/20'
+                  }`}
+                >
+                  {labels[level]}
+                </button>
+              );
+            })}
+          </div>
+
+          <p className="text-[10px] text-slate-500 font-medium leading-relaxed mt-3.5 px-2 transition-all duration-300 italic">
+            "{
+              autonomyLevel === 'collaborative'
+                ? "Always Ask: Proposes suggestions; humans approve every step."
+                : autonomyLevel === 'copilot'
+                ? "Co-Pilot: AI auto-resolves Medium threats; prompts on High/Critical."
+                : "Act & Audit: Auto-executes all recommendations and logs them."
+            }"
+          </p>
+        </div>
       </div>
 
       {/* Profile & Reset Demo */}

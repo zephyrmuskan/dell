@@ -14,7 +14,7 @@ import {
 import { motion } from 'framer-motion';
 
 export const DashboardScreen: React.FC = () => {
-  const { recommendations, setActiveRecId, setCurrentScreen, dashboardStats } = useWorkflow();
+  const { recommendations, setActiveRecId, setCurrentScreen, dashboardStats, autonomyLevel } = useWorkflow();
 
   const handleAnalyze = (id: string) => {
     setActiveRecId(id);
@@ -76,7 +76,7 @@ export const DashboardScreen: React.FC = () => {
           </div>
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-brand-blue/10 text-brand-blue border border-brand-blue/20">
             <Cpu className="h-3 w-3 mr-1" />
-            3 Recommendations Pending Review
+            {recommendations.filter(r => r.status === 'Pending').length} Recommendations Pending Review
           </span>
         </div>
 
@@ -104,6 +104,17 @@ export const DashboardScreen: React.FC = () => {
                     Escalated: 'bg-brand-amber/10 text-brand-amber border-brand-amber/20',
                     'Details Requested': 'bg-brand-blue/10 text-brand-blue border-brand-blue/20'
                   };
+
+                  let displayStatus = rec.status as string;
+                  if (rec.status === 'Approved') {
+                    if (autonomyLevel === 'autonomous') {
+                      displayStatus = 'Auto-Executed';
+                    } else if (autonomyLevel === 'copilot' && rec.severity === 'Medium') {
+                      displayStatus = 'Auto-Resolved';
+                    } else {
+                      displayStatus = 'Approved';
+                    }
+                  }
 
                   return (
                     <tr 
@@ -135,8 +146,12 @@ export const DashboardScreen: React.FC = () => {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-center">
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold border ${statusColors[rec.status]}`}>
-                          {rec.status}
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold border ${
+                          displayStatus === 'Auto-Executed' || displayStatus === 'Auto-Resolved'
+                            ? 'bg-brand-emerald/10 text-brand-emerald border-brand-emerald/20'
+                            : statusColors[rec.status]
+                        }`}>
+                          {displayStatus}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right">
@@ -144,7 +159,7 @@ export const DashboardScreen: React.FC = () => {
                           onClick={() => handleAnalyze(rec.id)}
                           className="inline-flex items-center space-x-1 px-3 py-1.5 rounded-lg text-xs font-bold text-brand-blue bg-brand-blue/10 hover:bg-brand-blue hover:text-white transition-all duration-200"
                         >
-                          <span>Analyze</span>
+                          <span>{rec.status === 'Approved' ? 'View Audit' : 'Analyze'}</span>
                           <ChevronRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
                         </button>
                       </td>
