@@ -37,41 +37,45 @@ def load_or_generate_siem_data():
             print(f"[!] Error reading Hugging Face dataset: {e}. Generating training data.")
 
     # Generate synthetic training dataframe with 5000 rows
-    print("[*] Generating clean synthetic cybersecurity telemetry for training...")
+    print("[*] Generating noisy, realistic synthetic cybersecurity telemetry for training...")
     records = []
     
     for _ in range(5000):
-        # Generate correlations
+        # Generate correlations with realistic feature overlaps
         severity = random.choice(["Critical", "High", "Medium", "Low"])
         
         if severity == "Critical":
-            risk = random.uniform(0.8, 1.0)
-            conf = random.uniform(0.8, 0.98)
-            deviation = random.uniform(7.0, 10.0)
-            entropy = random.uniform(3.8, 5.0)
-            freq_anom = 1 if random.random() > 0.1 else 0
-            seq_anom = 1 if random.random() > 0.1 else 0
+            risk = random.uniform(0.65, 0.95)
+            conf = random.uniform(0.65, 0.95)
+            deviation = random.uniform(4.5, 9.0)
+            entropy = random.uniform(2.5, 4.5)
+            freq_anom = 1 if random.random() > 0.15 else 0
+            seq_anom = 1 if random.random() > 0.15 else 0
         elif severity == "High":
-            risk = random.uniform(0.6, 0.8)
-            conf = random.uniform(0.7, 0.90)
-            deviation = random.uniform(4.5, 7.0)
-            entropy = random.uniform(2.8, 3.8)
-            freq_anom = 1 if random.random() > 0.3 else 0
-            seq_anom = 1 if random.random() > 0.3 else 0
+            risk = random.uniform(0.50, 0.85)
+            conf = random.uniform(0.55, 0.85)
+            deviation = random.uniform(3.5, 7.0)
+            entropy = random.uniform(2.0, 3.8)
+            freq_anom = 1 if random.random() > 0.35 else 0
+            seq_anom = 1 if random.random() > 0.35 else 0
         elif severity == "Medium":
-            risk = random.uniform(0.4, 0.6)
-            conf = random.uniform(0.5, 0.80)
-            deviation = random.uniform(2.0, 4.5)
-            entropy = random.uniform(1.5, 2.8)
-            freq_anom = 1 if random.random() > 0.5 else 0
-            seq_anom = 1 if random.random() > 0.5 else 0
+            risk = random.uniform(0.35, 0.70)
+            conf = random.uniform(0.40, 0.75)
+            deviation = random.uniform(2.0, 5.5)
+            entropy = random.uniform(1.2, 3.0)
+            freq_anom = 1 if random.random() > 0.55 else 0
+            seq_anom = 1 if random.random() > 0.55 else 0
         else:
-            risk = random.uniform(0.0, 0.4)
-            conf = random.uniform(0.4, 0.70)
-            deviation = random.uniform(0.0, 2.0)
-            entropy = random.uniform(0.0, 1.5)
-            freq_anom = 1 if random.random() > 0.8 else 0
-            seq_anom = 1 if random.random() > 0.8 else 0
+            risk = random.uniform(0.0, 0.50)
+            conf = random.uniform(0.30, 0.70)
+            deviation = random.uniform(0.0, 3.5)
+            entropy = random.uniform(0.0, 2.5)
+            freq_anom = 1 if random.random() > 0.85 else 0
+            seq_anom = 1 if random.random() > 0.85 else 0
+
+        # Simulate label noise: flip the label in 10% of cases to model human analyst variance or logging errors
+        if random.random() < 0.10:
+            severity = random.choice([s for s in ["Critical", "High", "Medium", "Low"] if s != severity])
 
         records.append({
             "meta_risk_score": risk,
@@ -84,7 +88,7 @@ def load_or_generate_siem_data():
         })
 
     df = pd.DataFrame(records)
-    print(f"[+] Successfully generated training DataFrame. Shape: {df.shape}")
+    print(f"[+] Successfully generated noisy training DataFrame. Shape: {df.shape}")
     return df
 
 def main():
@@ -251,8 +255,9 @@ def main():
         
         cases = random.randint(25, 150)
         correct = int(cases * (test_accuracy / 100.0))
-        false_positives = int(cases * 0.05)
-        escalated = cases - correct - false_positives
+        remaining = cases - correct
+        false_positives = int(remaining * 0.5)
+        escalated = remaining - false_positives
         time_machine = {
             "accuracy": test_accuracy,
             "cases": cases,
@@ -352,7 +357,7 @@ def main():
                 "alternativeAction": "Snapshot and Monitor File Writes"
             },
             "timeMachine": {
-                "accuracy": test_accuracy,
+                "accuracy": 95,
                 "cases": 40,
                 "breakdown": {"correct": 38, "falsePositives": 1, "escalated": 1}
             },
@@ -410,7 +415,7 @@ def main():
                 "alternativeAction": "Throttle Bandwidth to 10kb/s"
             },
             "timeMachine": {
-                "accuracy": test_accuracy,
+                "accuracy": 88,
                 "cases": 25,
                 "breakdown": {"correct": 22, "falsePositives": 2, "escalated": 1}
             },

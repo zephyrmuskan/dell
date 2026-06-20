@@ -1,8 +1,4 @@
-//<<<<<<< HEAD
-//import React from 'react';
-
-import React, { useEffect, useState } from "react";
-//>>>>>>> 81897b8da0bccdd8f61c4dcf0db274fd71a698d9
+import React from "react";
 import { WorkflowProvider, useWorkflow } from './context/WorkflowContext';
 import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
@@ -13,9 +9,6 @@ import { DecisionScreen } from './screens/DecisionScreen';
 import { AnimatePresence } from 'framer-motion';
 import { ShieldCheck } from 'lucide-react';
 import  LoginPage from "./screens/LoginPage";
-import LandingPage from "./screens/LandingPage";
-
-//>>>>>>> 81897b8da0bccdd8f61c4dcf0db274fd71a698d9
 const MainLayout: React.FC = () => {
   const { currentScreen, showSuccessToast } = useWorkflow();
 
@@ -76,38 +69,31 @@ const MainLayout: React.FC = () => {
 
 
 
-function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [showDashboard, setShowDashboard] = useState(false);
+const AppContent: React.FC = () => {
+  const { user, loading } = useWorkflow();
 
-  useEffect(() => {
-    const handler = (event: MessageEvent) => {
-      if (event.data === "ENTER_APP") {
-        setShowDashboard(true);
-      }
-    };
-
-    window.addEventListener("message", handler);
-
-    return () => {
-      window.removeEventListener("message", handler);
-    };
-  }, []);
-
-  if (!isLoggedIn) {
-  return <LoginPage onLogin={() => setIsLoggedIn(true)} />;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center font-sans">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="w-12 h-12 rounded-full border-4 border-brand-blue border-t-transparent animate-spin"></div>
+          <p className="text-slate-500 font-semibold text-sm">Verifying session...</p>
+        </div>
+      </div>
+    );
   }
 
-  // if (!showDashboard) {
-  //   return <LandingPage />;
-  // } 
+  if (!user) {
+    return <LoginPage onLogin={() => {}} />;
+  }
 
-  
+  return <MainLayout />;
+};
 
- //>>>>>>> 81897b8da0bccdd8f61c4dcf0db274fd71a698d9
+function App() {
   return (
     <WorkflowProvider>
-      <MainLayout />
+      <AppContent />
     </WorkflowProvider>
   );
 }

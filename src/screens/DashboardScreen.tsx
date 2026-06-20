@@ -99,14 +99,14 @@ export const DashboardScreen: React.FC = () => {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-200/80 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                  <th className="px-6 py-4">Severity</th>
-                  <th className="px-6 py-4">Asset Details</th>
-                  <th className="px-6 py-4">MDM Gateway</th>
-                  <th className="px-6 py-4">Suggested Recommendation</th>
-                  <th className="px-6 py-4">Confidence</th>
-                  <th className="px-6 py-4">Data Sources</th>
-                  <th className="px-6 py-4 text-center">Status</th>
-                  <th className="px-6 py-4 text-right">Action</th>
+                  <th className="px-4 py-3">Severity</th>
+                  <th className="px-4 py-3">Asset</th>
+                  <th className="px-4 py-3">MDM Gateway</th>
+                  <th className="px-4 py-3">Suggested Action</th>
+                  <th className="px-4 py-3">Confidence</th>
+                  <th className="px-4 py-3">Sources</th>
+                  <th className="px-4 py-3 text-center">Status</th>
+                  <th className="px-4 py-3 text-right">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-sm">
@@ -122,9 +122,9 @@ export const DashboardScreen: React.FC = () => {
 
                   let displayStatus = rec.status as string;
                   if (rec.status === 'Approved') {
-                    if (autonomyLevel === 'autonomous') {
+                    if (autonomyLevel === 4) {
                       displayStatus = 'Auto-Executed';
-                    } else if (autonomyLevel === 'copilot' && rec.severity === 'Medium') {
+                    } else if (autonomyLevel === 3 && rec.severity === 'Medium') {
                       displayStatus = 'Auto-Resolved';
                     } else {
                       displayStatus = 'Approved';
@@ -135,25 +135,25 @@ export const DashboardScreen: React.FC = () => {
 
                   return (
                     <tr 
-                      key={rec.id}
+                       key={rec.id}
                       className="hover:bg-slate-50/70 transition-colors duration-150 group"
                     >
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-4 py-3 whitespace-nowrap">
                         <AlertBadge severity={rec.severity} />
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-4 py-3 whitespace-nowrap">
                         <div className="font-bold text-slate-900">{rec.id}</div>
                         <div className="text-xs text-slate-500 font-medium">{rec.type}</div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-4 py-3 whitespace-nowrap">
                         <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold border ${gwBadge.style}`}>
                           {gwBadge.label}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap font-semibold text-slate-700">
+                      <td className="px-4 py-3 whitespace-nowrap font-semibold text-slate-700">
                         {rec.action}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-4 py-3 whitespace-nowrap">
                         <div className="flex items-center space-x-2">
                           <span className="font-extrabold text-slate-900">{rec.confidence}%</span>
                           <span className="text-[10px] font-bold text-slate-500 uppercase px-1.5 py-0.5 bg-slate-100 rounded">
@@ -161,13 +161,13 @@ export const DashboardScreen: React.FC = () => {
                           </span>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-4 py-3 whitespace-nowrap">
                         <div className="flex items-center space-x-1.5 text-xs text-slate-600 font-medium">
                           <Database className="h-3 w-3 text-slate-400" />
                           <span>{rec.sources.join(' + ')}</span>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-center">
+                      <td className="px-4 py-3 whitespace-nowrap text-center">
                         <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold border ${
                           displayStatus === 'Auto-Executed' || displayStatus === 'Auto-Resolved'
                             ? 'bg-brand-emerald/10 text-brand-emerald border-brand-emerald/20'
@@ -176,7 +176,7 @@ export const DashboardScreen: React.FC = () => {
                           {displayStatus}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right">
+                      <td className="px-4 py-3 whitespace-nowrap text-right">
                         <button
                           onClick={() => handleAnalyze(rec.id)}
                           className="inline-flex items-center space-x-1 px-3 py-1.5 rounded-lg text-xs font-bold text-brand-blue bg-brand-blue/10 hover:bg-brand-blue hover:text-white transition-all duration-200"

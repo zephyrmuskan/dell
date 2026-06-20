@@ -6,11 +6,30 @@ import {
   Dna, 
   ClipboardList, 
   RotateCcw,
-  ShieldAlert as ShieldIcon
+  ShieldAlert as ShieldIcon,
+  LogOut
 } from 'lucide-react';
 
 export const Sidebar: React.FC = () => {
-  const { currentScreen, setCurrentScreen, resetDemo, autonomyLevel, setAutonomyLevel } = useWorkflow();
+  const { currentScreen, setCurrentScreen, resetDemo, autonomyLevel, setAutonomyLevel, user, logout } = useWorkflow();
+
+  const getInitials = () => {
+    if (user?.user_metadata?.full_name) {
+      const parts = user.user_metadata.full_name.split(' ');
+      if (parts.length >= 2) {
+        return (parts[0][0] + parts[1][0]).toUpperCase();
+      }
+      return parts[0].substring(0, 2).toUpperCase();
+    }
+    if (user?.email) {
+      return user.email.substring(0, 2).toUpperCase();
+    }
+    return 'AD';
+  };
+
+  const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Admin User';
+  const displayRole = user?.email || 'IT Administrator';
+  const avatarUrl = user?.user_metadata?.avatar_url;
 
   const navItems = [
     { id: 1, label: 'MDM Compliance Dashboard', icon: LayoutDashboard, screen: 1 },
@@ -20,7 +39,7 @@ export const Sidebar: React.FC = () => {
   ];
 
   return (
-    <aside className="w-64 glass-sidebar min-h-screen text-slate-700 flex flex-col justify-between flex-shrink-0">
+    <aside className="w-64 glass-sidebar h-screen text-slate-700 flex flex-col justify-between flex-shrink-0 overflow-y-auto">
       {/* Brand Header */}
       <div>
         <div className="p-6 flex items-center space-x-3 border-b border-slate-100">
@@ -61,24 +80,26 @@ export const Sidebar: React.FC = () => {
           <p className="text-[10px] text-slate-400 font-extrabold tracking-wider uppercase px-2 mb-3">AI Autonomy Level</p>
           
           <div className="bg-slate-50 p-1.5 rounded-xl border border-slate-200 flex flex-col space-y-1">
-            {(['collaborative', 'copilot', 'autonomous'] as const).map((level) => {
+            {([1, 2, 3, 4] as const).map((level) => {
               const active = autonomyLevel === level;
               const labels = {
-                collaborative: 'Collaborative',
-                copilot: 'Co-Pilot',
-                autonomous: 'Autonomous'
+                1: '1. Always Ask Me',
+                2: '2. Recommend Only',
+                3: '3. Auto Approve Low Risk',
+                4: '4. Act & Notify'
               };
               const activeColors = {
-                collaborative: 'bg-slate-200 text-slate-800 shadow-sm',
-                copilot: 'bg-brand-blue text-white shadow-glow-blue',
-                autonomous: 'bg-brand-emerald text-white shadow-glow-emerald'
+                1: 'bg-slate-200 text-slate-800 shadow-sm',
+                2: 'bg-indigo-100 text-indigo-800 border border-indigo-200/50 shadow-sm',
+                3: 'bg-brand-blue text-white shadow-glow-blue',
+                4: 'bg-brand-emerald text-white shadow-glow-emerald'
               };
 
               return (
                 <button
                   key={level}
                   onClick={() => setAutonomyLevel(level)}
-                  className={`px-3 py-2 rounded-lg text-[11px] font-bold transition-all duration-200 text-center ${
+                  className={`px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all duration-200 text-left cursor-pointer ${
                     active 
                       ? activeColors[level] 
                       : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'
@@ -92,11 +113,13 @@ export const Sidebar: React.FC = () => {
 
           <p className="text-[10px] text-slate-500 font-medium leading-relaxed mt-3.5 px-2 transition-all duration-300 italic">
             "{
-              autonomyLevel === 'collaborative'
-                ? "Always Ask: Proposes suggestions; humans approve every step."
-                : autonomyLevel === 'copilot'
-                ? "Co-Pilot: AI auto-resolves Medium threats; prompts on High/Critical."
-                : "Act & Audit: Auto-executes all recommendations and logs them."
+              autonomyLevel === 1
+                ? "Level 1: Every recommendation requires manual human approval."
+                : autonomyLevel === 2
+                ? "Level 2: AI suggests actions but humans must approve execution."
+                : autonomyLevel === 3
+                ? "Level 3: Low-risk tasks auto-approve; critical actions require review."
+                : "Level 4: AI executes all actions immediately and logs audit details."
             }"
           </p>
         </div>
@@ -150,14 +173,28 @@ export const Sidebar: React.FC = () => {
 
         {/* User Card */}
         <div className="flex items-center space-x-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
-          <div className="h-9 w-9 rounded-full bg-gradient-to-tr from-brand-blue to-purple-600 flex items-center justify-center font-bold text-white text-sm border border-white/10 shadow-inner">
-            AD
-          </div>
+          {avatarUrl ? (
+            <img 
+              src={avatarUrl} 
+              alt={displayName} 
+              className="h-9 w-9 rounded-full object-cover border border-slate-200 shadow-inner" 
+            />
+          ) : (
+            <div className="h-9 w-9 rounded-full bg-gradient-to-tr from-brand-blue to-purple-600 flex items-center justify-center font-bold text-white text-sm border border-white/10 shadow-inner">
+              {getInitials()}
+            </div>
+          )}
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-bold text-slate-800 truncate m-0">Admin User</p>
-            <p className="text-[10px] text-slate-400 font-bold truncate m-0">IT Administrator</p>
+            <p className="text-xs font-bold text-slate-800 truncate m-0">{displayName}</p>
+            <p className="text-[9px] text-slate-400 font-extrabold truncate m-0 uppercase tracking-wider">{displayRole}</p>
           </div>
-          <div className="h-2 w-2 rounded-full bg-brand-emerald animate-pulse"></div>
+          <button
+            onClick={logout}
+            title="Sign Out"
+            className="p-1.5 rounded-lg hover:bg-slate-200 text-slate-400 hover:text-rose-600 transition-colors cursor-pointer border-none bg-transparent"
+          >
+            <LogOut className="h-4 w-4.5" />
+          </button>
         </div>
       </div>
     </aside>
