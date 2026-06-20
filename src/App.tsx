@@ -9,6 +9,7 @@ import { DecisionScreen } from './screens/DecisionScreen';
 import { AnimatePresence } from 'framer-motion';
 import { ShieldCheck } from 'lucide-react';
 import  LoginPage from "./screens/LoginPage";
+import LandingPage from "./screens/LandingPage";
 const MainLayout: React.FC = () => {
   const { currentScreen, showSuccessToast } = useWorkflow();
 
@@ -71,6 +72,7 @@ const MainLayout: React.FC = () => {
 
 const AppContent: React.FC = () => {
   const { user, loading } = useWorkflow();
+  const [showLanding, setShowLanding] = React.useState(true);
 
   if (loading) {
     return (
@@ -84,6 +86,9 @@ const AppContent: React.FC = () => {
   }
 
   if (!user) {
+    if (showLanding) {
+      return <LandingPage onEnterApp={() => setShowLanding(false)} />;
+    }
     return <LoginPage onLogin={() => {}} />;
   }
 
