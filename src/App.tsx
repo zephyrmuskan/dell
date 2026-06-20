@@ -1,8 +1,8 @@
-<<<<<<< HEAD
-import React from 'react';
-=======
+//<<<<<<< HEAD
+//import React from 'react';
+
 import React, { useEffect, useState } from "react";
->>>>>>> 81897b8da0bccdd8f61c4dcf0db274fd71a698d9
+//>>>>>>> 81897b8da0bccdd8f61c4dcf0db274fd71a698d9
 import { WorkflowProvider, useWorkflow } from './context/WorkflowContext';
 import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
@@ -12,11 +12,10 @@ import { ValidationScreen } from './screens/ValidationScreen';
 import { DecisionScreen } from './screens/DecisionScreen';
 import { AnimatePresence } from 'framer-motion';
 import { ShieldCheck } from 'lucide-react';
-<<<<<<< HEAD
-
-=======
+import  LoginPage from "./screens/LoginPage";
 import LandingPage from "./screens/LandingPage";
->>>>>>> 81897b8da0bccdd8f61c4dcf0db274fd71a698d9
+
+//>>>>>>> 81897b8da0bccdd8f61c4dcf0db274fd71a698d9
 const MainLayout: React.FC = () => {
   const { currentScreen, showSuccessToast } = useWorkflow();
 
@@ -73,11 +72,12 @@ const MainLayout: React.FC = () => {
   );
 };
 
-<<<<<<< HEAD
-function App() {
-=======
+ 
+
+
 
 function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showDashboard, setShowDashboard] = useState(false);
 
   useEffect(() => {
@@ -94,11 +94,17 @@ function App() {
     };
   }, []);
 
-  if (!showDashboard) {
-    return <LandingPage />;
+  if (!isLoggedIn) {
+  return <LoginPage onLogin={() => setIsLoggedIn(true)} />;
   }
 
->>>>>>> 81897b8da0bccdd8f61c4dcf0db274fd71a698d9
+  // if (!showDashboard) {
+  //   return <LandingPage />;
+  // } 
+
+  
+
+ //>>>>>>> 81897b8da0bccdd8f61c4dcf0db274fd71a698d9
   return (
     <WorkflowProvider>
       <MainLayout />
@@ -106,4 +112,4 @@ function App() {
   );
 }
 
-export default App;
+export default App ;
