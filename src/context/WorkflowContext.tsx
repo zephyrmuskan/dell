@@ -140,6 +140,17 @@ interface WorkflowContextType {
   loading: boolean;
   logout: () => Promise<void>;
   loginAsDemoUser: (role?: 'admin' | 'analyst' | 'stakeholder') => void;
+
+  // Search & Date Filter Integration
+  searchQuery: string;
+  setSearchQuery: (val: string) => void;
+  dateFilter: string;
+  setDateFilter: (val: string) => void;
+  customDateRange: { start: string; end: string };
+  setCustomDateRange: (val: { start: string; end: string }) => void;
+  filteredRecommendations: Recommendation[];
+  filteredActivityLog: ActivityLogEntry[];
+  filteredSimilarCases: PastCase[];
 }
 
 const initialRecommendations = siemData.recommendations as Recommendation[];
@@ -215,6 +226,27 @@ export const WorkflowProvider: React.FC<{ children: ReactNode }> = ({ children }
   const [selectedAltAction, setSelectedAltAction] = useState<boolean>(false);
   const [decisionNotes, setDecisionNotes] = useState<string>('');
   const [showSuccessToast, setShowSuccessToast] = useState<boolean>(false);
+
+  // Search and Date filter state management
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [dateFilter, setDateFilterState] = useState<string>(() => {
+    return localStorage.getItem('dateFilter') || 'all';
+  });
+  const [customDateRange, setCustomDateRangeState] = useState<{ start: string; end: string }>(() => {
+    const saved = localStorage.getItem('customDateRange');
+    return saved ? JSON.parse(saved) : { start: '', end: '' };
+  });
+
+  const setDateFilter = (filter: string) => {
+    setDateFilterState(filter);
+    localStorage.setItem('dateFilter', filter);
+  };
+
+  const setCustomDateRange = (range: { start: string; end: string }) => {
+    setCustomDateRangeState(range);
+    localStorage.setItem('customDateRange', JSON.stringify(range));
+  };
+
 
   // Supabase Auth Integration States & Methods
   const [user, setUser] = useState<any>(null);
@@ -1130,7 +1162,142 @@ The agent council has completed its review regarding **${rec.id}**.
     return rec;
   });
 
+  const getSimulatedDate = (id: string): Date => {
+    const now = new Date();
+    if (id === 'DEV1248' || id === 'DEV-8890') {
+      return now;
+    }
+    if (id === 'SRV-0451') {
+      const d = new Date();
+      d.setDate(now.getDate() - 3); // 3 days ago
+      return d;
+    }
+    if (id === 'USR-7782') {
+      const d = new Date();
+      d.setDate(now.getDate() - 10); // 10 days ago
+      return d;
+    }
+    if (id === 'SRV-1022') {
+      const d = new Date();
+      d.setDate(now.getDate() - 15); // 15 days ago
+      return d;
+    }
+    const d = new Date();
+    d.setDate(now.getDate() - 5);
+    return d;
+  };
+
+  const isDateInFilter = (id: string): boolean => {
+    const recDate = getSimulatedDate(id);
+    const now = new Date();
+    now.setHours(23, 59, 59, 999);
+    
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+
+    if (dateFilter === 'all') return true;
+    
+    if (dateFilter === 'today') {
+      return recDate >= startOfToday && recDate <= now;
+    }
+    
+    if (dateFilter === '7days') {
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(now.getDate() - 7);
+      sevenDaysAgo.setHours(0, 0, 0, 0);
+      return recDate >= sevenDaysAgo && recDate <= now;
+    }
+    
+    if (dateFilter === '30days') {
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(now.getDate() - 30);
+      thirtyDaysAgo.setHours(0, 0, 0, 0);
+      return recDate >= thirtyDaysAgo && recDate <= now;
+    }
+    
+    if (dateFilter === 'custom') {
+      if (!customDateRange.start) return true;
+      const startDate = new Date(customDateRange.start);
+      startDate.setHours(0, 0, 0, 0);
+      const endDate = customDateRange.end ? new Date(customDateRange.end) : new Date();
+      endDate.setHours(23, 59, 59, 999);
+      return recDate >= startDate && recDate <= endDate;
+    }
+    
+    return true;
+  };
+
+  const isCaseDateInFilter = (dateStr: string): boolean => {
+    const recDate = new Date(dateStr);
+    const now = new Date();
+    now.setHours(23, 59, 59, 999);
+    
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+
+    if (dateFilter === 'all') return true;
+    
+    if (dateFilter === 'today') {
+      return recDate >= startOfToday && recDate <= now;
+    }
+    
+    if (dateFilter === '7days') {
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(now.getDate() - 7);
+      sevenDaysAgo.setHours(0, 0, 0, 0);
+      return recDate >= sevenDaysAgo && recDate <= now;
+    }
+    
+    if (dateFilter === '30days') {
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(now.getDate() - 30);
+      thirtyDaysAgo.setHours(0, 0, 0, 0);
+      return recDate >= thirtyDaysAgo && recDate <= now;
+    }
+    
+    if (dateFilter === 'custom') {
+      if (!customDateRange.start) return true;
+      const startDate = new Date(customDateRange.start);
+      startDate.setHours(0, 0, 0, 0);
+      const endDate = customDateRange.end ? new Date(customDateRange.end) : new Date();
+      endDate.setHours(23, 59, 59, 999);
+      return recDate >= startDate && recDate <= endDate;
+    }
+    
+    return true;
+  };
+
+  const filteredRecommendations = adaptedRecommendations.filter((rec) => {
+    if (!isDateInFilter(rec.id)) return false;
+    if (!searchQuery.trim()) return true;
+    const query = searchQuery.toLowerCase().trim();
+    return (
+      rec.id.toLowerCase().includes(query) ||
+      rec.action.toLowerCase().includes(query) ||
+      rec.severity.toLowerCase().includes(query) ||
+      rec.why.some(w => w.toLowerCase().includes(query)) ||
+      (rec.type && rec.type.toLowerCase().includes(query))
+    );
+  });
+
   const activeRec = adaptedRecommendations.find((r) => r.id === activeRecId) || adaptedRecommendations[0];
+
+  const filteredActivityLog = activityLog.filter((_log) => {
+    if (dateFilter === 'custom' && customDateRange.start) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const startDate = new Date(customDateRange.start);
+      startDate.setHours(0, 0, 0, 0);
+      const endDate = customDateRange.end ? new Date(customDateRange.end) : new Date();
+      endDate.setHours(23, 59, 59, 999);
+      return today >= startDate && today <= endDate;
+    }
+    return true;
+  });
+
+  const filteredSimilarCases = activeRec?.similarCasesList
+    ? activeRec.similarCasesList.filter((c) => isCaseDateInFilter(c.date))
+    : [];
 
   const dashboardStats = {
     total_alerts: initialStats.total_alerts + (adaptedRecommendations.length - initialRecommendations.length),
@@ -1282,7 +1449,16 @@ The agent council has completed its review regarding **${rec.id}**.
         user,
         loading,
         logout,
-        loginAsDemoUser
+        loginAsDemoUser,
+        searchQuery,
+        setSearchQuery,
+        dateFilter,
+        setDateFilter,
+        customDateRange,
+        setCustomDateRange,
+        filteredRecommendations,
+        filteredActivityLog,
+        filteredSimilarCases
       }}
     >
       {children}
