@@ -3,7 +3,21 @@ import { useWorkflow } from '../context/WorkflowContext';
 import { Bell, Calendar, ChevronRight, Search } from 'lucide-react';
 
 export const Header: React.FC = () => {
-  const { currentScreen, setCurrentScreen, activeRecId } = useWorkflow();
+  const { currentScreen, setCurrentScreen, activeRecId, searchQuery, setSearchQuery } = useWorkflow();
+  const [searchVal, setSearchVal] = React.useState(searchQuery);
+
+  // Sync state with global searchQuery changes
+  React.useEffect(() => {
+    setSearchVal(searchQuery);
+  }, [searchQuery]);
+
+  // Debounce search query by 300ms
+  React.useEffect(() => {
+    const handler = setTimeout(() => {
+      setSearchQuery(searchVal);
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [searchVal, setSearchQuery]);
 
   const handleBreadcrumbClick = (screen: number) => {
     if (screen < currentScreen) {
@@ -65,6 +79,8 @@ export const Header: React.FC = () => {
         <div className="relative hidden md:block">
           <input
             type="text"
+            value={searchVal}
+            onChange={(e) => setSearchVal(e.target.value)}
             placeholder="Search devices, policies..."
             className="w-56 pl-9 pr-4 py-1.5 rounded-full border border-slate-200 bg-slate-50 text-xs text-slate-800 placeholder-slate-400 font-medium focus:outline-none focus:ring-1 focus:ring-brand-cyan focus:border-brand-cyan focus:bg-white transition-all duration-200"
           />

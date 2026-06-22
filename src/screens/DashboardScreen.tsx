@@ -14,7 +14,7 @@ import {
 import { motion } from 'framer-motion';
 
 export const DashboardScreen: React.FC = () => {
-  const { recommendations, setActiveRecId, setCurrentScreen, dashboardStats, autonomyLevel, user } = useWorkflow();
+  const { filteredRecommendations: recommendations, setActiveRecId, setCurrentScreen, dashboardStats, autonomyLevel, user } = useWorkflow();
 
   const handleAnalyze = (id: string) => {
     setActiveRecId(id);
