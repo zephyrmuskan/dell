@@ -4,8 +4,8 @@ import {
   CheckCircle2, 
   XCircle, 
   RefreshCw, 
-  FileText, 
   Sliders
+
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 

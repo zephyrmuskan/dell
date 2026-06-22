@@ -144,6 +144,103 @@ export const DecisionScreen: React.FC = () => {
             </div>
           </GlassCard>
 
+          {/* SHAP Telemetry Attributions Matrix */}
+          <GlassCard className="space-y-4 p-5">
+            <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+              <div className="flex items-center space-x-2">
+                <Cpu className="h-4 w-4 text-indigo-600" />
+                <h3 className="text-sm font-bold text-slate-800 m-0 font-display">ML Attribution Matrix (SHAP Feature Importance)</h3>
+              </div>
+              <div className="relative group">
+                <HelpCircle className="h-4 w-4 text-slate-455 hover:text-slate-600 cursor-help" />
+                <div className="absolute right-0 bottom-6 hidden group-hover:block bg-slate-950 text-slate-300 text-[10px] p-2.5 rounded-xl border border-slate-800 w-72 shadow-2xl z-20 font-semibold leading-relaxed">
+                  SHAP (SHapley Additive exPlanations) values explain how much each telemetry feature contributed to the AI's final recommended action. Hover over a feature to see its plain language description.
+                </div>
+              </div>
+            </div>
+            
+            <p className="text-xs text-slate-550 font-semibold leading-relaxed m-0 font-display">
+              The chart below breaks down the telemetry attributions. <span className="text-brand-red font-bold">Positive values</span> push the AI model towards quarantine/mitigation, while <span className="text-brand-emerald font-bold">negative values</span> support normal behavior or lesser intervention.
+            </p>
+
+            <div className="space-y-3">
+              {(() => {
+                const getFriendlyFeatureName = (feature: string) => {
+                  const translations: Record<string, string> = {
+                    "Deviation From Normal Routine": "Activity differs from standard daily routines",
+                    "Activity Unpredictability Level": "Unpredictable order of actions",
+                    "Overall Threat Severity Score": "Calculated risk severity rating",
+                    "Data Source Reliability": "Reliability of the source logs",
+                    "Rapid Repeated Access Actions": "High number of actions within a short time",
+                    "Unusual Ordering of Steps": "Strange sequence of commands",
+                    "Matches Known Virus Profile": "Looks like previous security threats",
+                    "Spike in Failed Password Attempts": "Recent spike in incorrect passwords",
+                    "Device Antivirus Turned Off": "Security firewall or antivirus turned off",
+                    "Strange Background Command Execution": "Unusual background system activity",
+                    "Local Firewalls Running": "Active local firewalls protecting the device",
+                    "Severity of Known Software Vulnerabilities": "Severity of outdated software flaws",
+                    "Open Network Port Flagged": "Unsecured open network port",
+                    "Unsecured Cloud API Commands": "Unprotected cloud database queries",
+                    "Protected Cloud Network Rule Active": "Secure cloud firewall policies",
+                    "Impossible Travel Distance Alert": "Login distance physically impossible to travel",
+                    "Attempted Access to Restricted Personnel Files": "Attempt to read restricted files",
+                    "Multiple Logins from Different Locations": "Logins from different locations at once",
+                    "Verified Company VPN Connection": "Login came from verified company VPN",
+                    "File Write Frequency": "Speed of file modifications",
+                    "VSSADMIN Command Call": "Attempt to alter local backup records",
+                    "Entropy Variance": "Unusual file formatting modifications",
+                    "Endpoint Agent Active": "Healthy state of the local security agent",
+                    "Outbound Bytes Spike": "Spike in outgoing network traffic size",
+                    "Port Tunneling Heuristic": "Attempt to bypass standard network ports",
+                    "Unauthorized Remote IP": "Data sent to an unapproved server IP",
+                    "Migration Cron Active": "Scheduled database backup job active"
+                  };
+                  return translations[feature] || feature;
+                };
+
+                return activeRec.shapImportance && activeRec.shapImportance.length > 0 ? (
+                  activeRec.shapImportance.map((factor, idx) => {
+                    const isPos = factor.type === 'positive';
+                    const percentage = Math.abs(factor.val);
+                    return (
+                      <div key={idx} className="group relative space-y-1">
+                        <div className="flex justify-between items-center text-xs font-semibold">
+                          <div className="flex items-center space-x-1.5">
+                            <span className={`h-1.5 w-1.5 rounded-full ${isPos ? 'bg-rose-500' : 'bg-emerald-500'}`}></span>
+                            <span className="text-slate-700 font-display group-hover:text-slate-950 transition-colors">
+                              {factor.feature}
+                            </span>
+                          </div>
+                          <span className={`font-mono font-extrabold ${isPos ? 'text-rose-600' : 'text-emerald-600'}`}>
+                            {isPos ? '+' : '-'}{percentage}%
+                          </span>
+                        </div>
+                        <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden flex relative">
+                          <div 
+                            className={`h-full rounded-full transition-all duration-1000 ${
+                              isPos 
+                                ? 'bg-gradient-to-r from-rose-500 to-orange-400 group-hover:from-rose-600 group-hover:to-orange-500 shadow-sm' 
+                                : 'bg-gradient-to-r from-emerald-500 to-teal-400 group-hover:from-emerald-600 group-hover:to-teal-500 shadow-sm'
+                            }`}
+                            style={{ width: `${percentage}%` }}
+                          ></div>
+                        </div>
+                        
+                        {/* Plain Language Tooltip description shown on row hover */}
+                        <div className="hidden group-hover:block absolute left-0 -top-7 bg-slate-950 border border-slate-800 text-slate-250 text-[10px] px-2.5 py-1 rounded-lg shadow-xl z-20 font-bold">
+                          {getFriendlyFeatureName(factor.feature)}
+                        </div>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <p className="text-xs text-slate-400 italic">No SHAP attribution data available for this recommendation.</p>
+                );
+              })()}
+            </div>
+          </GlassCard>
+
+
           {/* Choose Action or Auto-executed Banner */}
           {isAutoExecuted ? (
             <GlassCard className="p-6 border-brand-emerald/30 bg-brand-emerald/5 shadow-sm rounded-3xl flex flex-col items-center text-center space-y-4">

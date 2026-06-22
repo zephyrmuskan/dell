@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useWorkflow } from '../context/WorkflowContext';
 import { MessageSquare, Send, Bot, User, ThumbsUp, ThumbsDown } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 
 export const AskTrustLensPanel: React.FC = () => {
   const { 

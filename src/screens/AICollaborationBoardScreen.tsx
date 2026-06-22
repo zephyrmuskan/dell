@@ -4,7 +4,7 @@ import { AICollaborationBoard } from '../components/AICollaborationBoard';
 import { DecisionVotingBoard } from '../components/DecisionVotingBoard';
 import { AIConsensusEngine } from '../components/AIConsensusEngine';
 import { AskTrustLensPanel } from '../components/AskTrustLensPanel';
-import { Cpu, ShieldAlert, AlertTriangle } from 'lucide-react';
+import { Cpu } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export const AICollaborationBoardScreen: React.FC = () => {

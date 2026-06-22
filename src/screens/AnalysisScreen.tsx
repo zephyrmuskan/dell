@@ -41,7 +41,6 @@ const MarkdownText: React.FC<{ text: string }> = ({ text }) => {
         // Code Block case
         if (block.startsWith('```')) {
           const match = block.match(/```(\w*)\n([\s\S]*?)```/);
-          const lang = match ? match[1] : '';
           const code = match ? match[2] : block.slice(3, -3);
           return (
             <pre key={index} className="bg-slate-950 text-slate-350 font-mono text-[11px] p-4 rounded-xl border border-slate-800 overflow-x-auto my-2 select-text">

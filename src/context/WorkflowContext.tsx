@@ -2,7 +2,6 @@
 import React, { createContext, useContext, useState, type ReactNode } from 'react';
 import siemData from '../data/siem_data.json';
 import { supabase } from '../lib/supabaseClient';
-import { geminiChat, groqChat } from '../lib/aiClient';
 
 export type Severity = 'Critical' | 'High' | 'Medium';
 export type RecommendationStatus = 'Pending' | 'Approved' | 'Rejected' | 'Escalated' | 'Details Requested';

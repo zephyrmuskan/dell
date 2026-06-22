@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useWorkflow } from '../context/WorkflowContext';
 import { 
   Search, ShieldAlert, Wrench, AlertTriangle, 
-  History, Cpu, Play, RotateCcw, FastForward, CheckCircle2, ChevronRight, Activity, ArrowDown
+  History, Cpu, RotateCcw, FastForward, Activity
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -12,7 +12,7 @@ export const AICollaborationBoard: React.FC = () => {
   const { activeRec, trustScore } = useWorkflow();
   const [activeStepIndex, setActiveStepIndex] = useState(0);
   const [stepStatus, setStepStatus] = useState<AgentStatus>('thinking');
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   const agentNames = [

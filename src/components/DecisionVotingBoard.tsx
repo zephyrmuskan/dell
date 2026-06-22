@@ -46,7 +46,40 @@ export const DecisionVotingBoard: React.FC = () => {
             </div>
           ))}
         </div>
+
+        {/* SHAP Telemetry Drivers */}
+        {activeRec?.shapImportance && activeRec.shapImportance.length > 0 && (
+          <div className="mt-3.5 pt-3 border-t border-slate-800">
+            <span className="text-[10px] text-slate-555 uppercase tracking-widest font-black font-mono">Top Telemetry Drivers</span>
+            <div className="mt-2 space-y-2">
+              {[...activeRec.shapImportance]
+                .sort((a, b) => Math.abs(b.val) - Math.abs(a.val))
+                .slice(0, 3)
+                .map((factor, idx) => {
+                  const isPos = factor.type === 'positive';
+                  const percentage = Math.abs(factor.val);
+                  return (
+                    <div key={idx} className="flex flex-col space-y-0.5">
+                      <div className="flex justify-between items-center text-[10px] font-bold">
+                        <span className="text-slate-400 truncate max-w-[170px]">{factor.feature}</span>
+                        <span className={isPos ? 'text-rose-455 font-extrabold font-mono' : 'text-emerald-455 font-extrabold font-mono'}>
+                          {isPos ? '+' : '-'}{percentage}%
+                        </span>
+                      </div>
+                      <div className="w-full h-1 bg-slate-950 rounded-full overflow-hidden flex">
+                        <div 
+                          className={`h-full rounded-full ${isPos ? 'bg-gradient-to-r from-rose-500 to-orange-400' : 'bg-gradient-to-r from-emerald-500 to-teal-400'}`}
+                          style={{ width: `${percentage}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
+          </div>
+        )}
       </div>
+
 
       <div className="border-t border-slate-800 pt-3 mt-4 flex items-center justify-between text-[11px] font-mono">
         <div className="flex items-center space-x-1.5 font-bold text-slate-400">
