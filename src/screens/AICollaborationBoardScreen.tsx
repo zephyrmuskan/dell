@@ -82,7 +82,7 @@ export const AICollaborationBoardScreen: React.FC = () => {
       className="max-w-7xl mx-auto w-full select-none text-slate-800 space-y-5"
     >
       {/* HEADER SECTION CONTROLS ROW */}
-      <div className="bg-white/90 backdrop-blur-md border border-slate-200/80 rounded-2xl p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4 shadow-sm select-none">
+      <div className="relative z-20 bg-white/90 backdrop-blur-md border border-slate-200/80 rounded-2xl p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4 shadow-sm select-none">
         
         {/* Device Selector */}
         <div className="flex items-center space-x-3 flex-shrink-0">
