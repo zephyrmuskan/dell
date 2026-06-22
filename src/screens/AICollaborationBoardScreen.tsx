@@ -4,7 +4,7 @@ import { AICollaborationBoard } from '../components/AICollaborationBoard';
 import { DecisionVotingBoard } from '../components/DecisionVotingBoard';
 import { AIConsensusEngine } from '../components/AIConsensusEngine';
 import { AskTrustLensPanel } from '../components/AskTrustLensPanel';
-import { Cpu, Search, Calendar, Bell, ChevronDown, Clock, ShieldAlert } from 'lucide-react';
+import { Cpu, Search, Bell, Clock, ShieldAlert } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export const AICollaborationBoardScreen: React.FC = () => {
@@ -14,20 +14,14 @@ export const AICollaborationBoardScreen: React.FC = () => {
     setActiveRecId, 
     loadCompanionState,
     setSearchQuery,
-    dateFilter,
-    setDateFilter,
-    customDateRange,
-    setCustomDateRange,
     filteredActivityLog
   } = useWorkflow();
 
   const [searchVal, setSearchVal] = useState('');
   const [showSearchDropdown, setShowSearchDropdown] = useState(false);
-  const [showDateDropdown, setShowDateDropdown] = useState(false);
   const [showNotifDropdown, setShowNotifDropdown] = useState(false);
 
   const searchRef = useRef<HTMLDivElement | null>(null);
-  const dateRef = useRef<HTMLDivElement | null>(null);
   const notifRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -48,9 +42,6 @@ export const AICollaborationBoardScreen: React.FC = () => {
       if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
         setShowSearchDropdown(false);
       }
-      if (dateRef.current && !dateRef.current.contains(e.target as Node)) {
-        setShowDateDropdown(false);
-      }
       if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
         setShowNotifDropdown(false);
       }
@@ -65,18 +56,7 @@ export const AICollaborationBoardScreen: React.FC = () => {
     setShowSearchDropdown(false);
   };
 
-  const getActiveFilterLabel = () => {
-    switch (dateFilter) {
-      case 'today': return 'Today';
-      case '7days': return 'Last 7 Days';
-      case '30days': return 'Last 30 Days';
-      case 'custom': 
-        return customDateRange.start 
-          ? `${customDateRange.start} to ${customDateRange.end || 'Now'}` 
-          : 'Custom Range';
-      default: return 'All Time';
-    }
-  };
+
 
   // Find matching search recommendations & logs
   const matchingRecs = searchVal.trim()
@@ -193,93 +173,7 @@ export const AICollaborationBoardScreen: React.FC = () => {
             </AnimatePresence>
           </div>
 
-          {/* Functional Date Picker Filter */}
-          <div ref={dateRef} className="relative">
-            <button
-              onClick={() => setShowDateDropdown(!showDateDropdown)}
-              className="inline-flex items-center space-x-1.5 px-3 py-2 bg-slate-50 border border-slate-200 hover:border-slate-300 rounded-xl text-xs font-bold text-slate-700 hover:text-slate-900 transition cursor-pointer"
-            >
-              <Calendar className="h-3.5 w-3.5 text-indigo-500" />
-              <span>{getActiveFilterLabel()}</span>
-              <ChevronDown className="h-3 w-3 text-slate-400" />
-            </button>
 
-            {/* Date Filter Dropdown */}
-            <AnimatePresence>
-              {showDateDropdown && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 10 }}
-                  className="absolute right-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-premium-xl z-50 p-3 w-[260px] space-y-2.5"
-                >
-                  <span className="text-[9px] text-slate-400 uppercase tracking-widest font-black font-mono block border-b border-slate-100 pb-1.5">
-                    Filter by Compliance Date
-                  </span>
-                  
-                  {/* Options */}
-                  <div className="flex flex-col space-y-1">
-                    {[
-                      { id: 'all', label: 'All Time' },
-                      { id: 'today', label: 'Today' },
-                      { id: '7days', label: 'Last 7 Days' },
-                      { id: '30days', label: 'Last 30 Days' },
-                      { id: 'custom', label: 'Custom Range' }
-                    ].map((opt) => (
-                      <button
-                        key={opt.id}
-                        onClick={() => {
-                          setDateFilter(opt.id);
-                          if (opt.id !== 'custom') {
-                            setShowDateDropdown(false);
-                          }
-                        }}
-                        className={`w-full text-left px-2 py-1.5 rounded-lg text-xs font-bold transition ${
-                          dateFilter === opt.id 
-                            ? 'bg-indigo-500/10 text-indigo-950 font-black' 
-                            : 'hover:bg-slate-50 text-slate-650'
-                        }`}
-                      >
-                        {opt.label}
-                      </button>
-                    ))}
-                  </div>
-
-                  {/* Custom Date Picker Inputs */}
-                  {dateFilter === 'custom' && (
-                    <div className="border-t border-slate-100 pt-2.5 space-y-2 text-[10px] font-semibold text-slate-650">
-                      <div className="grid grid-cols-2 gap-2">
-                        <div>
-                          <label className="block text-[9px] uppercase tracking-wider font-bold mb-1">Start Date</label>
-                          <input
-                            type="date"
-                            value={customDateRange.start}
-                            onChange={(e) => setCustomDateRange({ ...customDateRange, start: e.target.value })}
-                            className="w-full bg-slate-50 border border-slate-200 rounded-lg p-1 text-[10px] outline-none text-slate-800"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-[9px] uppercase tracking-wider font-bold mb-1">End Date</label>
-                          <input
-                            type="date"
-                            value={customDateRange.end}
-                            onChange={(e) => setCustomDateRange({ ...customDateRange, end: e.target.value })}
-                            className="w-full bg-slate-50 border border-slate-200 rounded-lg p-1 text-[10px] outline-none text-slate-800"
-                          />
-                        </div>
-                      </div>
-                      <button
-                        onClick={() => setShowDateDropdown(false)}
-                        className="w-full bg-slate-900 text-white font-bold text-center py-1.5 rounded-lg border border-slate-800 hover:bg-slate-800 transition cursor-pointer"
-                      >
-                        Apply Filter
-                      </button>
-                    </div>
-                  )}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
 
           {/* Notifications Center */}
           <div ref={notifRef} className="relative">

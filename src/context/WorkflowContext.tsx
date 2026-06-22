@@ -233,8 +233,19 @@ export const WorkflowProvider: React.FC<{ children: ReactNode }> = ({ children }
     return localStorage.getItem('dateFilter') || 'all';
   });
   const [customDateRange, setCustomDateRangeState] = useState<{ start: string; end: string }>(() => {
-    const saved = localStorage.getItem('customDateRange');
-    return saved ? JSON.parse(saved) : { start: '', end: '' };
+    try {
+      const saved = localStorage.getItem('customDateRange');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return {
+          start: parsed?.start || '',
+          end: parsed?.end || ''
+        };
+      }
+    } catch (e) {
+      console.error('Failed to parse customDateRange from localStorage', e);
+    }
+    return { start: '', end: '' };
   });
 
   const setDateFilter = (filter: string) => {
