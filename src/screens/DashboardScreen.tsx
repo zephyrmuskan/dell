@@ -25,10 +25,34 @@ export const DashboardScreen: React.FC = () => {
 
   // Aggregated card data
   const metrics = [
-    { label: 'Total Fleet Alerts', value: dashboardStats.total_alerts, color: 'text-brand-cyan bg-brand-cyan/10 border-brand-cyan/20 shadow-glow-blue', icon: Shield },
-    { label: 'Critical Threats', value: dashboardStats.critical, color: 'text-brand-red bg-brand-red/10 border-brand-red/20 shadow-[0_0_15px_rgba(239,68,68,0.2)] animate-pulse-slow', icon: CriticalIcon },
-    { label: 'High Priority Rules', value: dashboardStats.high, color: 'text-brand-amber bg-brand-amber/10 border-brand-amber/20 shadow-[0_0_15px_rgba(245,158,11,0.15)]', icon: AlertTriangle },
-    { label: 'Medium Compliance', value: dashboardStats.medium, color: 'text-indigo-400 bg-indigo-400/10 border-indigo-400/20 shadow-[0_0_15px_rgba(129,140,248,0.15)]', icon: Info },
+    { 
+      label: 'Total Fleet Alerts', 
+      value: dashboardStats.total_alerts, 
+      color: 'text-brand-cyan bg-brand-cyan/10 border-brand-cyan/20 shadow-glow-blue', 
+      icon: Shield,
+      tooltip: 'The total count of compliance violations, configuration drifts, or security threats flagged across all monitored devices.'
+    },
+    { 
+      label: 'Critical Threats', 
+      value: dashboardStats.critical, 
+      color: 'text-brand-red bg-brand-red/10 border-brand-red/20 shadow-[0_0_15px_rgba(239,68,68,0.2)] animate-pulse-slow', 
+      icon: CriticalIcon,
+      tooltip: 'Severe active security threats that require immediate containment or host isolation to prevent lateral movement.'
+    },
+    { 
+      label: 'High Priority Rules', 
+      value: dashboardStats.high, 
+      color: 'text-brand-amber bg-brand-amber/10 border-brand-amber/20 shadow-[0_0_15px_rgba(245,158,11,0.15)]', 
+      icon: AlertTriangle,
+      tooltip: 'Violations of critical security policies (e.g. out-of-date patch software) that should be resolved in the near term.'
+    },
+    { 
+      label: 'Medium Compliance', 
+      value: dashboardStats.medium, 
+      color: 'text-indigo-400 bg-indigo-400/10 border-indigo-400/20 shadow-[0_0_15px_rgba(129,140,248,0.15)]', 
+      icon: Info,
+      tooltip: 'Minor configuration deviations or status messages that do not pose an immediate threat.'
+    },
   ];
 
   const getGatewayBadge = (id: string) => {
@@ -102,7 +126,12 @@ export const DashboardScreen: React.FC = () => {
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs font-bold text-slate-500 tracking-wide uppercase font-display">{metric.label}</p>
+                  <div className="relative group/tooltip">
+                    <p className="text-xs font-bold text-slate-500 tracking-wide uppercase font-display cursor-help border-b border-dotted border-slate-350 pb-0.5 inline-block select-none">{metric.label}</p>
+                    <div className="absolute left-0 bottom-full mb-2 hidden group-hover/tooltip:block bg-slate-950 text-white text-[10px] p-2.5 rounded-xl border border-slate-800 w-56 shadow-2xl z-50 font-semibold leading-relaxed normal-case font-sans">
+                      {metric.tooltip}
+                    </div>
+                  </div>
                   <h3 className="text-3xl font-black text-slate-900 mt-1.5 font-mono">{metric.value}</h3>
                 </div>
                 <div className={`p-3 rounded-xl border ${metric.color}`}>
@@ -137,8 +166,15 @@ export const DashboardScreen: React.FC = () => {
                   <th className="px-4 py-3">Asset</th>
                   <th className="px-4 py-3">MDM Gateway</th>
                   <th className="px-4 py-3">Suggested Action</th>
-                  <th className="px-4 py-3">Confidence</th>
-                  <th className="px-4 py-3">Sources</th>
+                  <th className="px-4 py-3">
+                    <div className="relative group/tooltip inline-block">
+                      <span className="cursor-help border-b border-dotted border-slate-400 select-none">Confidence</span>
+                      <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover/tooltip:block bg-slate-950 text-white text-[10px] p-2.5 rounded-xl border border-slate-800 w-52 shadow-2xl z-50 font-semibold leading-relaxed normal-case font-sans">
+                        AI Confidence: The raw certainty level of the primary AI model based on current telemetry features and anomaly patterns.
+                      </div>
+                    </div>
+                  </th>
+                  <th className="px-4 py-3 font-sans">Sources</th>
                   <th className="px-4 py-3 text-center">Status</th>
                   <th className="px-4 py-3 text-right">Action</th>
                 </tr>

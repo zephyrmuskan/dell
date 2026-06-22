@@ -167,33 +167,33 @@ export const DecisionScreen: React.FC = () => {
               {(() => {
                 const getFriendlyFeatureName = (feature: string) => {
                   const translations: Record<string, string> = {
-                    "Deviation From Normal Routine": "Activity differs from standard daily routines",
-                    "Activity Unpredictability Level": "Unpredictable order of actions",
-                    "Overall Threat Severity Score": "Calculated risk severity rating",
-                    "Data Source Reliability": "Reliability of the source logs",
-                    "Rapid Repeated Access Actions": "High number of actions within a short time",
-                    "Unusual Ordering of Steps": "Strange sequence of commands",
-                    "Matches Known Virus Profile": "Looks like previous security threats",
-                    "Spike in Failed Password Attempts": "Recent spike in incorrect passwords",
-                    "Device Antivirus Turned Off": "Security firewall or antivirus turned off",
-                    "Strange Background Command Execution": "Unusual background system activity",
-                    "Local Firewalls Running": "Active local firewalls protecting the device",
-                    "Severity of Known Software Vulnerabilities": "Severity of outdated software flaws",
-                    "Open Network Port Flagged": "Unsecured open network port",
-                    "Unsecured Cloud API Commands": "Unprotected cloud database queries",
-                    "Protected Cloud Network Rule Active": "Secure cloud firewall policies",
-                    "Impossible Travel Distance Alert": "Login distance physically impossible to travel",
-                    "Attempted Access to Restricted Personnel Files": "Attempt to read restricted files",
-                    "Multiple Logins from Different Locations": "Logins from different locations at once",
-                    "Verified Company VPN Connection": "Login came from verified company VPN",
-                    "File Write Frequency": "Speed of file modifications",
-                    "VSSADMIN Command Call": "Attempt to alter local backup records",
-                    "Entropy Variance": "Unusual file formatting modifications",
-                    "Endpoint Agent Active": "Healthy state of the local security agent",
-                    "Outbound Bytes Spike": "Spike in outgoing network traffic size",
-                    "Port Tunneling Heuristic": "Attempt to bypass standard network ports",
-                    "Unauthorized Remote IP": "Data sent to an unapproved server IP",
-                    "Migration Cron Active": "Scheduled database backup job active"
+                    "Deviation From Normal Routine": "Activity differs from standard routines (e.g. working hours or actions).",
+                    "Activity Unpredictability Level": "Unpredictable sequence of actions compared to typical admin/user habits.",
+                    "Overall Threat Severity Score": "Estimated severity rating of the threat risk based on global security feeds.",
+                    "Data Source Reliability": "Calculated reliability score of the source telemetry systems and log pipelines.",
+                    "Rapid Repeated Access Actions": "High rate of actions in a short period (often a sign of scripted attacks).",
+                    "Unusual Ordering of Steps": "A non-standard command order (e.g. trying to modify system files right after disabling security agents).",
+                    "Matches Known Virus Profile": "Activity signature matches known malware or virus hashes.",
+                    "Spike in Failed Password Attempts": "Recent spike in failed passwords, suggesting brute-force guessing.",
+                    "Device Antivirus Turned Off": "The system firewall or antivirus tool was turned off or disabled.",
+                    "Strange Background Command Execution": "Unapproved scripts or command lines executing in the background.",
+                    "Local Firewalls Running": "Validates if local host firewalls are active and blocking unauthorized ingress.",
+                    "Severity of Known Software Vulnerabilities": "Risk score of outdated software version flaws on the target machine.",
+                    "Open Network Port Flagged": "An open port that accepts unsolicited incoming network traffic, posing ingress risks.",
+                    "Unsecured Cloud API Commands": "Unencrypted or unauthenticated API queries sent to database clusters.",
+                    "Protected Cloud Network Rule Active": "Confirms active cloud network filtering rules are guarding server boundaries.",
+                    "Impossible Travel Distance Alert": "Logins from distant countries in a time window physically impossible to travel.",
+                    "Attempted Access to Restricted Personnel Files": "Attempted reads on restricted directory files (unauthorized data scanning).",
+                    "Multiple Logins from Different Locations": "Parallel active user sessions initiated from unrelated geographic networks.",
+                    "Verified Company VPN Connection": "Access initiated through corporate secure VPN, reducing brute-force alerts.",
+                    "File Write Frequency": "Speed of file modifications. A sudden spike can indicate ransomware encryption.",
+                    "VSSADMIN Command Call": "Call to VSSADMIN backup command (often used by ransomware to delete local backups to prevent recovery).",
+                    "Entropy Variance": "Abnormal randomness level in files, a key indicator of files being encrypted by ransomware.",
+                    "Endpoint Agent Active": "Confirms the local security agent is active, online, and reporting healthy status.",
+                    "Outbound Bytes Spike": "Sudden massive size of outgoing data, suggesting potential data exfiltration (theft).",
+                    "Port Tunneling Heuristic": "Attempt to encapsulate protocols (e.g., SSH over HTTPS) to bypass network firewall rules.",
+                    "Unauthorized Remote IP": "Connection attempted to a remote server that is not on the corporate allowed list.",
+                    "Migration Cron Active": "Confirms a scheduled system data migration task is currently running."
                   };
                   return translations[feature] || feature;
                 };
@@ -437,15 +437,30 @@ export const DecisionScreen: React.FC = () => {
             <GlassCard className="p-3 border-slate-200 space-y-3">
               <div className="grid grid-cols-1 gap-2 font-display">
                 {[
-                  { level: 1, label: 'Always Ask Me', desc: 'Require approval' },
-                  { level: 3, label: 'Auto Low Risk', desc: 'Auto low-risk' },
-                  { level: 4, label: 'Act and Notify', desc: 'Auto immediate' }
+                  { 
+                    level: 1, 
+                    label: 'Always Ask Me', 
+                    desc: 'Require approval for all remediation actions.', 
+                    example: 'Example: Isolating endpoints or firewall blocks pause for manual verification.' 
+                  },
+                  { 
+                    level: 3, 
+                    label: 'Auto Low Risk', 
+                    desc: 'Auto-execute low-risk, pre-approved rules.', 
+                    example: 'Example: Software updates or compliance patches deploy instantly; quarantines hold.' 
+                  },
+                  { 
+                    level: 4, 
+                    label: 'Act and Notify', 
+                    desc: 'Auto-resolve all alerts immediately.', 
+                    example: 'Example: High-severity device isolations run instantly, sending notifications post-action.' 
+                  }
                 ].map((opt) => (
                   <button
                     key={opt.level}
                     onClick={() => setAutonomyLevel(opt.level)}
                     type="button"
-                    className={`w-full flex items-start p-2 rounded-lg border text-left transition-all cursor-pointer active:scale-[0.99] ${
+                    className={`w-full flex items-start p-2.5 rounded-xl border text-left transition-all cursor-pointer active:scale-[0.99] ${
                       autonomyLevel === opt.level
                         ? 'bg-brand-blue/10 border-brand-blue shadow-sm text-indigo-900 font-extrabold'
                         : 'bg-white border-slate-200 hover:bg-slate-50'
@@ -468,7 +483,8 @@ export const DecisionScreen: React.FC = () => {
                       }`}>
                         {opt.label}
                       </span>
-                      <span className="text-[10px] font-semibold text-slate-500 block mt-0.5 font-display truncate leading-none">{opt.desc}</span>
+                      <span className="text-[10px] font-semibold text-slate-500 block mt-0.5 font-display leading-snug">{opt.desc}</span>
+                      <span className="text-[8.5px] font-medium text-slate-450 block mt-1 italic leading-normal border-t border-slate-150/60 pt-1">{opt.example}</span>
                     </div>
                   </button>
                 ))}

@@ -108,9 +108,14 @@ export const Header: React.FC = () => {
       {/* Right side widgets */}
       <div className="flex items-center space-x-6">
         {/* Compliance Status Pill */}
-        <div className="hidden lg:flex items-center space-x-1.5 bg-brand-emerald/10 text-brand-emerald border border-brand-emerald/20 px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider">
-          <span className="h-1.5 w-1.5 rounded-full bg-brand-emerald animate-pulse"></span>
-          <span>Fleet Compliance: 99.8%</span>
+        <div className="relative group/tooltip hidden lg:block">
+          <div className="flex items-center space-x-1.5 bg-brand-emerald/10 text-brand-emerald border border-brand-emerald/20 px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider cursor-help select-none">
+            <span className="h-1.5 w-1.5 rounded-full bg-brand-emerald animate-pulse"></span>
+            <span>Fleet Compliance: 99.8%</span>
+          </div>
+          <div className="absolute right-0 top-full mt-2 hidden group-hover/tooltip:block bg-slate-950 text-white text-[10px] p-2.5 rounded-xl border border-slate-800 w-60 shadow-2xl z-50 font-semibold leading-relaxed normal-case font-sans">
+            Fleet Compliance: The percentage of devices in the fleet that fully meet all active organizational security and configuration policies.
+          </div>
         </div>
 
         {/* Search */}

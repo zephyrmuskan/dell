@@ -213,33 +213,33 @@ export const AnalysisScreen: React.FC = () => {
 
   const getFriendlyFeatureName = (feature: string) => {
     const translations: Record<string, string> = {
-      "Deviation From Normal Routine": "Activity differs from standard daily routines",
-      "Activity Unpredictability Level": "Unpredictable order of actions",
-      "Overall Threat Severity Score": "Calculated risk severity rating",
-      "Data Source Reliability": "Reliability of the source logs",
-      "Rapid Repeated Access Actions": "High number of actions within a short time",
-      "Unusual Ordering of Steps": "Strange sequence of commands",
-      "Matches Known Virus Profile": "Looks like previous security threats",
-      "Spike in Failed Password Attempts": "Recent spike in incorrect passwords",
-      "Device Antivirus Turned Off": "Security firewall or antivirus turned off",
-      "Strange Background Command Execution": "Unusual background system activity",
-      "Local Firewalls Running": "Active local firewalls protecting the device",
-      "Severity of Known Software Vulnerabilities": "Severity of outdated software flaws",
-      "Open Network Port Flagged": "Unsecured open network port",
-      "Unsecured Cloud API Commands": "Unprotected cloud database queries",
-      "Protected Cloud Network Rule Active": "Secure cloud firewall policies",
-      "Impossible Travel Distance Alert": "Login distance physically impossible to travel",
-      "Attempted Access to Restricted Personnel Files": "Attempt to read restricted files",
-      "Multiple Logins from Different Locations": "Logins from different locations at once",
-      "Verified Company VPN Connection": "Login came from verified company VPN",
-      "File Write Frequency": "Speed of file modifications",
-      "VSSADMIN Command Call": "Attempt to alter local backup records",
-      "Entropy Variance": "Unusual file formatting modifications",
-      "Endpoint Agent Active": "Healthy state of the local security agent",
-      "Outbound Bytes Spike": "Spike in outgoing network traffic size",
-      "Port Tunneling Heuristic": "Attempt to bypass standard network ports",
-      "Unauthorized Remote IP": "Data sent to an unapproved server IP",
-      "Migration Cron Active": "Scheduled database backup job active"
+      "Deviation From Normal Routine": "Activity differs from standard routines (e.g. working hours or actions).",
+      "Activity Unpredictability Level": "Unpredictable sequence of actions compared to typical admin/user habits.",
+      "Overall Threat Severity Score": "Estimated severity rating of the threat risk based on global security feeds.",
+      "Data Source Reliability": "Calculated reliability score of the source telemetry systems and log pipelines.",
+      "Rapid Repeated Access Actions": "High rate of actions in a short period (often a sign of scripted attacks).",
+      "Unusual Ordering of Steps": "A non-standard command order (e.g. trying to modify system files right after disabling security agents).",
+      "Matches Known Virus Profile": "Activity signature matches known malware or virus hashes.",
+      "Spike in Failed Password Attempts": "Recent spike in failed passwords, suggesting brute-force guessing.",
+      "Device Antivirus Turned Off": "The system firewall or antivirus tool was turned off or disabled.",
+      "Strange Background Command Execution": "Unapproved scripts or command lines executing in the background.",
+      "Local Firewalls Running": "Validates if local host firewalls are active and blocking unauthorized ingress.",
+      "Severity of Known Software Vulnerabilities": "Risk score of outdated software version flaws on the target machine.",
+      "Open Network Port Flagged": "An open port that accepts unsolicited incoming network traffic, posing ingress risks.",
+      "Unsecured Cloud API Commands": "Unencrypted or unauthenticated API queries sent to database clusters.",
+      "Protected Cloud Network Rule Active": "Confirms active cloud network filtering rules are guarding server boundaries.",
+      "Impossible Travel Distance Alert": "Logins from distant countries in a time window physically impossible to travel.",
+      "Attempted Access to Restricted Personnel Files": "Attempted reads on restricted directory files (unauthorized data scanning).",
+      "Multiple Logins from Different Locations": "Parallel active user sessions initiated from unrelated geographic networks.",
+      "Verified Company VPN Connection": "Access initiated through corporate secure VPN, reducing brute-force alerts.",
+      "File Write Frequency": "Speed of file modifications. A sudden spike can indicate ransomware encryption.",
+      "VSSADMIN Command Call": "Call to VSSADMIN backup command (often used by ransomware to delete local backups to prevent recovery).",
+      "Entropy Variance": "Abnormal randomness level in files, a key indicator of files being encrypted by ransomware.",
+      "Endpoint Agent Active": "Confirms the local security agent is active, online, and reporting healthy status.",
+      "Outbound Bytes Spike": "Sudden massive size of outgoing data, suggesting potential data exfiltration (theft).",
+      "Port Tunneling Heuristic": "Attempt to encapsulate protocols (e.g., SSH over HTTPS) to bypass network firewall rules.",
+      "Unauthorized Remote IP": "Connection attempted to a remote server that is not on the corporate allowed list.",
+      "Migration Cron Active": "Confirms a scheduled system data migration task is currently running."
     };
     return translations[feature] || feature;
   };
@@ -452,28 +452,40 @@ export const AnalysisScreen: React.FC = () => {
         </div>
         <div className="mt-4 md:mt-0 flex items-center space-x-6 bg-slate-200/40 border border-slate-200 px-5 py-2.5 rounded-2xl">
           {/* AI Confidence Dial */}
-          <div className="flex items-center space-x-3">
-            <div className="text-right">
-              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider font-sans">AI Confidence</p>
+          <div className="relative group/tooltip flex items-center space-x-3 cursor-help">
+            <div className="text-right select-none">
+              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider font-sans border-b border-dotted border-slate-350 pb-0.5 inline-block">AI Confidence</p>
               <p className="text-xs font-black text-slate-800 m-0">{confidence >= 80 ? 'Highly Confident' : 'Moderately Confident'}</p>
             </div>
-            <div className="h-10 w-10 rounded-full border-2 border-brand-cyan flex items-center justify-center font-black text-slate-800 text-xs shadow-sm bg-slate-50 font-mono">
+            <div className="h-10 w-10 rounded-full border-2 border-brand-cyan flex items-center justify-center font-black text-slate-800 text-xs shadow-sm bg-slate-50 font-mono select-none">
               {confidence}%
+            </div>
+            <div className="absolute right-0 bottom-full mb-2 hidden group-hover/tooltip:block bg-slate-950 text-white text-[10px] p-2.5 rounded-xl border border-slate-800 w-64 shadow-2xl z-50 font-semibold leading-relaxed font-sans normal-case">
+              <strong>AI Confidence ({confidence}%)</strong>: The raw certainty level of the primary AI model based on current telemetry features and anomaly patterns.
             </div>
           </div>
           
           <div className="h-8 w-[1px] bg-slate-300"></div>
 
           {/* Dynamic Trust Score Dial */}
-          <div className="flex items-center space-x-3">
-            <div className="text-right">
-              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider font-sans">Calibrated Trust</p>
+          <div className="relative group/tooltip flex items-center space-x-3 cursor-help">
+            <div className="text-right select-none">
+              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider font-sans border-b border-dotted border-slate-350 pb-0.5 inline-block">Calibrated Trust</p>
               <p className="text-xs font-black text-slate-800 m-0">
                 {trustScore >= 85 ? 'Very Strong' : trustScore >= 75 ? 'Healthy' : 'Needs Verification'}
               </p>
             </div>
-            <div className="h-10 w-10 rounded-full border-2 border-brand-emerald flex items-center justify-center font-black text-slate-800 text-xs shadow-sm bg-slate-50 font-mono">
+            <div className="h-10 w-10 rounded-full border-2 border-brand-emerald flex items-center justify-center font-black text-slate-800 text-xs shadow-sm bg-slate-50 font-mono select-none">
               {trustScore}%
+            </div>
+            <div className="absolute right-0 bottom-full mb-2 hidden group-hover/tooltip:block bg-slate-950 text-white text-[10px] p-3 rounded-xl border border-slate-800 w-72 shadow-2xl z-50 font-semibold leading-relaxed font-sans normal-case">
+              <strong className="text-brand-cyan block mb-1">Calibrated Trust Score ({trustScore}%)</strong>
+              <p className="text-[9px] text-slate-400 font-mono mb-2">Formula: (40% × Confidence) + (30% × Accuracy) + (30% × Understanding)</p>
+              <div className="space-y-1 text-[9px]">
+                <div>• <span className="font-bold text-slate-200">AI Confidence (40%):</span> Real-time certainty of detection models.</div>
+                <div>• <span className="font-bold text-slate-200">Historical Accuracy (30%):</span> Track record for similar threat profiles.</div>
+                <div>• <span className="font-bold text-slate-200">Operator Understanding (30%):</span> Calibrated by your engagement (asking questions, auditing details).</div>
+              </div>
             </div>
           </div>
         </div>
@@ -601,9 +613,9 @@ export const AnalysisScreen: React.FC = () => {
       </DetailModal>
 
       {/* Grid panels */}
-      <div className="grid grid-cols-1 grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
         {/* Left Section: Plain Language Explanation */}
-        <div className="col-span-12 flex flex-col h-[calc(100vh-310px)] min-h-[420px]">
+        <div className="col-span-12 lg:col-span-8 flex flex-col h-[calc(100vh-310px)] min-h-[420px]">
           <GlassCard className="flex-1 flex flex-col p-6 overflow-hidden">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-slate-200 pb-4 gap-4 flex-shrink-0">
               <div className="flex items-center space-x-2.5">
@@ -737,6 +749,75 @@ export const AnalysisScreen: React.FC = () => {
                 <span>View Trust Validation</span>
                 <ArrowRight className="h-4 w-4" />
               </button>
+            </div>
+          </GlassCard>
+        </div>
+
+        {/* Right Section: Multi-Agent Verification Checklist & Evidence Details */}
+        <div className="col-span-12 lg:col-span-4 flex flex-col h-[calc(100vh-310px)] min-h-[420px]">
+          <GlassCard className="flex-1 flex flex-col p-6 overflow-hidden select-none">
+            <div className="border-b border-slate-200 pb-4 flex-shrink-0">
+              <h3 className="text-base font-bold text-slate-900 m-0">Multi-Agent Verification</h3>
+              <p className="text-xs text-slate-500 font-bold uppercase tracking-wider mt-0.5">Automated validation checklist & telemetry</p>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto pr-1 my-4 space-y-4 min-h-0">
+              {/* Evidence Strength Summary */}
+              <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-3 space-y-2 text-xs font-semibold">
+                <div className="flex justify-between items-center text-[10px] text-slate-500 font-black uppercase tracking-wider font-mono">
+                  <span>Data Ingestion & Verification</span>
+                  <span>Compliance</span>
+                </div>
+                <div className="flex justify-between items-center text-slate-800">
+                  <span className="text-slate-650 font-display">Telemetry Integrity:</span>
+                  <div className="flex items-center space-x-1">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <span 
+                        key={i} 
+                        className={`h-2.5 w-2.5 rounded-full border border-slate-250 ${
+                          i < nutritionLabel.evidenceStrength 
+                            ? 'bg-brand-emerald shadow-sm' 
+                            : 'bg-slate-200'
+                        }`}
+                      />
+                    ))}
+                    <span className="text-[10px] text-slate-500 font-mono ml-1 font-bold">({nutritionLabel.evidenceStrength}/5)</span>
+                  </div>
+                </div>
+                <div className="flex justify-between items-center text-slate-800 pt-1 border-t border-slate-100">
+                  <span className="text-slate-650 font-display">Telemetry Sources Check:</span>
+                  <span className="font-mono text-[10px] text-indigo-700 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded font-extrabold">{nutritionLabel.sources.length} active</span>
+                </div>
+                <div className="flex justify-between items-center text-slate-800 pt-1 border-t border-slate-100">
+                  <span className="text-slate-650 font-display">Similar Instances Tracked:</span>
+                  <span className="font-mono text-[10px] text-slate-800 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded font-extrabold">{nutritionLabel.similarCases.toLocaleString()}</span>
+                </div>
+              </div>
+
+              {/* Subagents Checklist */}
+              <div className="space-y-2.5">
+                <span className="text-[9px] text-slate-450 uppercase tracking-widest font-black font-mono block">Verification Pipelines</span>
+                {activeRec.subagents && activeRec.subagents.length > 0 ? (
+                  <div className="space-y-2">
+                    {activeRec.subagents.map((sa: any, idx: number) => (
+                      <div key={idx} className="p-2.5 bg-slate-50/50 border border-slate-200 rounded-xl flex items-start space-x-2">
+                        <div className="mt-0.5 h-3.5 w-3.5 bg-brand-emerald/10 border border-brand-emerald/20 text-brand-emerald rounded-full flex items-center justify-center text-[8px] font-bold flex-shrink-0 select-none">
+                          ✓
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex justify-between items-baseline">
+                            <span className="text-xs font-extrabold text-slate-850 truncate pr-2">{sa.name}</span>
+                            <span className="text-[9px] font-bold text-slate-500 font-mono shrink-0 bg-slate-100 px-1.5 py-0.2 rounded border border-slate-200">{sa.score}% match</span>
+                          </div>
+                          <p className="text-[10px] text-slate-550 leading-snug mt-0.5 font-medium">{sa.details}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-xs text-slate-400 italic">No automated verification pipeline data available.</p>
+                )}
+              </div>
             </div>
           </GlassCard>
         </div>
