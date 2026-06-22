@@ -22,7 +22,7 @@ export const DecisionVotingBoard: React.FC = () => {
   const consensusStrength = supportCount >= 3 ? "High" : "Medium";
 
   return (
-    <div className="bg-white/90 backdrop-blur-md border border-slate-200/80 rounded-2xl p-4 shadow-sm flex flex-col justify-between h-full select-none text-slate-800">
+    <div className="bg-white/90 backdrop-blur-md border border-slate-200/80 rounded-2xl p-4 shadow-sm flex flex-col justify-between h-auto select-none text-slate-800">
       <div>
         <div className="flex items-center space-x-2 border-b border-slate-200 pb-2 mb-3">
           <Users className="h-4 w-4 text-indigo-500" />

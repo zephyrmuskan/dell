@@ -330,10 +330,10 @@ export const AICollaborationBoardScreen: React.FC = () => {
       </div>
 
       {/* DYNAMIC TWO-COLUMN GRID SYSTEM */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
         
         {/* Left Column (col-span-8): Discussion timeline */}
-        <div className="lg:col-span-8 space-y-4 min-w-0">
+        <div className="lg:col-span-8 min-w-0 flex flex-col h-full">
           <AICollaborationBoard />
         </div>
 

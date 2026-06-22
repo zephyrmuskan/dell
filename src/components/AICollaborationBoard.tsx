@@ -295,7 +295,7 @@ export const AICollaborationBoard: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-[65vh] bg-white/90 backdrop-blur-md border border-slate-200/80 rounded-2xl overflow-hidden shadow-sm relative text-slate-800">
+    <div className="flex flex-col min-h-[500px] lg:h-full bg-white/90 backdrop-blur-md border border-slate-200/80 rounded-2xl overflow-hidden shadow-sm relative text-slate-800">
       
       {/* Simulation Controller Header */}
       <div className="bg-slate-50/80 px-4 py-3 border-b border-slate-200 flex items-center justify-between z-10 select-none">
