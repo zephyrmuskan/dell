@@ -164,7 +164,7 @@ export const AnalysisScreen: React.FC = () => {
   const [showFactCheck, setShowFactCheck] = useState(false);
   const [showAnalysisDetails, setShowAnalysisDetails] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
-  const chatEndRef = useRef<HTMLDivElement>(null);
+  const chatPaneRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (trustScore !== prevScore) {
@@ -192,7 +192,9 @@ export const AnalysisScreen: React.FC = () => {
   }, [activeRec.id, trustScore]);
 
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (chatPaneRef.current) {
+      chatPaneRef.current.scrollTop = chatPaneRef.current.scrollHeight;
+    }
   }, [companionMessages, isCompanionLoading]);
 
   useEffect(() => {
@@ -794,7 +796,7 @@ export const AnalysisScreen: React.FC = () => {
             </AnimatePresence>
 
             {/* Message Pane */}
-            <div className="flex-1 overflow-y-auto px-4 space-y-4 py-3 min-h-0 bg-slate-50/30">
+            <div ref={chatPaneRef} className="flex-1 overflow-y-auto px-4 space-y-4 py-3 min-h-0 bg-slate-50/30">
               {companionMessages.length === 0 ? (
                 <div className="flex flex-col items-center justify-center text-center h-full space-y-3 px-4 py-8">
                   <div className="p-3 bg-slate-100 border border-slate-200 rounded-2xl text-slate-400">
@@ -906,8 +908,6 @@ export const AnalysisScreen: React.FC = () => {
                   </div>
                 </div>
               )}
-              
-              <div ref={chatEndRef} />
             </div>
 
             {/* Input area */}

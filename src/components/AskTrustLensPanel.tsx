@@ -15,7 +15,7 @@ export const AskTrustLensPanel: React.FC = () => {
 
   const [inputVal, setInputVal] = useState('');
   const [feedbackClicked, setFeedbackClicked] = useState<Record<number, boolean>>({});
-  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const chatPaneRef = useRef<HTMLDivElement | null>(null);
 
   const suggestedQuestions = [
     "Why was this recommended?",
@@ -26,7 +26,9 @@ export const AskTrustLensPanel: React.FC = () => {
 
   // Auto-scroll messages to bottom
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (chatPaneRef.current) {
+      chatPaneRef.current.scrollTop = chatPaneRef.current.scrollHeight;
+    }
   }, [companionMessages, isCompanionLoading]);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -145,7 +147,7 @@ export const AskTrustLensPanel: React.FC = () => {
       </div>
 
       {/* Chat Messages Pane */}
-      <div className="flex-1 overflow-y-auto bg-slate-50/50 border border-slate-100 rounded-xl p-3 space-y-3 mb-3 min-h-0">
+      <div ref={chatPaneRef} className="flex-1 overflow-y-auto bg-slate-50/50 border border-slate-100 rounded-xl p-3 space-y-3 mb-3 min-h-0">
         {companionMessages.length === 0 ? (
           <div className="flex flex-col items-center justify-center text-center h-full space-y-2 p-4 text-slate-400">
             <Bot className="h-7 w-7 text-indigo-500" />
@@ -246,7 +248,6 @@ export const AskTrustLensPanel: React.FC = () => {
             </div>
           </div>
         )}
-        <div ref={messagesEndRef} />
       </div>
 
       {/* Input Message Form */}
