@@ -26,3 +26,16 @@ dist-ssr
 # Environment variables
 .env
 
+# Python pycache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Databases
+*.db
+*.sqlite3
+
+# Scratch directory
+scratch/
+

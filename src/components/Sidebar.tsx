@@ -7,7 +7,9 @@ import {
   ClipboardList, 
   RotateCcw,
   ShieldAlert as ShieldIcon,
-  LogOut
+  LogOut,
+  Cpu,
+  Settings
 } from 'lucide-react';
 
 export const Sidebar: React.FC = () => {
@@ -36,24 +38,26 @@ export const Sidebar: React.FC = () => {
     { id: 2, label: 'Device Analysis', icon: ShieldAlert, screen: 2 },
     { id: 3, label: 'UEM Trust Validation', icon: Dna, screen: 3 },
     { id: 4, label: 'MDM Command Center', icon: ClipboardList, screen: 4 },
+    { id: 5, label: 'AI Collaboration Board', icon: Cpu, screen: 5 },
+    { id: 6, label: 'API Status & Settings', icon: Settings, screen: 6 },
   ];
 
   return (
-    <aside className="w-64 glass-sidebar h-screen text-slate-700 flex flex-col justify-between flex-shrink-0 overflow-y-auto">
+    <aside role="navigation" aria-label="Sidebar Navigation" className="w-64 sidebar-navy h-screen text-white/80 flex flex-col justify-between flex-shrink-0 overflow-y-auto select-none">
       {/* Brand Header */}
       <div>
-        <div className="p-6 flex items-center space-x-3 border-b border-slate-100">
-          <div className="bg-brand-blue/10 p-2 rounded-lg border border-brand-blue/20 text-brand-blue">
-            <ShieldIcon className="h-6 w-6" />
+        <div className="p-4 flex items-center space-x-2.5 border-b border-white/5">
+          <div className="bg-brand-cyan/10 p-1.5 rounded-lg border border-brand-cyan/20 text-brand-cyan">
+            <ShieldIcon className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-lg font-bold text-slate-900 tracking-wide m-0">TrustLens AI</h1>
-            <p className="text-[9px] text-slate-400 font-extrabold tracking-wider uppercase">Intune & Workspace ONE UEM</p>
+            <h1 className="text-base font-black text-white font-display tracking-wide m-0">TrustLens AI</h1>
+            <p className="text-[8px] text-white/40 font-bold tracking-wider uppercase">Intune & Workspace ONE UEM</p>
           </div>
         </div>
 
         {/* Navigation Links */}
-        <nav className="mt-6 px-4 space-y-1.5">
+        <nav aria-label="Main Navigation" className="mt-4 px-3 space-y-1">
           {navItems.map((item) => {
             const isActive = currentScreen === item.screen;
             const Icon = item.icon;
@@ -62,13 +66,14 @@ export const Sidebar: React.FC = () => {
               <button
                 key={item.id}
                 onClick={() => setCurrentScreen(item.screen)}
-                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 group ${
+                className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-lg text-xs font-bold transition-all duration-200 group focus:ring-2 focus:ring-brand-cyan focus:outline-none ${
                   isActive
-                    ? 'bg-brand-blue text-white shadow-glow-blue'
-                    : 'hover:bg-slate-100 hover:text-slate-900 text-slate-500'
+                    ? 'bg-white/10 text-white border-l-2 border-brand-cyan shadow-glow-blue'
+                    : 'hover:bg-white/10 hover:text-white text-white/75'
                 }`}
+                aria-label={`Go to ${item.label}`}
               >
-                <Icon className={`h-4 w-4 transition-transform group-hover:scale-110 ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-slate-600'}`} />
+                <Icon className={`h-3.5 w-3.5 transition-transform group-hover:scale-110 ${isActive ? 'text-white' : 'text-white/50 group-hover:text-white/80'}`} />
                 <span>{item.label}</span>
               </button>
             );
@@ -76,47 +81,46 @@ export const Sidebar: React.FC = () => {
         </nav>
         
         {/* Autonomy Dial */}
-        <div className="mt-8 px-4 border-t border-slate-100 pt-6">
-          <p className="text-[10px] text-slate-400 font-extrabold tracking-wider uppercase px-2 mb-3">AI Autonomy Level</p>
+        <div className="mt-4 px-3 border-t border-white/5 pt-4">
+          <p className="text-[9px] text-white/40 font-extrabold tracking-wider uppercase px-1 mb-2 font-display">AI Autonomy Level</p>
           
-          <div className="bg-slate-50 p-1.5 rounded-xl border border-slate-200 flex flex-col space-y-1">
-            {([1, 2, 3, 4] as const).map((level) => {
+          <div className="bg-white/5 p-1 rounded-lg border border-white/5 grid grid-cols-3 gap-1" role="radiogroup" aria-label="AI Autonomy Level Selection">
+            {([1, 3, 4] as const).map((level) => {
               const active = autonomyLevel === level;
               const labels = {
-                1: '1. Always Ask Me',
-                2: '2. Recommend Only',
-                3: '3. Auto Approve Low Risk',
-                4: '4. Act & Notify'
+                1: 'Lvl 1 (Ask)',
+                3: 'Lvl 3 (Auto)',
+                4: 'Lvl 4 (Act)'
               };
               const activeColors = {
-                1: 'bg-slate-200 text-slate-800 shadow-sm',
-                2: 'bg-indigo-100 text-indigo-800 border border-indigo-200/50 shadow-sm',
-                3: 'bg-brand-blue text-white shadow-glow-blue',
-                4: 'bg-brand-emerald text-white shadow-glow-emerald'
+                1: 'bg-white/10 text-white border border-white/10 shadow-sm',
+                3: 'bg-brand-blue/30 text-brand-cyan border border-brand-blue/40 shadow-glow-blue',
+                4: 'bg-brand-emerald/25 text-[#34d399] border border-brand-emerald/35 shadow-glow-emerald'
               };
 
               return (
                 <button
                   key={level}
                   onClick={() => setAutonomyLevel(level)}
-                  className={`px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all duration-200 text-left cursor-pointer ${
+                  role="radio"
+                  aria-checked={active}
+                  className={`px-1 py-1 rounded text-[9px] font-bold transition-all duration-200 text-center cursor-pointer focus:ring-2 focus:ring-brand-cyan focus:outline-none ${
                     active 
-                      ? activeColors[level] 
-                      : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'
+                      ? activeColors[level as keyof typeof activeColors] 
+                      : 'text-white/50 hover:text-white hover:bg-white/5'
                   }`}
+                  aria-label={`Set AI autonomy to ${labels[level as keyof typeof labels]}`}
                 >
-                  {labels[level]}
+                  {labels[level as keyof typeof labels]}
                 </button>
               );
             })}
           </div>
 
-          <p className="text-[10px] text-slate-500 font-medium leading-relaxed mt-3.5 px-2 transition-all duration-300 italic">
+          <p className="text-[10px] text-white/70 font-semibold leading-relaxed mt-2 px-1 transition-all duration-300 italic min-h-[28px] line-clamp-2">
             "{
               autonomyLevel === 1
                 ? "Level 1: Every recommendation requires manual human approval."
-                : autonomyLevel === 2
-                ? "Level 2: AI suggests actions but humans must approve execution."
                 : autonomyLevel === 3
                 ? "Level 3: Low-risk tasks auto-approve; critical actions require review."
                 : "Level 4: AI executes all actions immediately and logs audit details."
@@ -125,75 +129,71 @@ export const Sidebar: React.FC = () => {
         </div>
 
         {/* Connected MDM Gateways */}
-        <div className="mt-6 px-4 border-t border-slate-100 pt-6">
-          <p className="text-[10px] text-slate-400 font-extrabold tracking-wider uppercase px-2 mb-3">Integrated Gateways</p>
+        <div className="mt-4 px-3 border-t border-white/5 pt-4">
+          <p className="text-[9px] text-white/40 font-extrabold tracking-wider uppercase px-1 mb-2 font-display">Integrated Gateways</p>
           
-          <div className="space-y-2">
+          <div className="grid grid-cols-2 gap-1.5">
             {/* Intune Gateway Card */}
-            <div className="flex items-center justify-between p-2.5 bg-slate-50 rounded-xl border border-slate-200/60 hover:bg-slate-100/50 transition-all duration-200">
-              <div className="flex items-center space-x-2">
-                <div className="h-2 w-2 rounded-full bg-brand-emerald animate-pulse" />
-                <div className="text-left">
-                  <span className="text-[10px] font-black text-slate-900 block">Microsoft Intune</span>
-                  <span className="text-[8px] font-bold text-slate-400 block uppercase">14,250 Devs • Active Sync</span>
-                </div>
+            <div className="flex flex-col p-1.5 bg-white/5 border border-white/5 rounded-lg hover:bg-white/10 transition-all duration-200 justify-between h-[48px]">
+              <div className="flex items-center space-x-1">
+                <div className="h-1.5 w-1.5 rounded-full bg-brand-emerald animate-pulse" />
+                <span className="text-[9px] font-bold text-white truncate">Intune</span>
               </div>
-              <span className="text-[8px] font-black px-1.5 py-0.5 rounded bg-sky-50 text-sky-600 border border-sky-100 uppercase tracking-wider font-mono">
-                Graph
-              </span>
+              <div className="flex justify-between items-center mt-1">
+                <span className="text-[7px] font-bold text-white/40">14.2K devs</span>
+                <span className="text-[7px] font-bold px-1 rounded bg-white/10 text-brand-cyan border border-white/5 font-mono">Graph</span>
+              </div>
             </div>
 
             {/* Workspace ONE Gateway Card */}
-            <div className="flex items-center justify-between p-2.5 bg-slate-50 rounded-xl border border-slate-200/60 hover:bg-slate-100/50 transition-all duration-200">
-              <div className="flex items-center space-x-2">
-                <div className="h-2 w-2 rounded-full bg-brand-emerald animate-pulse" />
-                <div className="text-left">
-                  <span className="text-[10px] font-black text-slate-900 block">Workspace ONE</span>
-                  <span className="text-[8px] font-bold text-slate-400 block uppercase">9,840 Devs • Active Scan</span>
-                </div>
+            <div className="flex flex-col p-1.5 bg-white/5 border border-white/5 rounded-lg hover:bg-white/10 transition-all duration-200 justify-between h-[48px]">
+              <div className="flex items-center space-x-1">
+                <div className="h-1.5 w-1.5 rounded-full bg-brand-emerald animate-pulse" />
+                <span className="text-[9px] font-bold text-white truncate">WS One</span>
               </div>
-              <span className="text-[8px] font-black px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-600 border border-indigo-100 uppercase tracking-wider font-mono">
-                REST
-              </span>
+              <div className="flex justify-between items-center mt-1">
+                <span className="text-[7px] font-bold text-white/40">9.8K devs</span>
+                <span className="text-[7px] font-bold px-1 rounded bg-white/10 text-brand-cyan border border-white/5 font-mono">REST</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       {/* Profile & Reset Demo */}
-      <div className="p-4 border-t border-slate-100 space-y-4">
+      <div className="p-3 border-t border-white/5 space-y-2.5">
         {/* Reset Action */}
         <button
           onClick={resetDemo}
-          className="w-full flex items-center justify-center space-x-2 px-4 py-2.5 rounded-xl border border-slate-200 hover:border-slate-300 bg-slate-50 hover:bg-slate-100 text-xs font-bold text-slate-500 hover:text-slate-800 transition-all duration-200"
+          className="w-full flex items-center justify-center space-x-1.5 py-1.5 rounded-lg border border-white/10 hover:border-white/20 bg-white/5 hover:bg-white/10 text-[10px] font-bold text-white/70 hover:text-white transition-all duration-200 cursor-pointer"
         >
-          <RotateCcw className="h-3.5 w-3.5" />
+          <RotateCcw className="h-3 w-3" />
           <span>Reset Demo Flow</span>
         </button>
 
         {/* User Card */}
-        <div className="flex items-center space-x-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
+        <div className="flex items-center space-x-2 bg-white/5 p-2 rounded-lg border border-white/5">
           {avatarUrl ? (
             <img 
               src={avatarUrl} 
               alt={displayName} 
-              className="h-9 w-9 rounded-full object-cover border border-slate-200 shadow-inner" 
+              className="h-8 w-8 rounded-full object-cover border border-white/10 shadow-inner" 
             />
           ) : (
-            <div className="h-9 w-9 rounded-full bg-gradient-to-tr from-brand-blue to-purple-600 flex items-center justify-center font-bold text-white text-sm border border-white/10 shadow-inner">
+            <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-brand-cyan to-indigo-600 flex items-center justify-center font-bold text-white text-xs border border-white/10 shadow-inner">
               {getInitials()}
             </div>
           )}
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-bold text-slate-800 truncate m-0">{displayName}</p>
-            <p className="text-[9px] text-slate-400 font-extrabold truncate m-0 uppercase tracking-wider">{displayRole}</p>
+            <p className="text-[11px] font-bold text-white truncate m-0 leading-tight">{displayName}</p>
+            <p className="text-[9px] text-white/65 font-bold truncate m-0 uppercase tracking-wider">{displayRole}</p>
           </div>
           <button
             onClick={logout}
             title="Sign Out"
-            className="p-1.5 rounded-lg hover:bg-slate-200 text-slate-400 hover:text-rose-600 transition-colors cursor-pointer border-none bg-transparent"
+            className="p-1 rounded hover:bg-white/10 text-white/40 hover:text-brand-red transition-colors cursor-pointer border-none bg-transparent"
           >
-            <LogOut className="h-4 w-4.5" />
+            <LogOut className="h-3.5 w-4" />
           </button>
         </div>
       </div>

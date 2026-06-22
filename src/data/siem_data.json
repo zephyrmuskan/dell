@@ -36,12 +36,12 @@
         "model": "Gemini 1.5 Pro"
       },
       "trustDNA": {
-        "score": 61,
+        "score": 88,
         "dataQuality": 96,
-        "policyMatch": 85,
-        "fleetSimilarity": 79,
-        "threatIntelMatch": 85,
-        "unknownRisk": 43
+        "policyMatch": 94,
+        "fleetSimilarity": 90,
+        "threatIntelMatch": 92,
+        "unknownRisk": 15
       },
       "devilsAdvocate": {
         "points": [

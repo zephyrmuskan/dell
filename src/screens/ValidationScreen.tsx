@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useWorkflow } from '../context/WorkflowContext';
+import { useWorkflow, type AgentChainStep } from '../context/WorkflowContext';
 import { GlassCard } from '../components/GlassCard';
 import { ProgressBar } from '../components/ProgressBar';
 import { SimilarCasesModal } from '../components/SimilarCasesModal';
@@ -11,6 +11,46 @@ import {
   Cpu
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { formatSummaryLayman, formatInputLayman, formatOutputLayman } from '../utils/laymanFormatter';
+
+const renderInlineMarkdown = (text: string) => {
+  if (!text) return "";
+  const parts = text.split(/(\*\*.*?\*\*|`.*?`)/g);
+  return parts.map((part, idx) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      return <strong key={idx} className="font-extrabold text-slate-950">{part.slice(2, -2)}</strong>;
+    }
+    if (part.startsWith('`') && part.endsWith('`')) {
+      return <code key={idx} className="bg-slate-200 text-indigo-900 px-1 py-0.5 rounded font-mono text-[10px] font-bold border border-slate-300">{part.slice(1, -1)}</code>;
+    }
+    return part;
+  });
+};
+
+const renderFormattedText = (text: string) => {
+  if (!text) return null;
+  const lines = text.split('\n');
+  return (
+    <div className="space-y-1.5 leading-relaxed font-sans">
+      {lines.map((line, idx) => {
+        const trimmed = line.trim();
+        if (trimmed.startsWith('• ') || trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
+          return (
+            <div key={idx} className="flex items-start space-x-1.5 text-xs text-inherit">
+              <span className="mt-1 flex-shrink-0">•</span>
+              <span className="font-medium text-inherit">{renderInlineMarkdown(trimmed.slice(2))}</span>
+            </div>
+          );
+        }
+        return (
+          <p key={idx} className="text-xs font-medium text-inherit m-0 leading-normal">
+            {renderInlineMarkdown(line)}
+          </p>
+        );
+      })}
+    </div>
+  );
+};
 
 export const ValidationScreen: React.FC = () => {
   const { 
@@ -27,7 +67,7 @@ export const ValidationScreen: React.FC = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeStep, setActiveStep] = useState(1);
-  const [selectedAgent, setSelectedAgent] = useState<any>(null);
+  const [selectedAgent, setSelectedAgent] = useState<AgentChainStep | null>(null);
 
   const { trustDNA, devilsAdvocate, timeMachine, similarCasesList, action } = activeRec;
 
@@ -44,7 +84,7 @@ export const ValidationScreen: React.FC = () => {
             cx="48"
             cy="48"
             r={radius}
-            className="stroke-slate-100"
+            className="stroke-white/10"
             strokeWidth="7"
             fill="transparent"
           />
@@ -61,9 +101,9 @@ export const ValidationScreen: React.FC = () => {
             transition={{ duration: 1.2, ease: 'easeOut' }}
           />
         </svg>
-        <div className={`absolute flex flex-col items-center justify-center bg-white h-18 w-18 rounded-full border border-slate-200/50 shadow-inner ${glowClass}`}>
-          <span className="text-lg font-black text-slate-800">{percentage}%</span>
-          <span className="text-[7px] font-bold text-slate-400 uppercase tracking-widest">Score</span>
+        <div className={`absolute flex flex-col items-center justify-center bg-brand-navy/90 h-18 w-18 rounded-full border border-white/10 shadow-inner ${glowClass}`}>
+          <span className="text-lg font-bold text-white font-mono">{percentage}%</span>
+          <span className="text-[7px] font-bold text-white/40 uppercase tracking-widest font-display">Score</span>
         </div>
       </div>
     );
@@ -82,7 +122,7 @@ export const ValidationScreen: React.FC = () => {
             cx="72"
             cy="72"
             r={radius}
-            className="stroke-slate-100"
+            className="stroke-white/10"
             strokeWidth="10"
             fill="transparent"
           />
@@ -99,9 +139,9 @@ export const ValidationScreen: React.FC = () => {
             transition={{ duration: 1.2, ease: 'easeOut' }}
           />
         </svg>
-        <div className={`absolute flex flex-col items-center justify-center bg-white h-28 w-28 rounded-full border border-slate-200/50 shadow-inner ${glowClass}`}>
-          <span className="text-3xl font-black text-slate-800">{percentage}%</span>
-          <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-1">Trust Score</span>
+        <div className={`absolute flex flex-col items-center justify-center bg-brand-navy/90 h-28 w-28 rounded-full border border-white/10 shadow-inner ${glowClass}`}>
+          <span className="text-3xl font-bold text-white font-mono">{percentage}%</span>
+          <span className="text-[8px] font-bold text-white/40 uppercase tracking-widest mt-1 font-display">Trust Score</span>
         </div>
       </div>
     );
@@ -115,7 +155,7 @@ export const ValidationScreen: React.FC = () => {
     return (
       <span className={`font-mono text-xs ${colorClass}`}>
         {filledBlocks}
-        <span className="text-slate-700/30">{emptyBlocks}</span>
+        <span className="text-white/10">{emptyBlocks}</span>
       </span>
     );
   };
@@ -136,25 +176,24 @@ export const ValidationScreen: React.FC = () => {
       transition={{ duration: 0.35, ease: 'easeOut' }}
       className="space-y-6"
     >
-      {/* Header */}
       <div className="flex items-center justify-between">
         <button
           onClick={() => setCurrentScreen(2)}
-          className="flex items-center space-x-2 text-xs font-bold text-slate-500 hover:text-slate-900 transition-colors"
+          className="flex items-center space-x-2 text-xs font-bold text-slate-600 hover:text-slate-900 transition-colors font-display cursor-pointer"
         >
           <ArrowLeft className="h-4 w-4" />
           <span>Back to Device Analysis</span>
         </button>
         <div>
-          <h2 className="text-xl font-black text-slate-900 m-0">UEM Trust Validation</h2>
+          <h2 className="text-xl font-bold text-slate-900 font-display m-0">UEM Trust Validation</h2>
         </div>
       </div>
 
       {/* Connected validation steps layout */}
       <div className="max-w-5xl mx-auto">
-        <GlassCard className="p-6 border-slate-200 bg-white shadow-sm flex flex-col justify-between h-[540px]">
+        <GlassCard className="p-6 flex flex-col justify-between h-[540px]">
           {/* Stepper Header */}
-          <div className="flex items-center justify-between border-b border-slate-100 pb-5 mb-5 flex-shrink-0">
+          <div className="flex items-center justify-between border-b border-slate-200 pb-5 mb-5 flex-shrink-0">
             {steps.map((s, idx) => {
               const isActive = activeStep === s.number;
               const isCompleted = activeStep > s.number;
@@ -167,18 +206,18 @@ export const ValidationScreen: React.FC = () => {
                     className="flex flex-col items-center focus:outline-none cursor-pointer group"
                   >
                     <div className="flex items-center space-x-2">
-                      <div className={`h-7 w-7 rounded-full flex items-center justify-center text-xs font-black transition-all ${
+                      <div className={`h-7 w-7 rounded-full flex items-center justify-center text-xs font-bold font-mono transition-all ${
                         isActive 
-                          ? 'bg-brand-blue text-white shadow-glow-blue scale-110' 
+                          ? 'bg-brand-cyan text-brand-navy shadow-sm scale-110' 
                           : isCompleted 
-                          ? 'bg-brand-emerald text-white shadow-glow-emerald' 
-                          : 'bg-slate-100 text-slate-400 group-hover:bg-slate-200'
+                          ? 'bg-brand-emerald text-white shadow-sm' 
+                          : 'bg-slate-100 text-slate-400 group-hover:bg-slate-200 group-hover:text-slate-600'
                       }`}>
                         {s.number}
                       </div>
-                      <span className={`text-[11px] font-extrabold transition-all hidden md:inline ${
+                      <span className={`text-xs font-extrabold transition-all font-display hidden md:inline ${
                         isActive 
-                          ? 'text-slate-900' 
+                          ? 'text-slate-900 font-bold' 
                           : 'text-slate-400 group-hover:text-slate-600'
                       }`}>
                         {s.label}
@@ -187,7 +226,7 @@ export const ValidationScreen: React.FC = () => {
                   </button>
                   {idx < steps.length - 1 && (
                     <div className={`h-[2px] flex-1 mx-2 transition-all duration-500 ${
-                      activeStep > s.number ? 'bg-brand-emerald' : 'bg-slate-100'
+                      activeStep > s.number ? 'bg-brand-emerald' : 'bg-slate-200'
                     }`} />
                   )}
                 </React.Fragment>
@@ -195,14 +234,13 @@ export const ValidationScreen: React.FC = () => {
             })}
           </div>
 
-          {/* Stepper Content */}
           <div className="flex-1 overflow-hidden min-h-0 flex flex-col">
             {activeStep === 1 && (
               <div className="grid grid-cols-1 md:grid-cols-12 gap-6 flex-1 overflow-hidden min-h-0">
                 <div className="md:col-span-5 space-y-4 pr-2">
-                  <h4 className="text-xs font-extrabold text-slate-800 uppercase tracking-wide">Scanned Attributes</h4>
+                  <h4 className="text-xs font-extrabold text-slate-900 uppercase tracking-wide font-display">Scanned Attributes</h4>
                   <div className="py-1">
-                    {renderCircleDial(trustDNA.score, 'stroke-brand-blue', 'shadow-glow-blue')}
+                    {renderCircleDial(trustDNA.score, 'stroke-brand-cyan', 'shadow-sm')}
                   </div>
                   <div className="space-y-3 pt-1">
                     <ProgressBar label="Reliability of Source Logs" value={trustDNA.dataQuality} color="emerald" />
@@ -212,10 +250,16 @@ export const ValidationScreen: React.FC = () => {
                     <ProgressBar label="Unexplained Activities" value={trustDNA.unknownRisk} color="amber" />
                   </div>
                 </div>
-                <div className="md:col-span-7 flex flex-col min-h-0 overflow-hidden border-l border-slate-100 pl-4">
+                <div className="md:col-span-7 flex flex-col min-h-0 overflow-hidden border-l border-slate-200 pl-4">
                   <div className="flex justify-between items-center mb-3 flex-shrink-0">
-                    <h4 className="text-xs font-extrabold text-slate-800 uppercase tracking-wide m-0">AI Decision Journey</h4>
-                    <span className="text-[9px] font-bold text-slate-400 bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded uppercase tracking-wider">Multi-Agent Chain</span>
+                    <h4 className="text-xs font-extrabold text-slate-900 uppercase tracking-wide font-display m-0">AI Decision Journey</h4>
+                    <button
+                      onClick={() => setCurrentScreen(5)}
+                      type="button"
+                      className="text-[10px] font-black text-indigo-800 bg-brand-cyan/20 hover:bg-brand-cyan hover:text-brand-navy border border-brand-cyan/35 px-2.5 py-1 rounded-lg transition-colors cursor-pointer font-display"
+                    >
+                      Open Interactive Graph
+                    </button>
                   </div>
 
                   {/* Visual Timeline and Inspector Panel */}
@@ -241,7 +285,6 @@ export const ValidationScreen: React.FC = () => {
                         const isHuman = agent.name === "Human Decision Maker";
                         const isSelected = selectedAgent?.name === agent.name;
 
-                        // Determine emoji/icon indicator
                         let iconText = "🤖";
                         if (agent.name.includes("Detection")) iconText = "🔍";
                         else if (agent.name.includes("Risk")) iconText = "📊";
@@ -252,7 +295,6 @@ export const ValidationScreen: React.FC = () => {
 
                         return (
                           <div key={idx} className="relative">
-                            {/* Vertical Line */}
                             {!isLast && (
                               <div className="absolute left-5.5 top-10 bottom-[-16px] w-[2px] bg-slate-200 z-0"></div>
                             )}
@@ -265,11 +307,11 @@ export const ValidationScreen: React.FC = () => {
                               type="button"
                               className={`w-full flex items-start p-3 rounded-xl border text-left transition-all z-10 relative cursor-pointer active:scale-[0.99] ${
                                 isSelected
-                                  ? 'bg-brand-blue/5 border-brand-blue shadow-sm'
+                                  ? 'bg-brand-cyan/10 border-brand-cyan shadow-sm'
                                   : isHuman
-                                  ? 'bg-slate-50 border-slate-200/80 hover:bg-slate-100/50'
+                                  ? 'bg-slate-50 border-slate-200 hover:bg-slate-100'
                                   : isInspected
-                                  ? 'bg-white border-brand-emerald/30 hover:border-brand-emerald/60 shadow-sm'
+                                  ? 'bg-slate-50 border-brand-emerald/40 hover:border-brand-emerald/70 shadow-sm'
                                   : 'bg-white border-slate-200 hover:border-slate-300'
                               }`}
                             >
@@ -278,10 +320,10 @@ export const ValidationScreen: React.FC = () => {
                                 isHuman 
                                   ? 'bg-slate-100 text-slate-700 border-slate-200' 
                                   : isSelected
-                                  ? 'bg-brand-blue/10 text-brand-blue border-brand-blue/20'
+                                  ? 'bg-brand-cyan/20 text-indigo-900 border-brand-cyan/30'
                                   : isInspected
-                                  ? 'bg-brand-emerald/10 text-brand-emerald border-brand-emerald/20'
-                                  : 'bg-slate-50 text-slate-500 border-slate-100'
+                                  ? 'bg-brand-emerald/15 text-brand-emerald border-brand-emerald/30'
+                                  : 'bg-slate-50 text-slate-400 border-slate-200/60'
                               }`}>
                                 {iconText}
                               </div>
@@ -289,20 +331,22 @@ export const ValidationScreen: React.FC = () => {
                               {/* Text content */}
                               <div className="ml-3 flex-1 min-w-0">
                                 <div className="flex justify-between items-center">
-                                  <span className={`text-[10px] font-black truncate block ${
-                                    isHuman ? 'text-slate-800' : isSelected ? 'text-brand-blue' : 'text-slate-900'
+                                  <span className={`text-xs font-bold font-display truncate block ${
+                                    isHuman ? 'text-slate-900 font-extrabold' : isSelected ? 'text-indigo-850 font-black' : 'text-slate-800'
                                   }`}>
                                     {agent.name}
                                   </span>
                                   {agent.confidence > 0 && (
-                                    <span className="text-[8px] font-extrabold bg-slate-100 border border-slate-200 px-1 py-0.2 rounded font-mono">
+                                    <span className="text-[10px] font-extrabold bg-slate-100 border border-slate-200 px-1 py-0.2 rounded font-mono">
                                       {agent.confidence}%
                                     </span>
                                   )}
                                 </div>
-                                <span className="text-[8px] font-bold text-slate-400 block tracking-wide uppercase mt-0.5">{agent.role}</span>
-                                <p className="text-[10px] text-slate-600 font-bold truncate mt-1.5 m-0">
-                                  {agent.output_data}
+                                <span className="text-[11px] font-bold text-slate-500 block tracking-wider uppercase mt-0.5 font-display">{agent.role}</span>
+                                <p className="text-xs text-slate-850 font-bold truncate mt-1.5 m-0">
+                                  {agent.name === "Human Decision Maker"
+                                    ? agent.output_data
+                                    : formatSummaryLayman(agent.name, agent.output_data)}
                                 </p>
                               </div>
                             </button>
@@ -312,58 +356,62 @@ export const ValidationScreen: React.FC = () => {
                     </div>
 
                     {/* Right Column (Inspector Card details) */}
-                    <div className="lg:col-span-5 bg-slate-50 border border-slate-200/60 rounded-2xl p-4 flex flex-col justify-between overflow-y-auto">
+                    <div className="lg:col-span-5 bg-slate-50 border border-slate-200 rounded-2xl p-4 flex flex-col justify-between overflow-y-auto">
                       {selectedAgent ? (
-                        <div className="space-y-3.5">
+                        <div className="space-y-3.5 text-slate-800">
                           <div>
-                            <div className="flex items-center justify-between">
-                              <span className="text-[9px] font-black uppercase text-slate-400 tracking-wider">Agent Details</span>
-                              <span className="text-[8px] font-black px-1.5 py-0.5 rounded bg-brand-blue/10 text-brand-blue border border-brand-blue/20 uppercase tracking-widest font-mono">
+                            <div className="flex items-center justify-between font-display">
+                              <span className="text-xs font-bold uppercase text-slate-500 tracking-widest">Agent Details</span>
+                              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-brand-cyan/20 text-indigo-800 border border-brand-cyan/30 uppercase tracking-widest font-mono">
                                 Conf: {selectedAgent.confidence}%
                               </span>
                             </div>
-                            <h4 className="text-xs font-black text-slate-950 mt-1 m-0">{selectedAgent.name}</h4>
-                            <p className="text-[9px] font-bold text-slate-500 uppercase tracking-wide mt-0.5">{selectedAgent.role}</p>
+                            <h4 className="text-xs font-bold text-slate-900 mt-1 m-0 font-display">{selectedAgent.name}</h4>
+                            <p className="text-[10px] font-semibold text-slate-550 uppercase tracking-wider mt-0.5 font-display">{selectedAgent.role}</p>
                           </div>
 
-                          <div className="border-t border-slate-200/50 pt-2.5 space-y-3">
+                          <div className="border-t border-slate-200 pt-2.5 space-y-3">
                             {/* Input Received */}
                             <div>
-                              <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider block">Input Received:</span>
-                              <div className="mt-1 p-2 bg-white rounded-lg border border-slate-200/60 text-[10px] font-semibold text-slate-600 leading-normal">
-                                {selectedAgent.input_data}
+                              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block font-display">Input Received:</span>
+                              <div className="mt-1 p-2 bg-white rounded-lg border border-slate-200 text-xs font-semibold text-slate-800 leading-relaxed max-h-[140px] overflow-y-auto">
+                                {selectedAgent.name === "Human Decision Maker" 
+                                  ? selectedAgent.input_data 
+                                  : renderFormattedText(formatInputLayman(selectedAgent.name, selectedAgent.input_data))}
                               </div>
                             </div>
 
                             {/* Decision Made */}
                             <div>
-                              <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider block">Decision Made:</span>
-                              <div className="mt-1 p-2 bg-brand-blue/5 rounded-lg border border-brand-blue/15 text-[10px] font-bold text-slate-900 leading-normal">
-                                {selectedAgent.output_data}
+                              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block font-display">Decision Made:</span>
+                              <div className="mt-1 p-2 bg-brand-cyan/20 rounded-lg border border-brand-cyan/30 text-xs font-semibold text-indigo-900 leading-relaxed max-h-[160px] overflow-y-auto">
+                                {selectedAgent.name === "Human Decision Maker"
+                                  ? selectedAgent.output_data
+                                  : renderFormattedText(formatOutputLayman(selectedAgent.name, selectedAgent.output_data))}
                               </div>
                             </div>
 
                             {/* Detailed Reasoning */}
                             <div>
-                              <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider block">Reasoning Logic:</span>
-                              <p className="mt-1 text-[10px] font-medium text-slate-600 leading-relaxed italic m-0">
+                              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block font-display">Reasoning Logic:</span>
+                              <p className="mt-1 text-xs font-bold text-slate-700 leading-relaxed italic m-0">
                                 "{selectedAgent.reasoning}"
                               </p>
                             </div>
                           </div>
 
-                          <div className="text-[8px] font-bold text-slate-400 uppercase text-right pt-2 border-t border-slate-200/50">
+                          <div className="text-xs font-bold text-slate-500 uppercase text-right pt-2 border-t border-slate-200 font-display">
                             Logged: {selectedAgent.timestamp.split('T')[0]}
                           </div>
                         </div>
                       ) : (
                         <div className="flex flex-col items-center justify-center text-center h-full py-12 px-2 space-y-3">
-                          <div className="p-3 bg-white rounded-2xl border border-slate-100 text-slate-400 shadow-sm">
+                          <div className="p-3 bg-slate-100 rounded-2xl border border-slate-200 text-slate-400 shadow-sm">
                             <Cpu className="h-6 w-6" />
                           </div>
                           <div>
-                            <h4 className="text-xs font-bold text-slate-800 m-0">Agent Inspector</h4>
-                            <p className="text-[9px] text-slate-500 font-medium leading-relaxed mt-1.5">
+                            <h4 className="text-xs font-bold text-slate-900 m-0 font-display">Agent Inspector</h4>
+                            <p className="text-xs text-slate-650 font-semibold leading-relaxed mt-1.5">
                               Click any agent node in the Decision Journey timeline to inspect input context transfers, logical reasoning steps, and confidence logs.
                             </p>
                           </div>
@@ -378,16 +426,16 @@ export const ValidationScreen: React.FC = () => {
             {activeStep === 2 && (
               <div className="flex-1 flex flex-col justify-between min-h-0">
                 <div className="space-y-4">
-                  <div className="flex items-center space-x-2 border-b border-slate-100 pb-2">
+                  <div className="flex items-center space-x-2 border-b border-slate-200 pb-2">
                     <AlertTriangle className="h-4.5 w-4.5 text-brand-red animate-pulse-slow" />
-                    <h4 className="text-xs font-extrabold text-slate-800 uppercase tracking-wide m-0">Devil's Advocate Analysis</h4>
+                    <h4 className="text-xs font-extrabold text-slate-900 uppercase tracking-wide m-0 font-display">Devil's Advocate Analysis</h4>
                   </div>
                   <div>
-                    <h5 className="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider m-0">Assumptions & Contradictions Checked:</h5>
+                    <h5 className="text-xs font-bold text-slate-500 uppercase tracking-wider m-0 font-display">Assumptions & Contradictions Checked:</h5>
                   </div>
                   <ul className="space-y-3 pl-0 list-none m-0 max-h-[180px] overflow-y-auto pr-1">
                     {devilsAdvocate.points.map((point, idx) => (
-                      <li key={idx} className="flex items-start space-x-2.5 text-xs font-semibold text-slate-700 bg-slate-50/50 p-3 rounded-xl border border-slate-100">
+                      <li key={idx} className="flex items-start space-x-2.5 text-sm font-semibold text-slate-800 bg-slate-50 p-3 rounded-xl border border-slate-200">
                         <span className="h-1.5 w-1.5 rounded-full bg-brand-red mt-1.5 flex-shrink-0" />
                         <span>{point}</span>
                       </li>
@@ -396,25 +444,25 @@ export const ValidationScreen: React.FC = () => {
                 </div>
 
                 {/* Alternative Action */}
-                <div className="bg-slate-50 border border-slate-200/60 p-4 rounded-2xl">
-                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-2 m-0">Suggested Alternative Action</p>
+                <div className="bg-slate-50 border border-slate-200/80 p-4 rounded-2xl">
+                  <p className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-2 m-0 font-display">Suggested Alternative Action</p>
                   <button
                     onClick={() => setSelectedAltAction(!selectedAltAction)}
                     type="button"
                     className={`w-full flex items-center justify-between p-3 rounded-xl border transition-all duration-300 cursor-pointer ${
                       selectedAltAction
-                        ? 'bg-brand-emerald/10 border-brand-emerald text-brand-emerald shadow-glow-emerald font-extrabold'
-                        : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-700 hover:text-slate-950 font-bold'
+                        ? 'bg-brand-emerald/10 border-brand-emerald text-brand-emerald shadow-sm font-extrabold'
+                        : 'bg-white hover:bg-slate-100 border-slate-250 text-slate-700 hover:text-slate-900 font-bold'
                     }`}
                   >
-                    <div className="flex items-center space-x-2.5 text-xs">
+                    <div className="flex items-center space-x-2.5 text-sm">
                       <Eye className={`h-4 w-4 ${selectedAltAction ? 'text-brand-emerald' : 'text-slate-400'}`} />
                       <span>{devilsAdvocate.alternativeAction}</span>
                     </div>
-                    <span className={`text-[10px] uppercase px-2 py-0.5 rounded font-extrabold border ${
+                    <span className={`text-xs uppercase px-2 py-0.5 rounded font-bold border font-display ${
                       selectedAltAction 
                         ? 'bg-brand-emerald text-white border-brand-emerald' 
-                        : 'bg-slate-100 text-slate-500 border-slate-200'
+                        : 'bg-slate-150 text-slate-500 border-slate-200'
                     }`}>
                       {selectedAltAction ? 'Selected' : 'Select'}
                     </span>
@@ -426,41 +474,41 @@ export const ValidationScreen: React.FC = () => {
             {activeStep === 3 && (
               <div className="grid grid-cols-1 md:grid-cols-12 gap-6 flex-1 overflow-hidden min-h-0">
                 <div className="md:col-span-5 flex flex-col justify-center items-center text-center space-y-3">
-                  <h4 className="text-xs font-extrabold text-slate-800 uppercase tracking-wide">Historical Accuracy</h4>
+                  <h4 className="text-xs font-extrabold text-slate-900 uppercase tracking-wide font-display">Historical Accuracy</h4>
                   <div className="py-1">
-                    {renderCircleDial(timeMachine.accuracy, 'stroke-brand-amber', 'shadow-glow-amber')}
+                    {renderCircleDial(timeMachine.accuracy, 'stroke-brand-amber', 'shadow-sm')}
                   </div>
                   <div>
-                    <p className="text-xs font-extrabold text-slate-800 m-0">Based on {timeMachine.cases} similar cases</p>
-                    <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mt-0.5">Past accuracy baseline</p>
+                    <p className="text-xs font-extrabold text-slate-900 m-0 font-display">Based on <span className="font-mono">{timeMachine.cases}</span> similar cases</p>
+                    <p className="text-[11px] text-slate-550 font-semibold uppercase tracking-wider mt-0.5 font-display">Past accuracy baseline</p>
                   </div>
                 </div>
-                <div className="md:col-span-7 flex flex-col justify-between border-l border-slate-100 pl-4 min-h-0">
+                <div className="md:col-span-7 flex flex-col justify-between border-l border-slate-200 pl-4 min-h-0">
                   <div className="space-y-4">
-                    <h4 className="text-xs font-extrabold text-slate-800 uppercase tracking-wide">Case Outcome Breakdown</h4>
+                    <h4 className="text-xs font-extrabold text-slate-900 uppercase tracking-wide font-display">Case Outcome Breakdown</h4>
                     <div className="space-y-3">
-                      <div className="flex items-center justify-between text-xs font-semibold text-slate-600 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                      <div className="flex items-center justify-between text-sm font-semibold text-slate-800 bg-slate-50 p-3 rounded-xl border border-slate-200">
                         <div className="flex items-center space-x-2">
-                          <span className="h-2.5 w-2.5 rounded-full bg-brand-emerald" />
-                          <span>Correct system alerts</span>
+                           <span className="h-2.5 w-2.5 rounded-full bg-brand-emerald" />
+                           <span>Correct system alerts</span>
                         </div>
-                        <span className="font-extrabold text-slate-800">{timeMachine.breakdown.correct} ({Math.round(timeMachine.breakdown.correct / timeMachine.cases * 100)}%)</span>
+                        <span className="font-bold text-slate-900 font-mono">{timeMachine.breakdown.correct} ({Math.round(timeMachine.breakdown.correct / timeMachine.cases * 100)}%)</span>
                       </div>
 
-                      <div className="flex items-center justify-between text-xs font-semibold text-slate-600 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                      <div className="flex items-center justify-between text-sm font-semibold text-slate-800 bg-slate-50 p-3 rounded-xl border border-slate-200">
                         <div className="flex items-center space-x-2">
-                          <span className="h-2.5 w-2.5 rounded-full bg-brand-red" />
-                          <span>Alerts with no real issues found</span>
+                           <span className="h-2.5 w-2.5 rounded-full bg-brand-red" />
+                           <span>Alerts with no real issues found</span>
                         </div>
-                        <span className="font-extrabold text-slate-800">{timeMachine.breakdown.falsePositives} ({Math.round(timeMachine.breakdown.falsePositives / timeMachine.cases * 100)}%)</span>
+                        <span className="font-bold text-slate-900 font-mono">{timeMachine.breakdown.falsePositives} ({Math.round(timeMachine.breakdown.falsePositives / timeMachine.cases * 100)}%)</span>
                       </div>
 
-                      <div className="flex items-center justify-between text-xs font-semibold text-slate-600 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                      <div className="flex items-center justify-between text-sm font-semibold text-slate-800 bg-slate-50 p-3 rounded-xl border border-slate-200">
                         <div className="flex items-center space-x-2">
-                          <span className="h-2.5 w-2.5 rounded-full bg-brand-amber" />
-                          <span>Unusual cases sent for human help</span>
+                           <span className="h-2.5 w-2.5 rounded-full bg-brand-amber" />
+                           <span>Unusual cases sent for human help</span>
                         </div>
-                        <span className="font-extrabold text-slate-800">{timeMachine.breakdown.escalated} ({Math.round(timeMachine.breakdown.escalated / timeMachine.cases * 100)}%)</span>
+                        <span className="font-bold text-slate-900 font-mono">{timeMachine.breakdown.escalated} ({Math.round(timeMachine.breakdown.escalated / timeMachine.cases * 100)}%)</span>
                       </div>
                     </div>
                   </div>
@@ -469,7 +517,7 @@ export const ValidationScreen: React.FC = () => {
                     <button
                       onClick={() => setIsModalOpen(true)}
                       type="button"
-                      className="w-full flex items-center justify-center space-x-2 py-3 rounded-xl border border-brand-amber/30 hover:border-brand-amber bg-brand-amber/5 hover:bg-brand-amber/10 text-xs font-bold text-brand-amber transition-all duration-200 cursor-pointer active:scale-95"
+                      className="w-full flex items-center justify-center space-x-2 py-3 rounded-xl border border-brand-amber/40 hover:border-brand-amber bg-amber-50 hover:bg-amber-100 text-sm font-extrabold text-amber-800 transition-all duration-200 cursor-pointer active:scale-95 font-display"
                     >
                       <span>See similar past cases</span>
                     </button>
@@ -481,53 +529,53 @@ export const ValidationScreen: React.FC = () => {
             {activeStep === 4 && (
               <div className="grid grid-cols-1 md:grid-cols-12 gap-6 flex-1 overflow-hidden min-h-0">
                 <div className="md:col-span-5 flex flex-col justify-center items-center text-center space-y-3">
-                  <h4 className="text-xs font-extrabold text-slate-800 uppercase tracking-wide">Calibrated Trust Dial</h4>
+                  <h4 className="text-xs font-extrabold text-slate-900 uppercase tracking-wide font-display">Calibrated Trust Dial</h4>
                   <div className="py-1">
-                    {renderLargeCircleDial(trustScore, 'stroke-brand-emerald', 'shadow-glow-emerald')}
+                    {renderLargeCircleDial(trustScore, 'stroke-brand-emerald', 'shadow-sm')}
                   </div>
                   <div>
-                    <p className="text-xs font-extrabold text-slate-800 m-0">Calibrated Score: {trustScore}%</p>
-                    <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mt-0.5">Dynamic Attribution</p>
+                    <p className="text-xs font-extrabold text-slate-900 m-0 font-display">Calibrated Score: <span className="font-mono">{trustScore}%</span></p>
+                    <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider mt-0.5 font-display">Dynamic Attribution</p>
                   </div>
                 </div>
-                <div className="md:col-span-7 flex flex-col justify-center border-l border-slate-100 pl-4 min-h-0 space-y-4">
-                  <div className="bg-slate-900 border border-slate-950 p-4 rounded-2xl text-slate-200 font-mono text-[10px] space-y-3 leading-normal relative select-none">
-                    <div className="absolute top-0 right-0 bg-slate-800 text-slate-400 px-3 py-0.5 rounded-bl-lg font-sans text-[8px] font-black uppercase tracking-wider">
+                <div className="md:col-span-7 flex flex-col justify-center border-l border-slate-200 pl-4 min-h-0 space-y-4">
+                  <div className="bg-slate-50 border border-slate-200/80 p-4 rounded-2xl text-slate-800 font-mono text-xs space-y-3 leading-normal relative select-none">
+                    <div className="absolute top-0 right-0 bg-slate-100 text-slate-650 px-3 py-0.5 rounded-bl-lg font-display text-xs font-bold uppercase tracking-wider border-l border-b border-slate-200">
                       Attribution Weights
                     </div>
                     
-                    <h4 className="text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-800 pb-1.5 m-0">
+                    <h4 className="text-xs font-bold text-slate-550 uppercase tracking-widest border-b border-slate-250 pb-1.5 m-0 font-display">
                       Weighted Balance Formula
                     </h4>
                     
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
-                        <span>AI Confidence (40%)</span>
+                        <span className="font-display font-medium text-slate-700">AI Confidence (40%)</span>
                         <div className="flex items-center space-x-2 font-semibold">
-                          {renderBlockBar(activeRec.confidence, 'text-sky-400')}
-                          <span className="text-slate-100 font-bold w-8 text-right">{activeRec.confidence}%</span>
+                          {renderBlockBar(activeRec.confidence, 'text-brand-cyan')}
+                          <span className="text-slate-950 font-black w-8 text-right font-mono">{activeRec.confidence}%</span>
                         </div>
                       </div>
                       
                       <div className="flex justify-between items-center">
-                        <span>Historical Acc (30%)</span>
+                        <span className="font-display font-medium text-slate-700">Historical Acc (30%)</span>
                         <div className="flex items-center space-x-2 font-semibold">
-                          {renderBlockBar(activeRec.timeMachine.accuracy, 'text-brand-amber')}
-                          <span className="text-slate-100 font-bold w-8 text-right">{activeRec.timeMachine.accuracy}%</span>
+                          {renderBlockBar(timeMachine.accuracy, 'text-brand-amber')}
+                          <span className="text-slate-950 font-black w-8 text-right font-mono">{timeMachine.accuracy}%</span>
                         </div>
                       </div>
                       
                       <div className="flex justify-between items-center">
-                        <span>User Understand (30%)</span>
+                        <span className="font-display font-medium text-slate-700">User Understand (30%)</span>
                         <div className="flex items-center space-x-2 font-semibold">
                           {renderBlockBar(understandingScore, 'text-brand-emerald')}
-                          <span className="text-slate-100 font-bold w-8 text-right">{understandingScore}%</span>
+                          <span className="text-slate-950 font-black w-8 text-right font-mono">{understandingScore}%</span>
                         </div>
                       </div>
                     </div>
 
-                    <div className="pt-2 border-t border-slate-800 text-center font-sans text-[9px] font-bold text-slate-500">
-                      (0.4 × {activeRec.confidence}%) + (0.3 × {activeRec.timeMachine.accuracy}%) + (0.3 × {understandingScore}%) = <span className="text-brand-emerald font-black text-xs">{trustScore}%</span>
+                    <div className="pt-2 border-t border-slate-200 text-center font-display text-xs font-bold text-slate-500">
+                      (0.4 × <span className="font-mono">{activeRec.confidence}%</span>) + (0.3 × <span className="font-mono">{activeRec.timeMachine.accuracy}%</span>) + (0.3 × <span className="font-mono">{understandingScore}%</span>) = <span className="text-brand-emerald font-bold text-sm font-mono">{trustScore}%</span>
                     </div>
                   </div>
                 </div>
@@ -536,18 +584,18 @@ export const ValidationScreen: React.FC = () => {
           </div>
 
           {/* Stepper Footer Controls */}
-          <div className="flex justify-between items-center border-t border-slate-100 pt-4 flex-shrink-0 mt-5">
+          <div className="flex justify-between items-center border-t border-slate-200 pt-4 flex-shrink-0 mt-5">
             <div>
               {activeStep > 1 ? (
                 <button
                   onClick={() => setActiveStep(activeStep - 1)}
                   type="button"
-                  className="inline-flex items-center space-x-1.5 px-4 py-2.5 text-xs font-bold text-slate-500 hover:text-slate-900 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl transition cursor-pointer active:scale-95"
+                  className="inline-flex items-center space-x-1.5 px-4 py-2.5 text-xs font-extrabold text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 border border-slate-200/80 rounded-xl transition cursor-pointer active:scale-95 font-display"
                 >
                   <span>Back</span>
                 </button>
               ) : (
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">* Click steps to navigate</span>
+                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider font-display">* Click steps to navigate</span>
               )}
             </div>
             
@@ -556,7 +604,7 @@ export const ValidationScreen: React.FC = () => {
                 <button
                   onClick={() => setActiveStep(activeStep + 1)}
                   type="button"
-                  className="inline-flex items-center space-x-1.5 px-5 py-2.5 text-xs font-extrabold text-white bg-brand-blue hover:bg-brand-blue/90 rounded-xl shadow-sm transition cursor-pointer active:scale-95"
+                  className="inline-flex items-center space-x-1.5 px-5 py-2.5 text-xs font-bold font-display text-white bg-indigo-900 hover:bg-indigo-850 rounded-xl shadow-sm transition cursor-pointer active:scale-95"
                 >
                   <span>Next Step</span>
                   <ArrowRight className="h-3.5 w-3.5" />
@@ -565,7 +613,7 @@ export const ValidationScreen: React.FC = () => {
                 <button
                   onClick={() => setCurrentScreen(4)}
                   type="button"
-                  className="inline-flex items-center space-x-1.5 px-6 py-3 text-sm font-extrabold text-white bg-brand-blue hover:bg-brand-blue/90 shadow-glow-blue hover:shadow-premium-xl rounded-xl transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer animate-pulse-slow"
+                  className="inline-flex items-center space-x-1.5 px-6 py-3 text-sm font-bold font-display text-white bg-indigo-900 hover:bg-indigo-850 shadow-sm rounded-xl transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer animate-pulse-slow"
                 >
                   <span>Proceed to Command Center</span>
                   <ArrowRight className="h-4 w-4" />
@@ -576,14 +624,14 @@ export const ValidationScreen: React.FC = () => {
         </GlassCard>
       </div>
 
-      {/* Similar Cases Modal */}
-      <SimilarCasesModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        cases={similarCasesList} 
-        action={action} 
-      />
-    </motion.div>
+        {/* Similar Cases Modal */}
+        <SimilarCasesModal 
+          isOpen={isModalOpen} 
+          onClose={() => setIsModalOpen(false)} 
+          cases={similarCasesList} 
+          action={action} 
+        />
+      </motion.div>
   );
 };
 

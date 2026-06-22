@@ -62,8 +62,9 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
           setInfo("Account created! Please check your email for the verification link.");
         }
       }
-    } catch (err: any) {
-      setError(err.message || "An authentication error occurred.");
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : String(err);
+      setError(errorMsg || "An authentication error occurred.");
     } finally {
       setIsLoading(false);
     }
@@ -83,47 +84,67 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
         },
       });
       if (oAuthError) throw oAuthError;
-    } catch (err: any) {
-      setError(err.message || "Google Authentication failed.");
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : String(err);
+      setError(errorMsg || "Google Authentication failed.");
+      setIsLoading(false);
+    }
+  };
+
+  const loginWithGooglePersona = async (role: 'admin' | 'analyst' | 'stakeholder') => {
+    setError("");
+    setInfo("");
+    setIsLoading(true);
+    localStorage.setItem('oauth_persona', role);
+    try {
+      const { error: oAuthError } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: window.location.origin,
+        },
+      });
+      if (oAuthError) throw oAuthError;
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : String(err);
+      setError(errorMsg || "Google Authentication failed.");
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-12 relative overflow-hidden font-sans">
+    <div className="min-h-screen liquid-gradient flex items-center justify-center px-4 py-3 relative overflow-hidden font-sans select-none">
       {/* Decorative Gradients */}
-      <div className="absolute top-0 -left-4 w-96 h-96 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
-      <div className="absolute -bottom-10 right-4 w-96 h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-25 animate-blob animation-delay-2000"></div>
+      <div className="absolute top-0 -left-4 w-96 h-96 bg-brand-cyan/10 rounded-full mix-blend-screen filter blur-3xl opacity-20 animate-blob"></div>
+      <div className="absolute -bottom-10 right-4 w-96 h-96 bg-brand-blue/15 rounded-full mix-blend-screen filter blur-3xl opacity-25 animate-blob animation-delay-2000"></div>
 
       <div className="w-full max-w-md z-10">
-        <div className="bg-white rounded-3xl shadow-premium-xl border border-slate-200/80 p-8 md:p-10">
+        <div className="bg-brand-navy/60 backdrop-blur-xl rounded-2xl shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] border border-white/10 p-5 md:p-6">
           
           {/* Project Logo & Header */}
-          <div className="text-center mb-8">
-            <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-brand-blue/10 flex items-center justify-center border border-brand-blue/20 shadow-inner">
-              <span className="text-brand-blue text-2xl font-black">T</span>
+          <div className="text-center mb-3">
+            <div className="w-10 h-10 mx-auto mb-2 rounded-xl bg-brand-cyan/10 flex items-center justify-center border border-brand-cyan/20 shadow-[0_0_15px_rgba(0,210,255,0.15)]">
+              <span className="text-brand-cyan text-lg font-black font-display">T</span>
             </div>
-            <h1 className="text-3xl font-black tracking-tight text-slate-900">
+            <h1 className="text-xl font-black tracking-tight text-white font-display">
               TrustLens AI
             </h1>
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mt-1.5">
+            <p className="text-[9px] font-bold text-brand-cyan uppercase tracking-widest mt-1">
               Secure Agent Control Console
             </p>
           </div>
 
-
           {/* Success Info Message */}
           {info && (
-            <div className="mb-6 p-4 rounded-2xl bg-emerald-50/80 border border-brand-emerald/20 text-brand-emerald text-xs font-semibold leading-relaxed flex items-start gap-2.5">
-              <Info className="h-4.5 w-4.5 text-brand-emerald flex-shrink-0 mt-0.5" />
+            <div className="mb-3 p-2.5 rounded-xl bg-emerald-500/10 border border-brand-emerald/20 text-brand-emerald text-xs font-semibold leading-relaxed flex items-start gap-2">
+              <Info className="h-4 w-4 text-brand-emerald flex-shrink-0 mt-0.5" />
               <div>{info}</div>
             </div>
           )}
 
           {/* Error Alert Message */}
           {error && (
-            <div className="mb-6 p-4 rounded-2xl bg-rose-50 border border-rose-200/60 text-brand-red text-xs font-semibold leading-relaxed flex items-start gap-2.5">
-              <AlertCircle className="h-4.5 w-4.5 text-brand-red flex-shrink-0 mt-0.5" />
+            <div className="mb-3 p-2.5 rounded-xl bg-rose-500/10 border border-brand-red/20 text-brand-red text-xs font-semibold leading-relaxed flex items-start gap-2">
+              <AlertCircle className="h-4 w-4 text-brand-red flex-shrink-0 mt-0.5" />
               <div>{error}</div>
             </div>
           )}
@@ -133,10 +154,10 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
             type="button"
             onClick={handleGoogleLogin}
             disabled={isLoading}
-            className="w-full flex items-center justify-center py-3 px-4 border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700 bg-white font-bold text-sm rounded-xl transition duration-200 cursor-pointer shadow-sm disabled:opacity-50"
+            className="w-full flex items-center justify-center py-2 px-3 border border-white/10 hover:bg-white/5 text-white bg-white/5 font-bold text-sm rounded-xl transition duration-200 cursor-pointer shadow-sm disabled:opacity-50"
           >
             {isLoading ? (
-              <Loader2 className="h-5 w-5 mr-3 animate-spin text-slate-500" />
+              <Loader2 className="h-4 w-4 mr-3 animate-spin text-white/50" />
             ) : (
               <GoogleIcon />
             )}
@@ -144,33 +165,33 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
           </button>
 
           {/* Divider */}
-          <div className="relative my-6">
+          <div className="relative my-3">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-slate-200/80"></div>
+              <div className="w-full border-t border-white/10"></div>
             </div>
-            <div className="relative flex justify-center text-[10px] font-extrabold uppercase tracking-widest">
-              <span className="bg-white px-3.5 text-slate-400">Or use email</span>
+            <div className="relative flex justify-center text-[9px] font-extrabold uppercase tracking-widest">
+              <span className="bg-[#122238] px-3.5 text-white/40">Or use email</span>
             </div>
           </div>
 
           {/* Form Tabs */}
-          <div className="flex mb-6 bg-slate-100/80 p-1 rounded-xl border border-slate-200/50">
+          <div className="flex mb-3 bg-white/5 p-0.5 rounded-xl border border-white/10">
             <button
               onClick={() => { setIsLogin(true); setError(""); setInfo(""); }}
-              className={`flex-1 py-2 text-xs font-bold rounded-lg transition ${
+              className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition ${
                 isLogin
-                  ? "bg-white text-slate-900 shadow-sm border border-slate-200/40"
-                  : "text-slate-500 hover:text-slate-800"
+                  ? "bg-white/10 text-white shadow-sm border border-white/10"
+                  : "text-white/60 hover:text-white"
               }`}
             >
               Sign In
             </button>
             <button
               onClick={() => { setIsLogin(false); setError(""); setInfo(""); }}
-              className={`flex-1 py-2 text-xs font-bold rounded-lg transition ${
+              className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition ${
                 !isLogin
-                  ? "bg-white text-slate-900 shadow-sm border border-slate-200/40"
-                  : "text-slate-500 hover:text-slate-800"
+                  ? "bg-white/10 text-white shadow-sm border border-white/10"
+                  : "text-white/60 hover:text-white"
               }`}
             >
               Register
@@ -178,10 +199,10 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
           </div>
 
           {/* Email Login/Signup Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-2.5">
             {!isLogin && (
               <div>
-                <label className="block mb-1.5 text-xs font-bold text-slate-600 uppercase tracking-wide">
+                <label className="block mb-0.5 text-[10px] font-bold text-white/70 uppercase tracking-wide">
                   Full Name
                 </label>
                 <input
@@ -190,13 +211,13 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
                   placeholder="John Doe"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  className="w-full px-4 py-2.5 border border-slate-200 bg-slate-50 focus:bg-white rounded-xl focus:outline-none focus:ring-1 focus:ring-brand-blue focus:border-brand-blue text-sm transition"
+                  className="w-full px-3 py-1.5 border border-white/10 bg-white/5 focus:bg-white/10 text-white rounded-xl focus:outline-none focus:ring-1 focus:ring-brand-cyan focus:border-brand-cyan text-sm transition placeholder-white/30"
                 />
               </div>
             )}
 
             <div>
-              <label className="block mb-1.5 text-xs font-bold text-slate-600 uppercase tracking-wide">
+              <label className="block mb-0.5 text-[10px] font-bold text-white/70 uppercase tracking-wide">
                 Email Address
               </label>
               <input
@@ -205,12 +226,12 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
                 placeholder="admin@trustlens.ai"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-2.5 border border-slate-200 bg-slate-50 focus:bg-white rounded-xl focus:outline-none focus:ring-1 focus:ring-brand-blue focus:border-brand-blue text-sm transition"
+                className="w-full px-3 py-1.5 border border-white/10 bg-white/5 focus:bg-white/10 text-white rounded-xl focus:outline-none focus:ring-1 focus:ring-brand-cyan focus:border-brand-cyan text-sm transition placeholder-white/30"
               />
             </div>
 
             <div>
-              <label className="block mb-1.5 text-xs font-bold text-slate-600 uppercase tracking-wide">
+              <label className="block mb-0.5 text-[10px] font-bold text-white/70 uppercase tracking-wide">
                 Password
               </label>
               <input
@@ -219,13 +240,13 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-2.5 border border-slate-200 bg-slate-50 focus:bg-white rounded-xl focus:outline-none focus:ring-1 focus:ring-brand-blue focus:border-brand-blue text-sm transition"
+                className="w-full px-3 py-1.5 border border-white/10 bg-white/5 focus:bg-white/10 text-white rounded-xl focus:outline-none focus:ring-1 focus:ring-brand-cyan focus:border-brand-cyan text-sm transition placeholder-white/30"
               />
             </div>
 
             {!isLogin && (
               <div>
-                <label className="block mb-1.5 text-xs font-bold text-slate-600 uppercase tracking-wide">
+                <label className="block mb-0.5 text-[10px] font-bold text-white/70 uppercase tracking-wide">
                   Confirm Password
                 </label>
                 <input
@@ -234,7 +255,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
                   placeholder="••••••••"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full px-4 py-2.5 border border-slate-200 bg-slate-50 focus:bg-white rounded-xl focus:outline-none focus:ring-1 focus:ring-brand-blue focus:border-brand-blue text-sm transition"
+                  className="w-full px-3 py-1.5 border border-white/10 bg-white/5 focus:bg-white/10 text-white rounded-xl focus:outline-none focus:ring-1 focus:ring-brand-cyan focus:border-brand-cyan text-sm transition placeholder-white/30"
                 />
               </div>
             )}
@@ -242,18 +263,58 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-3 rounded-xl bg-brand-blue text-white font-bold text-sm shadow-md hover:bg-brand-blue/95 transition duration-200 flex items-center justify-center cursor-pointer disabled:opacity-50"
+              className="w-full py-2.5 rounded-xl bg-brand-cyan text-brand-navy font-black text-sm shadow-glow-blue hover:opacity-90 active:scale-95 transition duration-200 flex items-center justify-center cursor-pointer disabled:opacity-50"
             >
               {isLoading ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
+                <Loader2 className="h-4.5 w-4.5 animate-spin" />
               ) : isLogin ? (
                 "Sign In"
               ) : (
                 "Create Account"
               )}
             </button>
-          </form>
 
+            <div className="mt-3 pt-3 border-t border-white/10">
+              <p className="text-[9px] font-extrabold text-white/40 uppercase tracking-widest text-center mb-1.5 font-display">
+                Sign in with Google as Target Persona:
+              </p>
+              
+              <div className="grid grid-cols-3 gap-2">
+                <button
+                  type="button"
+                  disabled={isLoading}
+                  onClick={() => loginWithGooglePersona('admin')}
+                  className="p-1.5 rounded-xl border border-white/10 hover:border-brand-cyan hover:text-brand-cyan bg-white/5 text-white transition duration-200 flex flex-col items-center justify-between text-center cursor-pointer h-[72px] disabled:opacity-50"
+                >
+                  <span className="text-sm mt-0.5">🛠</span>
+                  <span className="text-[10px] font-bold block leading-tight text-white mt-0.5 font-display">Admin</span>
+                  <span className="text-[7px] text-white/40 block mt-0.5 font-mono uppercase tracking-wider">Primary</span>
+                </button>
+                
+                <button
+                  type="button"
+                  disabled={isLoading}
+                  onClick={() => loginWithGooglePersona('analyst')}
+                  className="p-1.5 rounded-xl border border-white/10 hover:border-brand-cyan hover:text-brand-cyan bg-white/5 text-white transition duration-200 flex flex-col items-center justify-between text-center cursor-pointer h-[72px] disabled:opacity-50"
+                >
+                  <span className="text-sm mt-0.5 font-display">🔍</span>
+                  <span className="text-[10px] font-bold block leading-tight text-white mt-0.5 font-display">Analyst</span>
+                  <span className="text-[7px] text-white/40 block mt-0.5 font-mono uppercase tracking-wider font-display">Secondary</span>
+                </button>
+                
+                <button
+                  type="button"
+                  disabled={isLoading}
+                  onClick={() => loginWithGooglePersona('stakeholder')}
+                  className="p-1.5 rounded-xl border border-white/10 hover:border-brand-cyan hover:text-brand-cyan bg-white/5 text-white transition duration-200 flex flex-col items-center justify-between text-center cursor-pointer h-[72px] disabled:opacity-50"
+                >
+                  <span className="text-sm mt-0.5 font-display">📋</span>
+                  <span className="text-[10px] font-bold block leading-tight text-white mt-0.5 font-display">Officer</span>
+                  <span className="text-[7px] text-white/40 block mt-0.5 font-mono uppercase tracking-wider font-display">Tertiary</span>
+                </button>
+              </div>
+            </div>
+          </form>
         </div>
       </div>
     </div>

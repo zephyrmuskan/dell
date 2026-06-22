@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, react-refresh/only-export-components */
 import React, { createContext, useContext, useState, type ReactNode } from 'react';
 import siemData from '../data/siem_data.json';
 import { supabase } from '../lib/supabaseClient';
+import { geminiChat, groqChat } from '../lib/aiClient';
 
 export type Severity = 'Critical' | 'High' | 'Medium';
 export type RecommendationStatus = 'Pending' | 'Approved' | 'Rejected' | 'Escalated' | 'Details Requested';
@@ -114,7 +116,7 @@ interface WorkflowContextType {
   setAutonomyLevel: (level: number) => Promise<void>;
   
   // AI Trust Companion Integration
-  companionMessages: Array<{role: 'user' | 'assistant', content: string, provider?: string}>;
+  companionMessages: Array<{role: 'user' | 'assistant', content: string, provider?: string, requires_feedback?: boolean, agentName?: string, agentIcon?: string}>;
   understandingScore: number;
   trustScore: number;
   questionsAsked: number;
@@ -126,6 +128,8 @@ interface WorkflowContextType {
   askTrustLens: (message: string) => Promise<void>;
   sendFeedback: (helpful: boolean) => Promise<void>;
   loadCompanionState: (recId: string) => Promise<void>;
+  watchAgentDiscussion: boolean;
+  setWatchAgentDiscussion: (val: boolean) => void;
 
   // Multi-Agent Transparency Integration
   agentChain: AgentChainStep[];
@@ -136,11 +140,71 @@ interface WorkflowContextType {
   user: any | null;
   loading: boolean;
   logout: () => Promise<void>;
+  loginAsDemoUser: (role?: 'admin' | 'analyst' | 'stakeholder') => void;
 }
 
 const initialRecommendations = siemData.recommendations as Recommendation[];
 const initialLogs = siemData.activity_logs as ActivityLogEntry[];
 const initialStats = siemData.dashboard_stats;
+
+const isQuestionRelevant = (message: string, rec: Recommendation): boolean => {
+  if (!message || !rec) return false;
+  const msgLower = message.toLowerCase();
+
+  // Remove punctuation and clean up whitespace
+  const cleanedMsg = msgLower.replace(/[^\w\s]/g, '').trim();
+  const words = cleanedMsg.split(/\s+/).filter(Boolean);
+
+  const greetingsAndSlang = new Set(["hi", "hello", "yo", "wassup", "hey", "sup", "greetings", "howdy", "hola"]);
+  const casualWords = new Set([
+    "hi", "hello", "hey", "hola", "yo", "sup", "wassup", "greetings", "howdy",
+    "good", "morning", "afternoon", "evening", "whats", "what", "is", "up",
+    "bro", "dude", "man", "buddy", "mate", "slang", "test", "ok", "okay",
+    "thanks", "thank", "you", "thx", "cool", "awesome", "yes", "no", "bye", "goodbye",
+    "there", "here", "doing", "how", "are", "fine", "great", "well", "hihello"
+  ]);
+
+  // If the message is composed entirely of greetings, slang, or casual filler words, it is irrelevant
+  if (words.length > 0 && words.every(w => greetingsAndSlang.has(w) || casualWords.has(w))) {
+    return false;
+  }
+
+  // 1. Broad security explainability concepts
+  const keywords = [
+    "why", "reason", "recommend", "evidence", "support", "proof", "source", 
+    "wrong", "incorrect", "error", "reject", "ignore", "dismiss", "approve", 
+    "accept", "history", "similar", "incident", "explain", "details", "risk",
+    "threat", "security", "anomaly", "compliance", "policy", "action"
+  ];
+  if (keywords.some(k => msgLower.includes(k))) {
+    return true;
+  }
+
+  // 2. Match recommendation ID / device ID
+  const recId = rec.id ? rec.id.toLowerCase() : "";
+  if (recId && msgLower.includes(recId)) {
+    return true;
+  }
+
+  // 3. Check for specific word overlap with Action
+  const actionWords = rec.action ? rec.action.toLowerCase().split(/\s+/) : [];
+  const filteredActionWords = actionWords.filter((w: string) => w.length > 3 && !["with", "from", "that", "this", "your"].includes(w));
+  if (filteredActionWords.some((w: string) => msgLower.includes(w))) {
+    return true;
+  }
+
+  // 4. Check for word overlap with Why/triggers
+  const whyList = rec.why || [];
+  for (const whyItem of whyList) {
+    const whyWords = whyItem.toLowerCase().split(/\s+/);
+    const filteredWhyWords = whyWords.filter((w: string) => w.length > 3);
+    if (filteredWhyWords.some((w: string) => msgLower.includes(w))) {
+      return true;
+    }
+  }
+
+  return false;
+};
 
 const WorkflowContext = createContext<WorkflowContextType | undefined>(undefined);
 
@@ -157,17 +221,87 @@ export const WorkflowProvider: React.FC<{ children: ReactNode }> = ({ children }
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
+  const handleAuthSession = async (session: any) => {
+    if (session?.user) {
+      const pendingPersona = localStorage.getItem('oauth_persona');
+      if (pendingPersona) {
+        localStorage.removeItem('oauth_persona');
+        
+        let full_name = 'Alex Mercer';
+        let display_role = 'IT Administrator';
+        
+        if (pendingPersona === 'analyst') {
+          full_name = 'Elena Vance';
+          display_role = 'IT Security Analyst';
+        } else if (pendingPersona === 'stakeholder') {
+          full_name = 'Diana Prince';
+          display_role = 'Compliance Director';
+        }
+
+        try {
+          const { data: { user: updatedUser }, error } = await supabase.auth.updateUser({
+            data: {
+              full_name: session.user.user_metadata?.full_name || full_name,
+              role: display_role,
+              persona: pendingPersona
+            }
+          });
+          if (!error && updatedUser) {
+            setUser(updatedUser);
+          } else {
+            setUser({
+              ...session.user,
+              user_metadata: {
+                ...session.user.user_metadata,
+                full_name: session.user.user_metadata?.full_name || full_name,
+                role: display_role,
+                persona: pendingPersona
+              }
+            });
+          }
+        } catch (e) {
+          console.warn("Failed to update Supabase user metadata:", e);
+          setUser({
+            ...session.user,
+            user_metadata: {
+              ...session.user.user_metadata,
+              full_name: session.user.user_metadata?.full_name || full_name,
+              role: display_role,
+              persona: pendingPersona
+            }
+          });
+        }
+      } else {
+        const meta = session.user.user_metadata || {};
+        if (!meta.persona) {
+          setUser({
+            ...session.user,
+            user_metadata: {
+              ...meta,
+              persona: 'admin',
+              role: meta.role || 'IT Administrator',
+              full_name: meta.full_name || 'Alex Mercer'
+            }
+          });
+        } else {
+          setUser(session.user);
+        }
+      }
+    } else {
+      setUser(null);
+    }
+    setLoading(false);
+  };
+
   React.useEffect(() => {
     // Fetch initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      setLoading(false);
+      handleAuthSession(session);
     });
 
     // Listen to authentication changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-      setLoading(false);
+      handleAuthSession(session);
     });
 
     return () => subscription.unsubscribe();
@@ -178,12 +312,38 @@ export const WorkflowProvider: React.FC<{ children: ReactNode }> = ({ children }
     setUser(null);
   };
 
-  const [autonomyLevel, setAutonomyLevelState] = useState<number>(2); // Default to Level 2 (Recommend Only)
+  const loginAsDemoUser = (role: 'admin' | 'analyst' | 'stakeholder' = 'admin') => {
+    let email = 'admin@trustlens.ai';
+    let full_name = 'Alex Mercer';
+    let display_role = 'IT Administrator';
+    
+    if (role === 'analyst') {
+      email = 'analyst@trustlens.ai';
+      full_name = 'Elena Vance';
+      display_role = 'IT Security Analyst';
+    } else if (role === 'stakeholder') {
+      email = 'director@trustlens.ai';
+      full_name = 'Diana Prince';
+      display_role = 'Compliance Director';
+    }
+
+    setUser({
+      id: 'demo-user-id-' + role,
+      email: email,
+      user_metadata: {
+        full_name: full_name,
+        role: display_role,
+        persona: role
+      }
+    });
+  };
+
+  const [autonomyLevel, setAutonomyLevelState] = useState<number>(1); // Default to Level 1 (Always Ask)
   const [agentChain, setAgentChain] = useState<AgentChainStep[]>([]);
   const [inspectedAgents, setInspectedAgents] = useState<string[]>([]);
 
   // AI Trust Companion States
-  const [companionMessages, setCompanionMessages] = useState<Array<{role: 'user' | 'assistant', content: string, provider?: string}>>([]);
+  const [companionMessages, setCompanionMessages] = useState<Array<{role: 'user' | 'assistant', content: string, provider?: string, requires_feedback?: boolean, agentName?: string, agentIcon?: string}>>([]);
   const [understandingScore, setUnderstandingScore] = useState<number>(60);
   const [trustScore, setTrustScore] = useState<number>(78);
   const [questionsAsked, setQuestionsAsked] = useState<number>(0);
@@ -197,13 +357,15 @@ export const WorkflowProvider: React.FC<{ children: ReactNode }> = ({ children }
     "What happens if I reject it?"
   ]);
   const [isCompanionLoading, setIsCompanionLoading] = useState<boolean>(false);
+  const [lastQuestionRelevant, setLastQuestionRelevant] = useState<boolean>(false);
+  const [watchAgentDiscussion, setWatchAgentDiscussion] = useState<boolean>(true);
 
   const loadAutonomyLevel = async () => {
     try {
       const res = await fetch('/api/autonomy-level');
       if (res.ok) {
         const data = await res.json();
-        setAutonomyLevelState(data.level ?? 2);
+        setAutonomyLevelState(data.level ?? 1);
       }
     } catch (e) {
       console.warn("Error loading autonomy level from backend, using default:", e);
@@ -243,7 +405,7 @@ export const WorkflowProvider: React.FC<{ children: ReactNode }> = ({ children }
           name: "Detection Agent",
           role: "Telemetry & Anomaly Analyzer",
           input_data: `Raw telemetry stream from security logs and network interfaces for ${recId}.`,
-          output_data: `Anomaly Detected: ${targetRec.why[0] || 'Unusual activity sequence detected.'}`,
+          output_data: `{"classification": "${targetRec.severity}", "confidence": ${targetRec.confidence + 5 > 100 ? 100 : targetRec.confidence + 5}, "indicators": ["Telemetry spike detected", "Auth sequence anomaly"]}`,
           confidence: targetRec.confidence + 5 > 100 ? 100 : targetRec.confidence + 5,
           reasoning: `Telemetry patterns deviate from standard baseline logs. Flags suspicious commands or sequences.`,
           timestamp: new Date().toISOString()
@@ -251,8 +413,8 @@ export const WorkflowProvider: React.FC<{ children: ReactNode }> = ({ children }
         {
           name: "Risk Assessment Agent",
           role: "Severity & Urgency Evaluator",
-          input_data: `Anomaly Detected: ${targetRec.why[0] || 'Unusual activity sequence detected.'}`,
-          output_data: `Threat Level: ${targetRec.severity}. Risk Score: ${targetRec.trustDNA.score}%`,
+          input_data: `{"classification": "${targetRec.severity}", "confidence": ${targetRec.confidence + 5 > 100 ? 100 : targetRec.confidence + 5}, "indicators": ["Telemetry spike"]}`,
+          output_data: `{"risk_level": "${targetRec.severity}", "risk_score": ${targetRec.trustDNA.score}, "business_impact": "Potential compromise of 8 devices"}`,
           confidence: targetRec.confidence + 2 > 100 ? 100 : targetRec.confidence + 2,
           reasoning: `Evaluated threat criticality by comparing host operations to fleet baselines. Urgent actions mapped accordingly.`,
           timestamp: new Date().toISOString()
@@ -260,8 +422,8 @@ export const WorkflowProvider: React.FC<{ children: ReactNode }> = ({ children }
         {
           name: "Remediation Agent",
           role: "Policy & Resolution Suggester",
-          input_data: `Threat Level: ${targetRec.severity}. Risk Score: ${targetRec.trustDNA.score}%`,
-          output_data: `Suggested Action: ${action}`,
+          input_data: `{"risk_level": "${targetRec.severity}", "risk_score": ${targetRec.trustDNA.score}, "business_impact": "Potential compromise"}`,
+          output_data: `{"recommendation": "${action}", "confidence": ${targetRec.confidence}}`,
           confidence: targetRec.confidence,
           reasoning: `Identified optimal policy update via Graph/REST gateway APIs to resolve the risk signature.`,
           timestamp: new Date().toISOString()
@@ -269,17 +431,44 @@ export const WorkflowProvider: React.FC<{ children: ReactNode }> = ({ children }
         {
           name: "Devil's Advocate Agent",
           role: "Validation & Falsification Challenger",
-          input_data: `Suggested Action: ${action}`,
-          output_data: `False-Positive Risks Checked. Suggested Alternative: ${da.alternativeAction}`,
+          input_data: `{"recommendation": "${action}", "confidence": ${targetRec.confidence}}`,
+          output_data: `{"counterpoints": ["Recent patch installed", "Limited device history"], "alternative_action": "${da.alternativeAction}"}`,
           confidence: 35,
           reasoning: `Challenged decision: ${da.points.join("; ")}`,
           timestamp: new Date().toISOString()
         },
         {
+          name: "Trust Time Machine Agent",
+          role: "Historical Incident Profiler",
+          input_data: `Incident Context: '${targetRec.why.join(" ")}'`,
+          output_data: `{"similar_cases": ${targetRec.timeMachine.cases}, "correct": ${targetRec.timeMachine.breakdown.correct}, "false_positive": ${targetRec.timeMachine.breakdown.falsePositives}, "historical_accuracy": ${targetRec.timeMachine.accuracy}}`,
+          confidence: targetRec.timeMachine.accuracy,
+          reasoning: `Found ${targetRec.timeMachine.cases} similar cases in history with a baseline accuracy of ${targetRec.timeMachine.accuracy}%.`,
+          timestamp: new Date().toISOString()
+        },
+        {
+          name: "Incident Report Agent",
+          role: "Compliance & Documentation Agent",
+          input_data: `{"recommendation": "${action}", "confidence": ${targetRec.confidence}}`,
+          output_data: `{"summary": "Proposed ${action} policy flag.", "root_cause": "Anomalous system operations flagged.", "failed_safeguard": "Insufficient historical context."}`,
+          confidence: 90,
+          reasoning: `Generated documentation card summarizing root cause analysis and failed safeguard policy mapping.`,
+          timestamp: new Date().toISOString()
+        },
+        {
+          name: "Orchestrator Agent",
+          role: "Multi-Agent Decision Coordinator",
+          input_data: "Ingested outputs from all 6 upstream agents.",
+          output_data: `{"final_recommendation": "${action}", "confidence": ${targetRec.confidence}, "trust_score": ${trustScore}}`,
+          confidence: targetRec.confidence,
+          reasoning: `Orchestrator resolved agent flows. Final Action: ${action} with trust score ${trustScore}%.`,
+          timestamp: new Date().toISOString()
+        },
+        {
           name: "Trust Companion Agent",
           role: "Dialogue & Explainability Interface",
-          input_data: `Devil's advocate counter-evidence. Operator understanding at ${understandingScore}%`,
-          output_data: `Explainability console active. Understanding Score is at ${understandingScore}%.`,
+          input_data: `{"final_recommendation": "${action}", "confidence": ${targetRec.confidence}, "trust_score": ${trustScore}}`,
+          output_data: `{"answer": "Dialogue console active. Understanding Score is at ${understandingScore}%.", "trust_update_allowed": false, "follow_up_questions": ["Why not monitor?", "Show similar incidents"]}`,
           confidence: 85,
           reasoning: `Prepared plain-language explanation models and dialogue context.`,
           timestamp: new Date().toISOString()
@@ -320,29 +509,51 @@ export const WorkflowProvider: React.FC<{ children: ReactNode }> = ({ children }
         setCompanionMessages(data.messages || []);
         setUnderstandingScore(data.understanding_score ?? 60);
         
-        // Use updated trust formula
+        // Use updated trust formula with dynamic confidence if available
+        const confidenceToUse = data.confidence !== undefined && data.confidence !== null ? data.confidence : targetRec.confidence;
         const visibilityScore = inspectedAgents.length > 0 ? 8 : 4;
         const autonomyScore = 7;
         const transControl = visibilityScore + autonomyScore;
         const newTrust = Math.round(
-          0.35 * targetRec.confidence + 
+          0.35 * confidenceToUse + 
           0.25 * targetRec.timeMachine.accuracy + 
           0.25 * (data.understanding_score ?? 60) + 
           transControl
         );
         setTrustScore(newTrust);
         
+        // Synchronize dynamic confidence to recommendations state
+        if (data.confidence !== undefined && data.confidence !== null) {
+          setRecommendations((prev) =>
+            prev.map((r) =>
+              r.id === recId ? { ...r, confidence: data.confidence } : r
+            )
+          );
+        }
+
         setQuestionsAsked(data.questions_asked ?? 0);
         setQuestionsResolved(data.questions_resolved ?? 0);
         setHelpfulVotes(data.helpful_votes ?? 0);
         setTotalVotes(data.total_votes ?? 0);
         
         if (data.messages && data.messages.length > 0) {
-          setSuggestedQuestions([
-            "What could make this wrong?",
-            "What happens if I reject it?",
-            "Show similar incidents"
-          ]);
+          const lastMsg = data.messages[data.messages.length - 1];
+          if (lastMsg.role === 'assistant' && lastMsg.intent === 'GREETING') {
+            setSuggestedQuestions([
+              "Show active recommendations",
+              "Explain trust scores",
+              "How does TrustLens work?",
+              "Review recent incidents"
+            ]);
+          } else {
+            setSuggestedQuestions([
+              "Why was this recommended?",
+              "What evidence supports this?",
+              "What could make this wrong?",
+              "What happens if I approve it?",
+              "What happens if I reject it?"
+            ]);
+          }
         } else {
           setSuggestedQuestions([
             "Why was this recommended?",
@@ -358,6 +569,7 @@ export const WorkflowProvider: React.FC<{ children: ReactNode }> = ({ children }
       console.warn("Backend unavailable, loading local mock companion state:", e);
       setCompanionMessages([]);
       setUnderstandingScore(60);
+      setLastQuestionRelevant(false);
       const conf = targetRec.confidence;
       const acc = targetRec.timeMachine.accuracy;
       
@@ -381,101 +593,436 @@ export const WorkflowProvider: React.FC<{ children: ReactNode }> = ({ children }
     }
   };
 
+  const classifyIntent = (message: string): 'TIME_MACHINE' | 'DEVILS_ADVOCATE' | 'RECOMMENDATION' | 'CONSENSUS' | 'GREETING' | 'DECISION' | 'GENERAL' => {
+    const msg = message.toLowerCase().trim();
+    
+    // Greeting
+    const greetings = ["hi", "hello", "hey", "good morning", "good afternoon", "good evening", "greetings"];
+    if (greetings.some(g => msg === g || msg.startsWith(g + " ") || msg.startsWith(g + "?") || msg.startsWith(g + "!"))) {
+      return 'GREETING';
+    }
+
+    // Trust Time Machine
+    if (
+      msg.includes("similar cases") || 
+      msg.includes("similar incidents") || 
+      msg.includes("similar devices") || 
+      msg.includes("similar problems") || 
+      msg.includes("similar issues") || 
+      msg.includes("history") || 
+      msg.includes("time machine") || 
+      msg.includes("past cases") || 
+      msg.includes("recent cases") || 
+      msg.includes("happened before") || 
+      msg.includes("often has this")
+    ) {
+      return 'TIME_MACHINE';
+    }
+
+    // Devil's Advocate
+    if (
+      msg.includes("wrong") || 
+      msg.includes("incorrect") || 
+      msg.includes("error") || 
+      msg.includes("false") || 
+      msg.includes("advocate") || 
+      msg.includes("counterpoint") || 
+      msg.includes("counter-argument") || 
+      msg.includes("disagree") || 
+      msg.includes("alternative action")
+    ) {
+      return 'DEVILS_ADVOCATE';
+    }
+
+    // Consensus Engine
+    if (
+      msg.includes("confident") || 
+      msg.includes("confidence") || 
+      msg.includes("trust score") || 
+      msg.includes("consensus") || 
+      msg.includes("certainty") || 
+      msg.includes("probability") || 
+      msg.includes("how confident") || 
+      msg.includes("explain trust")
+    ) {
+      return 'CONSENSUS';
+    }
+
+    // Decision / Consequence
+    if (
+      msg.includes("reject") || 
+      msg.includes("approve") || 
+      msg.includes("accept") || 
+      msg.includes("decline") || 
+      msg.includes("happen if") || 
+      msg.includes("dismiss") || 
+      msg.includes("ignore")
+    ) {
+      return 'DECISION';
+    }
+
+    // Recommendation / Evidence / Telemetry
+    if (
+      msg.includes("why") || 
+      msg.includes("reason") || 
+      msg.includes("recommend") || 
+      msg.includes("evidence") || 
+      msg.includes("support") || 
+      msg.includes("proof") || 
+      msg.includes("telemetry") || 
+      msg.includes("source") || 
+      msg.includes("trigger")
+    ) {
+      return 'RECOMMENDATION';
+    }
+
+    // General / help
+    if (
+      msg.includes("who are you") || 
+      msg.includes("what can you do") || 
+      msg.includes("capabilities") || 
+      msg.includes("how does trustlens work") || 
+      msg.includes("help")
+    ) {
+      return 'GENERAL';
+    }
+
+    return 'RECOMMENDATION'; // default fallback for other queries to trigger discussion
+  };
+
+  const streamAgentDiscussion = (
+    rec: Recommendation,
+    tScore: number,
+    uScore: number,
+    requiresFeedback: boolean,
+    userMsg: string
+  ) => {
+    const intent = classifyIntent(userMsg);
+    const detConf = rec.confidence + 5 > 100 ? 100 : rec.confidence + 5;
+    const riskConf = rec.confidence + 2 > 100 ? 100 : rec.confidence + 2;
+
+    // Build collaborative statements based on intent
+    let steps: { name: string; icon: string; content: string }[] = [];
+
+    if (intent === 'TIME_MACHINE') {
+      steps = [
+        {
+          name: "Trust Time Machine Agent",
+          icon: "⏳",
+          content: `**Role:** Historical Incident Profiler
+• **Confidence:** ${rec.timeMachine.accuracy}%
+• **Opinion:** Checking past cases, this alert profile has triggered **${rec.timeMachine.cases} times** in our history, with a historical accuracy rate of **${rec.timeMachine.accuracy}%**.
+Breakdown: ${rec.timeMachine.breakdown.correct} correct actions, ${rec.timeMachine.breakdown.falsePositives} false positives.
+Here is the historical record:
+${rec.similarCasesList ? rec.similarCasesList.slice(0, 2).map(c => `- **${c.case_id}** (${c.date}): ${c.outcome} | Decision: ${c.decision} by ${c.analyst}`).join('\n') : '- CASE-0865: Resolved as false alarm.'}`
+        },
+        {
+          name: "Consensus Engine",
+          icon: "🎯",
+          content: `**Role:** Decision Coordinator
+• **Opinion:** I agree with the Time Machine's analysis. Citing these historical cases, our confidence in the recommended action is validated at **${rec.timeMachine.accuracy}%** based on past outcomes.`
+        }
+      ];
+    } else if (intent === 'DEVILS_ADVOCATE') {
+      steps = [
+        {
+          name: "Devil's Advocate Agent",
+          icon: "😈",
+          content: `**Role:** Validation & Falsification Challenger
+• **Confidence:** 35%
+• **Opinion:** I challenge the proposed resolution! This activity may be a false positive due to standard updates.
+My analysis reveals these counter-indicators:
+${rec.devilsAdvocate.points.map(p => `- ${p}`).join('\n')}
+We should consider the alternative action: **"${rec.devilsAdvocate.alternativeAction}"**.`
+        },
+        {
+          name: "Risk Assessment Agent",
+          icon: "📊",
+          content: `**Role:** Severity & Urgency Evaluator
+• **Confidence:** ${riskConf}%
+• **Opinion:** I disagree with the Devil's Advocate's recommendation to monitor. The threat severity is **${rec.severity}** and the potential risk score is **${rec.trustDNA.score}%**, which warrants immediate action rather than passive monitoring.`
+        },
+        {
+          name: "Consensus Engine",
+          icon: "🎯",
+          content: `**Role:** Decision Coordinator
+• **Opinion:** Final vote summary on Devil's Advocate dispute: 1 supports alternative action, 3 support resolution action. The challenge is resolved. Calibrated Trust Score is **${tScore}%**.`
+        }
+      ];
+    } else if (intent === 'CONSENSUS') {
+      steps = [
+        {
+          name: "Consensus Engine",
+          icon: "🎯",
+          content: `**Role:** Decision Coordinator
+• **Confidence:** ${rec.confidence}%
+• **Opinion:** We gathered all upstream agent votes to calibrate the final trust parameters.
+🎯 **Calibrated Trust Score:** **${tScore}%**
+🛡️ **Resolution Action:** **"${rec.action}"**
+**Agent Vote Summary:**
+- 🔍 Detection Agent: Approve "${rec.action}" (${detConf}% confidence)
+- 📊 Risk Assessment: Approve "${rec.action}" (${riskConf}% confidence)
+- 🛠 Remediation Suggester: Approve "${rec.action}" (${rec.confidence}% confidence)
+- 😈 Devil's Advocate: Objects (35% confidence, suggests "${rec.devilsAdvocate.alternativeAction}")
+- ⏳ Trust Time Machine: Approve (Accuracy: ${rec.timeMachine.accuracy}%)`
+        }
+      ];
+    } else if (intent === 'DECISION') {
+      steps = [
+        {
+          name: "Remediation Agent",
+          icon: "🛠",
+          content: `**Role:** Policy & Resolution Suggester
+• **Confidence:** ${rec.confidence}%
+• **Opinion:** I suggest executing **"${rec.action}"** immediately to isolate device **${rec.id}** and protect the local network.`
+        },
+        {
+          name: "Devil's Advocate Agent",
+          icon: "😈",
+          content: `**Role:** Validation & Falsification Challenger
+• **Confidence:** 35%
+• **Opinion:** I challenge the Remediation Agent's plan. A quarantine will cause immediate user disruption. We should evaluate if the anomaly matches normal patch schedules first.`
+        },
+        {
+          name: "Consensus Engine",
+          icon: "🎯",
+          content: `**Role:** Decision Coordinator
+• **Opinion:** Resolution: Proceed with **"${rec.action}"** as the potential risk outweighs the user disruption. Final trust rating: **${tScore}%**.`
+        }
+      ];
+    } else {
+      // Default / RECOMMENDATION
+      steps = [
+        {
+          name: "Detection Agent",
+          icon: "🔍",
+          content: `**Role:** Telemetry & Anomaly Analyzer
+• **Confidence:** ${detConf}%
+• **Opinion:** I analyzed the raw logs and network signals for device **${rec.id}**. I detected anomaly signals indicating: ${rec.why[0].replace(/^[•-]\s*/, '')}. This telemetry deviates significantly from standard baselines, suggesting a potential security concern.`
+        },
+        {
+          name: "Risk Assessment Agent",
+          icon: "📊",
+          content: `**Role:** Severity & Urgency Evaluator
+• **Confidence:** ${riskConf}%
+• **Opinion:** I agree with the Detection Agent's anomaly findings. My evaluation of the telemetry on **${rec.id}** confirms the threat matches a **${rec.severity}** severity rating, with an assessed risk score of **${rec.trustDNA.score}%** due to potential network exposure.`
+        },
+        {
+          name: "Devil's Advocate Agent",
+          icon: "😈",
+          content: `**Role:** Validation & Falsification Challenger
+• **Confidence:** 35%
+• **Opinion:** I challenge the Risk Agent's threat evaluation! I disagree that this is a confirmed threat. Standard system processes could explain this telemetry pattern. Specifically, ${rec.devilsAdvocate.points[0].toLowerCase()}. Before executing a disruptive isolation command, we should consider the alternative: **"${rec.devilsAdvocate.alternativeAction}"**.`
+        },
+        {
+          name: "Remediation Agent",
+          icon: "🛠",
+          content: `**Role:** Policy & Resolution Suggester
+• **Confidence:** ${rec.confidence}%
+• **Opinion:** Considering both viewpoints, I request historical evidence. The Trust Time Machine reports that this alert profile has triggered **${rec.timeMachine.cases} times** in the past with a fleet verification accuracy of **${rec.timeMachine.accuracy}%**. Citing these historical cases, proceeding with the action **"${rec.action}"** is the safest path to mitigate risk.`
+        },
+        {
+          name: "Consensus Engine",
+          icon: "🎯",
+          content: `**Role:** Decision Coordinator
+• **Opinion:** Final consensus resolved. The agent council has voted on the proposed policy.
+**Vote Summary:** 3 support **"${rec.action}"**, 1 supports **"${rec.devilsAdvocate.alternativeAction}"**.
+**Calibrated Trust Score:** **${tScore}%**
+**Decision:** Approved to execute **"${rec.action}"**.`
+        }
+      ];
+    }
+
+    // Filter out previous temporary user duplicates and append the user message
+    setCompanionMessages((prev) => [
+      ...prev.filter(m => m.role !== 'user' || m.content !== userMsg),
+      { role: 'user', content: userMsg }
+    ]);
+
+    setIsCompanionLoading(true);
+
+    // If watchAgentDiscussion is false, generate a final consensus response directly
+    if (!watchAgentDiscussion) {
+      setTimeout(() => {
+        const finalConsensusText = `### 🎯 Final Consensus Response
+The agent council has completed its review regarding **${rec.id}**.
+
+* **Resolution Action:** **${rec.action}** (Approved)
+* **Calibrated Trust Score:** **${tScore}%** (Understanding: ${uScore}%, Confidence: ${rec.confidence}%)
+* **Alternative Proposed (Challenged):** **${rec.devilsAdvocate.alternativeAction}**
+
+**Discussion Summary:**
+* **Threat Alert:** Classify anomaly as **${rec.severity}** severity based on telemetry.
+* **Devil's Advocate Challenge:** Raised concern that it could be *${rec.devilsAdvocate.points[0]}*.
+* **Historical Validation:** Checked **${rec.timeMachine.cases} similar cases** in the Trust Time Machine (**${rec.timeMachine.accuracy}% accuracy**).
+* **Final Vote:** 3 support **${rec.action}**, 1 supports **${rec.devilsAdvocate.alternativeAction}**.`;
+
+        setCompanionMessages((prev) => [
+          ...prev,
+          {
+            role: 'assistant',
+            content: finalConsensusText,
+            agentName: "Consensus Engine",
+            agentIcon: "🎯",
+            requires_feedback: requiresFeedback
+          }
+        ]);
+        setIsCompanionLoading(false);
+      }, 800);
+      return;
+    }
+
+    // Stream the collaborative discussion steps one-by-one
+    steps.forEach((step, idx) => {
+      setTimeout(() => {
+        setCompanionMessages((prev) => [
+          ...prev,
+          {
+            role: 'assistant',
+            content: step.content,
+            agentName: step.name,
+            agentIcon: step.icon,
+            requires_feedback: idx === steps.length - 1 && requiresFeedback
+          }
+        ]);
+
+        if (idx === steps.length - 1) {
+          setIsCompanionLoading(false);
+        }
+      }, (idx + 1) * 1200); // 1.2s delay for each agent
+    });
+  };
+
   const askTrustLens = async (message: string) => {
     setIsCompanionLoading(true);
     setCompanionMessages((prev) => [...prev, { role: 'user', content: message }]);
     
     try {
+      // 1. Query the backend directly
       const res = await fetch('/api/trust-chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ recommendation_id: activeRecId, message })
       });
-      if (res.ok) {
-        const data = await res.json();
+      
+      if (!res.ok) {
+        throw new Error(`Backend returned status ${res.status}`);
+      }
+      
+      const data = await res.json();
+      
+      const newUnderstanding = data.understanding_score;
+      setUnderstandingScore(newUnderstanding);
+
+      const visibilityScore = inspectedAgents.length > 0 ? 8 : 4;
+      const autonomyScore = 7;
+      const transControl = visibilityScore + autonomyScore;
+      const confidenceToUse = data.confidence !== undefined && data.confidence !== null ? data.confidence : activeRec.confidence;
+      
+      const newTrust = Math.round(
+        0.35 * confidenceToUse + 
+        0.25 * activeRec.timeMachine.accuracy + 
+        0.25 * newUnderstanding + 
+        transControl
+      );
+      setTrustScore(newTrust);
+
+      if (data.confidence !== undefined && data.confidence !== null) {
+        setRecommendations((prev) =>
+          prev.map((r) =>
+            r.id === activeRecId ? { ...r, confidence: data.confidence } : r
+          )
+        );
+      }
+
+      setQuestionsAsked(data.questions_asked);
+      setQuestionsResolved(data.questions_resolved);
+      setSuggestedQuestions(data.suggested_questions || [
+        "Why was this recommended?",
+        "What evidence supports this?",
+        "What could make this wrong?",
+        "What happens if I reject it?"
+      ]);
+
+      if (data.conversation_type === "greeting" || data.conversation_type === "general") {
         setCompanionMessages((prev) => [
           ...prev.filter(m => m.role !== 'user' || m.content !== message),
           { role: 'user', content: message },
-          { role: 'assistant', content: data.answer, provider: data.provider_used }
+          { role: 'assistant', content: data.answer || "Ready to assist." }
         ]);
-        setUnderstandingScore(data.understanding_score);
-        
-        // Use updated trust formula
-        const visibilityScore = inspectedAgents.length > 0 ? 8 : 4;
-        const autonomyScore = 7;
-        const transControl = visibilityScore + autonomyScore;
-        const targetRec = recommendations.find(r => r.id === activeRecId) || recommendations[0];
-        const newTrust = Math.round(
-          0.35 * targetRec.confidence + 
-          0.25 * targetRec.timeMachine.accuracy + 
-          0.25 * data.understanding_score + 
-          transControl
-        );
-        setTrustScore(newTrust);
-        
-        setQuestionsAsked((prev) => prev + 1);
-        setQuestionsResolved((prev) => prev + 1);
-        setSuggestedQuestions(data.suggested_questions || [
-          "What happens if I reject it?",
-          "Show similar incidents",
-          "Why are you uncertain?"
-        ]);
+        setIsCompanionLoading(false);
       } else {
-        throw new Error("POST request failed");
+        streamAgentDiscussion(activeRec, newTrust, newUnderstanding, !!data.requires_feedback, message);
       }
+
     } catch (e) {
-      console.warn("Using local rules simulation for Ask TrustLens:", e);
+      console.warn("Gemini chatbot interface call failed, using mock fallbacks:", e);
       setTimeout(() => {
-        let answer = `I am simulating answers for ${activeRecId}. This action was suggested due to security triggers.`;
-        const msgLower = String(message).toLowerCase();
+        const isRelevant = isQuestionRelevant(message, activeRec);
+        setLastQuestionRelevant(isRelevant);
         
-        if (msgLower.includes("why") || msgLower.includes("reason") || msgLower.includes("recommend")) {
-          answer = `The recommendation to **${activeRec.action}** for **${activeRecId}** is active because:\n` + 
-            activeRec.why.map(w => `- ${w}`).join("\n") + 
-            `\n\nThis behavior deviation is marked as a ${activeRec.severity} priority anomaly.`;
-        } else if (msgLower.includes("evidence") || msgLower.includes("support")) {
-          answer = `We support this recommendation with evidence from **${activeRec.sources.join(" + ")}** with ${activeRec.confidence}% confidence. Our security checks confirm data quality is at ${activeRec.trustDNA.dataQuality}% and policy rules matches at ${activeRec.trustDNA.policyMatch}%.`;
-        } else if (msgLower.includes("wrong") || msgLower.includes("incorrect") || msgLower.includes("error")) {
-          answer = `This recommendation could be a false alarm if:\n` +
-            activeRec.devilsAdvocate.points.map(p => `- ${p}`).join("\n") +
-            `\n\nIf these explain the activity, we advise running the alternative: **${activeRec.devilsAdvocate.alternativeAction}**.`;
-        } else if (msgLower.includes("reject") || msgLower.includes("ignore") || msgLower.includes("dismiss")) {
-          answer = `Rejecting this recommended policy will keep **${activeRecId}** connected in its current unverified state, risking potential threat activity progression.`;
-        } else if (msgLower.includes("approve") || msgLower.includes("accept")) {
-          answer = `Approving this recommendation will dispatch an immediate policy command to the managing tenant. This ensures the device compliance rules are re-evaluated and corrected.`;
-        } else if (msgLower.includes("often") || msgLower.includes("history") || msgLower.includes("similar") || msgLower.includes("incident")) {
-          answer = `The Trust Time Machine has logged **${activeRec.timeMachine.cases} similar alerts** historically. Our model evaluated correct matches for **${activeRec.timeMachine.breakdown.correct} cases** (${activeRec.timeMachine.accuracy}% accuracy baseline).`;
+        let newAsked = questionsAsked;
+        let newResolved = questionsResolved;
+        let newUnderstanding = understandingScore;
+        let newTrust = trustScore;
+
+        if (isRelevant) {
+          newAsked = questionsAsked + 1;
+          newResolved = questionsResolved + 1;
+          newUnderstanding = Math.min(100, 60 + newResolved * 8);
+          
+          const visibilityScore = inspectedAgents.length > 0 ? 8 : 4;
+          const autonomyScore = 7;
+          const transControl = visibilityScore + autonomyScore;
+          newTrust = Math.round(0.35 * activeRec.confidence + 0.25 * activeRec.timeMachine.accuracy + 0.25 * newUnderstanding + transControl);
         }
         
-        const nextQ = [
-          "What could make this wrong?",
-          "What happens if I reject it?",
-          "Show similar incidents"
-        ];
-        
-        const newAsked = questionsAsked + 1;
-        const newResolved = questionsResolved + 1;
-        const newUnderstanding = Math.min(100, 60 + newResolved * 8);
-        
-        // Use updated trust formula
-        const visibilityScore = inspectedAgents.length > 0 ? 8 : 4;
-        const autonomyScore = 7;
-        const transControl = visibilityScore + autonomyScore;
-        const newTrust = Math.round(0.35 * activeRec.confidence + 0.25 * activeRec.timeMachine.accuracy + 0.25 * newUnderstanding + transControl);
-        
-        setCompanionMessages((prev) => [
-          ...prev.filter(m => m.role !== 'user' || m.content !== message),
-          { role: 'user', content: message },
-          { role: 'assistant', content: answer, provider: 'gemini' }
-        ]);
         setUnderstandingScore(newUnderstanding);
         setTrustScore(newTrust);
         setQuestionsAsked(newAsked);
         setQuestionsResolved(newResolved);
-        setSuggestedQuestions(nextQ);
+
+        const msgClean = message.toLowerCase().trim().replace(/[?!.]/g, "");
+        const isGreeting = ["hi", "hello", "hey", "good morning", "good afternoon", "good evening"].some(g => msgClean === g || msgClean.startsWith(g));
+        const isGeneral = ["what can you do", "who are you", "how does trustlens work", "capabilities", "help"].some(g => msgClean.includes(g));
+
+        if (isGreeting || isGeneral) {
+          let localAnswer = `I am TrustLens AI, your enterprise decision copilot. How can I help you today?`;
+          if (msgClean.includes("hi") || msgClean.includes("hey") || msgClean.includes("hello")) {
+            localAnswer = `Hello 👋\n\nI'm TrustLens AI, your enterprise decision copilot. I can help explain recommendations, confidence scores, risks, and historical incidents. What would you like to explore today?`;
+          } else if (msgClean.includes("what can you do") || msgClean.includes("capabilities") || msgClean.includes("help")) {
+            localAnswer = `I'm TrustLens AI, your enterprise decision copilot. I help IT administrators analyze security recommendations by explaining:\n\n` +
+              `• The context and reasoning behind AI recommendations\n` +
+              `• The data sources and evidence supporting them\n` +
+              `• Potential risks, counter-arguments (via our Devil's Advocate), and alternative actions\n` +
+              `• Historical accuracy and similar past incidents using the Trust Time Machine\n` +
+              `• Detailed confidence and calibrated trust scores`;
+          } else if (msgClean.includes("who are you")) {
+            localAnswer = `I am TrustLens AI, your friendly enterprise decision copilot. My role is to help you analyze security recommendations with transparency, explain trust scores, and support your decision-making process using non-technical language.`;
+          } else if (msgClean.includes("how does trustlens work")) {
+            localAnswer = `TrustLens AI analyzes security telemetry and processes it through a series of specialized AI validation agents. We calibrate a trust score based on AI confidence, historical accuracy, and user understanding, translating complex events into clear, non-technical explanations.`;
+          }
+
+          setCompanionMessages((prev) => [
+            ...prev.filter(m => m.role !== 'user' || m.content !== message),
+            { role: 'user', content: message },
+            { role: 'assistant', content: localAnswer }
+          ]);
+          setSuggestedQuestions([
+            "Why was this recommended?",
+            "Explain trust scores",
+            "How does TrustLens work?"
+          ]);
+          setIsCompanionLoading(false);
+        } else {
+          setSuggestedQuestions([
+            "What could make this wrong?",
+            "What happens if I reject it?",
+            "Show similar incidents"
+          ]);
+          streamAgentDiscussion(activeRec, newTrust, newUnderstanding, true, message);
+        }
       }, 700);
-    } finally {
-      setIsCompanionLoading(false);
     }
   };
 
@@ -495,14 +1042,25 @@ export const WorkflowProvider: React.FC<{ children: ReactNode }> = ({ children }
         const autonomyScore = 7;
         const transControl = visibilityScore + autonomyScore;
         const targetRec = recommendations.find(r => r.id === activeRecId) || recommendations[0];
+        const confidenceToUse = data.confidence !== undefined && data.confidence !== null ? data.confidence : targetRec.confidence;
         const newTrust = Math.round(
-          0.35 * targetRec.confidence + 
+          0.35 * confidenceToUse + 
           0.25 * targetRec.timeMachine.accuracy + 
           0.25 * data.understanding_score + 
           transControl
         );
         setTrustScore(newTrust);
         
+        if (data.confidence !== undefined && data.confidence !== null) {
+          setRecommendations((prev) =>
+            prev.map((r) =>
+              r.id === activeRecId ? { ...r, confidence: data.confidence } : r
+            )
+          );
+        }
+
+        setQuestionsAsked(data.questions_asked ?? questionsAsked);
+        setQuestionsResolved(data.questions_resolved ?? questionsResolved);
         setTotalVotes((prev) => prev + 1);
         if (helpful) setHelpfulVotes((prev) => prev + 1);
       } else {
@@ -521,24 +1079,42 @@ export const WorkflowProvider: React.FC<{ children: ReactNode }> = ({ children }
       else if (ratio <= 0.4) scoreAdjust = -15;
       
       const newUnderstanding = Math.max(0, Math.min(100, (60 + questionsResolved * 8) + scoreAdjust));
-      
-      // Use updated trust formula
-      const visibilityScore = inspectedAgents.length > 0 ? 8 : 4;
-      const autonomyScore = 7;
-      const transControl = visibilityScore + autonomyScore;
-      const newTrust = Math.round(0.35 * activeRec.confidence + 0.25 * activeRec.timeMachine.accuracy + 0.25 * newUnderstanding + transControl);
-      
       setUnderstandingScore(newUnderstanding);
-      setTrustScore(newTrust);
+
+      if (lastQuestionRelevant) {
+        const currentConf = activeRec.confidence;
+        const newConf = helpful ? Math.min(100, currentConf + 5) : Math.max(0, currentConf - 5);
+        
+        // Update recommendations list state with dynamic confidence
+        setRecommendations((prev) =>
+          prev.map((r) =>
+            r.id === activeRecId ? { ...r, confidence: newConf } : r
+          )
+        );
+
+        // Recalculate trust score using updated confidence
+        const visibilityScore = inspectedAgents.length > 0 ? 8 : 4;
+        const autonomyScore = 7;
+        const transControl = visibilityScore + autonomyScore;
+        const newTrust = Math.round(0.35 * newConf + 0.25 * activeRec.timeMachine.accuracy + 0.25 * newUnderstanding + transControl);
+        setTrustScore(newTrust);
+      }
     }
   };
 
   React.useEffect(() => {
-    loadAutonomyLevel();
+    const timer = setTimeout(() => {
+      loadAutonomyLevel();
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
   React.useEffect(() => {
-    loadCompanionState(activeRecId);
+    const timer = setTimeout(() => {
+      loadCompanionState(activeRecId);
+    }, 0);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeRecId]);
 
   const adaptedRecommendations = recommendations.map((rec) => {
@@ -610,17 +1186,10 @@ export const WorkflowProvider: React.FC<{ children: ReactNode }> = ({ children }
     const now = new Date();
     const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     
-    let eventMsg = '';
-    if (selectedAltAction) {
-      const altAction = activeRec.devilsAdvocate.alternativeAction;
-      eventMsg = `Alternative action chosen: "${altAction}". Status updated.`;
-    } else {
-      eventMsg = `Recommendation ${decision} by Admin IT Administrator.`;
-    }
-
-    if (notes && notes.trim() !== '') {
-      eventMsg += ` Comment: "${notes.trim()}"`;
-    }
+    const baseMsg = selectedAltAction
+      ? `Alternative action chosen: "${activeRec.devilsAdvocate.alternativeAction}". Status updated.`
+      : `Recommendation ${decision} by Admin IT Administrator.`;
+    const eventMsg = notes && notes.trim() !== '' ? `${baseMsg} Comment: "${notes.trim()}"` : baseMsg;
 
     const newLog: ActivityLogEntry = {
       time: timeString,
@@ -649,13 +1218,14 @@ export const WorkflowProvider: React.FC<{ children: ReactNode }> = ({ children }
     setSelectedAltAction(false);
     setDecisionNotes('');
     setShowSuccessToast(false);
-    setAutonomyLevelState(2);
+    setAutonomyLevelState(1);
     setInspectedAgents([]);
     setAgentChain([]);
 
     // Reset companion states
     setCompanionMessages([]);
     setUnderstandingScore(60);
+    setLastQuestionRelevant(false);
     const targetRec = initialRecommendations.find(r => r.id === 'DEV1248') || initialRecommendations[0];
     const initialTrust = Math.round(0.35 * targetRec.confidence + 0.25 * targetRec.timeMachine.accuracy + 0.25 * 60 + 11);
     setTrustScore(initialTrust);
@@ -708,9 +1278,12 @@ export const WorkflowProvider: React.FC<{ children: ReactNode }> = ({ children }
         agentChain,
         inspectedAgents,
         inspectAgent,
+        watchAgentDiscussion,
+        setWatchAgentDiscussion,
         user,
         loading,
-        logout
+        logout,
+        loginAsDemoUser
       }}
     >
       {children}

@@ -6,6 +6,8 @@ import { DashboardScreen } from './screens/DashboardScreen';
 import { AnalysisScreen } from './screens/AnalysisScreen';
 import { ValidationScreen } from './screens/ValidationScreen';
 import { DecisionScreen } from './screens/DecisionScreen';
+import { AICollaborationBoardScreen } from './screens/AICollaborationBoardScreen';
+import { SettingsScreen } from './screens/SettingsScreen';
 import { AnimatePresence } from 'framer-motion';
 import { ShieldCheck } from 'lucide-react';
 import  LoginPage from "./screens/LoginPage";
@@ -23,13 +25,17 @@ const MainLayout: React.FC = () => {
         return <ValidationScreen key="validation" />;
       case 4:
         return <DecisionScreen key="decision" />;
+      case 5:
+        return <AICollaborationBoardScreen key="collaboration-board" />;
+      case 6:
+        return <SettingsScreen key="settings" />;
       default:
         return <DashboardScreen key="dashboard" />;
     }
   };
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-slate-50 font-sans text-slate-800 antialiased selection:bg-brand-blue selection:text-white">
+    <div className="flex h-screen w-screen overflow-hidden bg-slate-50 font-sans text-slate-900 antialiased selection:bg-brand-cyan/30 selection:text-slate-900 select-none">
       {/* Dark Sidebar */}
       <Sidebar />
 
@@ -39,7 +45,7 @@ const MainLayout: React.FC = () => {
         <Header />
 
         {/* Content Body Container */}
-        <main className="flex-1 overflow-y-auto px-8 py-8 relative">
+        <main role="main" aria-label="Main Content Body" className="flex-1 overflow-y-auto px-8 py-8 relative">
           <AnimatePresence mode="wait">
             {renderScreen()}
           </AnimatePresence>
