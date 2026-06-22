@@ -1,6 +1,6 @@
 import os
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Text
+from sqlalchemy import Column, Integer, String, Text, text
 from sqlalchemy.orm import Session
 from trust_companion_service import Base, SessionLocal
 
@@ -10,13 +10,21 @@ class AutonomySetting(Base):
     
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(String(50), default="admin", unique=True)
-    autonomy_level = Column(Integer, default=2) # Default is Level 2 (Recommend Only)
+    autonomy_level = Column(Integer, default=1) # Default is Level 1 (Always Ask)
     last_updated = Column(String(50))
+    version = Column(Integer, default=1) # Schema/Data version for migration
 
 # Ensure database tables exist
 db = SessionLocal()
 try:
     Base.metadata.create_all(bind=db.get_bind())
+    # Dynamic migration to add version column if it doesn't exist
+    with db.get_bind().begin() as conn:
+        result = conn.execute(text("PRAGMA table_info(autonomy_settings);")).fetchall()
+        columns = [row[1] for row in result]
+        if "version" not in columns:
+            conn.execute(text("ALTER TABLE autonomy_settings ADD COLUMN version INTEGER DEFAULT 0;"))
+            print("[autonomy_service] Migration: Added 'version' column to autonomy_settings.")
 finally:
     db.close()
 
@@ -24,25 +32,40 @@ def get_autonomy_level(db_session: Session, user_id: str = "admin") -> int:
     """Retrieve the current autonomy level for the user."""
     setting = db_session.query(AutonomySetting).filter(AutonomySetting.user_id == user_id).first()
     if not setting:
-        # Create default Level 2 (Recommend Only)
+        # Create default Level 1 (Always Ask)
         setting = AutonomySetting(
             user_id=user_id,
-            autonomy_level=2,
-            last_updated=datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
+            autonomy_level=1,
+            last_updated=datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC"),
+            version=1
         )
         db_session.add(setting)
         db_session.commit()
         db_session.refresh(setting)
+    else:
+        # Auto-migrate old values to new 1-3 sequence ONLY if version is less than 1
+        if getattr(setting, "version", 0) < 1:
+            if setting.autonomy_level == 4:
+                setting.autonomy_level = 3
+            elif setting.autonomy_level == 3:
+                setting.autonomy_level = 2
+            elif setting.autonomy_level == 2:
+                setting.autonomy_level = 1
+            setting.version = 1
+            setting.last_updated = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
+            db_session.commit()
+            
     return setting.autonomy_level
 
 def set_autonomy_level(db_session: Session, level: int, user_id: str = "admin") -> int:
     """Set the current autonomy level for the user."""
     setting = db_session.query(AutonomySetting).filter(AutonomySetting.user_id == user_id).first()
     if not setting:
-        setting = AutonomySetting(user_id=user_id)
+        setting = AutonomySetting(user_id=user_id, version=1)
         db_session.add(setting)
     
     setting.autonomy_level = level
+    setting.version = 1
     setting.last_updated = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
     db_session.commit()
     db_session.refresh(setting)
@@ -60,15 +83,14 @@ def determine_execution_mode(autonomy_level: int, risk_level: str) -> str:
     """
     Determine execution mode based on autonomy level and risk level:
     - Level 1: Always Ask Me -> Human Review Required
-    - Level 2: Recommend Only -> Human Review Required
-    - Level 3: Auto Approve Low Risk -> Executed Automatically if Low Risk else Human Review Required
-    - Level 4: Act and Notify -> Executed Automatically
+    - Level 2: Auto Approve Low Risk -> Executed Automatically if Low Risk else Human Review Required
+    - Level 3: Act and Notify -> Executed Automatically
     """
-    if autonomy_level == 1 or autonomy_level == 2:
+    if autonomy_level == 1:
         return "Human Review Required"
-    elif autonomy_level == 3:
+    elif autonomy_level == 2:
         return "Executed Automatically" if risk_level == "Low Risk" else "Human Review Required"
-    elif autonomy_level == 4:
+    elif autonomy_level >= 3:
         return "Executed Automatically"
     return "Human Review Required"
 

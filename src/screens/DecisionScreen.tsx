@@ -35,7 +35,7 @@ export const DecisionScreen: React.FC = () => {
                          activeRec.action.toLowerCase().includes("update") ||
                          activeRec.action.toLowerCase().includes("install");
   
-  const isAutoExecuted = autonomyLevel === 4 || (autonomyLevel === 3 && isLowRiskAction);
+  const isAutoExecuted = autonomyLevel === 3 || (autonomyLevel === 2 && isLowRiskAction);
 
   const incidentReportStep = agentChain?.find(a => a.name === "Incident Report Agent");
   let incidentSummary = "AI Quarantine action overridden by operator due to dispute policy triggers.";
@@ -444,13 +444,13 @@ export const DecisionScreen: React.FC = () => {
                     example: 'Example: Isolating endpoints or firewall blocks pause for manual verification.' 
                   },
                   { 
-                    level: 3, 
+                    level: 2, 
                     label: 'Auto Low Risk', 
                     desc: 'Auto-execute low-risk, pre-approved rules.', 
                     example: 'Example: Software updates or compliance patches deploy instantly; quarantines hold.' 
                   },
                   { 
-                    level: 4, 
+                    level: 3, 
                     label: 'Act and Notify', 
                     desc: 'Auto-resolve all alerts immediately.', 
                     example: 'Example: High-severity device isolations run instantly, sending notifications post-action.' 
@@ -500,21 +500,21 @@ export const DecisionScreen: React.FC = () => {
                   <div className="flex justify-between items-center font-semibold">
                     <span className="text-slate-700 font-display">Patch Deployment</span>
                     <span className={`font-bold px-1.5 py-0.5 rounded text-[10px] uppercase ${
-                      autonomyLevel >= 3 
+                      autonomyLevel >= 2 
                         ? 'bg-brand-emerald/10 text-brand-emerald border border-brand-emerald/20' 
                         : 'bg-brand-amber/10 text-brand-amber border border-brand-amber/20'
                     }`}>
-                      {autonomyLevel >= 3 ? '✓ Auto-Approve' : '⚠ Human Review'}
+                      {autonomyLevel >= 2 ? '✓ Auto-Approve' : '⚠ Human Review'}
                     </span>
                   </div>
                   <div className="flex justify-between items-center font-semibold">
                     <span className="text-slate-700 font-display">Device Quarantine</span>
                     <span className={`font-bold px-1.5 py-0.5 rounded text-[10px] uppercase ${
-                      autonomyLevel === 4 
+                      autonomyLevel === 3 
                         ? 'bg-brand-emerald/10 text-brand-emerald border border-brand-emerald/20' 
                         : 'bg-brand-amber/10 text-brand-amber border border-brand-amber/20'
                     }`}>
-                      {autonomyLevel === 4 ? '✓ Auto-Approve' : '⚠ Human Review'}
+                      {autonomyLevel === 3 ? '✓ Auto-Approve' : '⚠ Human Review'}
                     </span>
                   </div>
                 </div>

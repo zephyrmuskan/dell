@@ -1,73 +1,79 @@
-# React + TypeScript + Vite
+# TrustLens AI — Fleet Compliance & Security Gateway
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+TrustLens AI is an enterprise decision copilot designed for security teams and system administrators. It integrates with **Microsoft Intune** and **VMware Workspace ONE UEM** to provide real-time compliance monitoring, telemetry analysis, and autonomous policy remediation.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🛡️ Key Features
 
-## React Compiler
+- **MDM Compliance Dashboard**: Real-time monitoring of fleet status, active security recommendations, and compliance gate status.
+- **AI Trust Companion**: An interactive decision assistant powered by LLMs (Gemini/Groq/Local Rules) that explains AI recommendations to operators.
+- **SHAP Feature Attributions Matrix**: Translates machine learning security scores into plain-language telemetry explanations.
+- **Multi-Agent Consensus Validation**: Resolves disputes between agent classes (e.g. Detection, Risk Assessment, Devil's Advocate) before dispatching commands.
+- **Dynamic Autonomy Levels**: Configurable rules for dispatching endpoint compliance commands.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## ⚙️ Standardized AI Autonomy Levels
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+The application supports three standardized autonomy levels for fleet control:
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+1. **Level 1 (Always Ask Me)**:
+   - *Behavior*: Strict operator-approved execution. All compliance recommendations (both low-risk patches and critical quarantines) pause and wait for manual operator review.
+   
+2. **Level 2 (Auto Low Risk)**:
+   - *Behavior*: Pre-approved execution of safe tasks. Low-risk operations (such as deploying OS patches, application updates, or configuration installers) are dispatched automatically. High-risk actions (such as isolating host endpoints) require manual operator sign-off.
+   
+3. **Level 3 (Act and Notify)**:
+   - *Behavior*: Full execution autonomy. All remediation actions are dispatched immediately. The system executes the API commands to the UEM gateways first, then writes audit logs and notifies the administrator post-execution.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+---
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## 🛠️ Technology Stack
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Frontend
+- **Framework**: React 19 (TypeScript, Vite)
+- **Styling**: Vanilla CSS, Tailwind CSS
+- **Animations**: Framer Motion
+- **Icons**: Lucide React
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Backend
+- **Framework**: FastAPI (Python 3.11+)
+- **ORM / Database**: SQLAlchemy, SQLite (`trustlens.db`)
+- **Failover Sequence**: Direct Google Gemini API requests with automated failover to Groq (Llama-3.3) and a high-quality local rule-based mock engine.
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+Ensure you have the following installed on your machine:
+- [Node.js](https://nodejs.org/) (v18+)
+- [Python](https://www.python.org/) (v3.8+)
+- [SQLite](https://www.sqlite.org/)
+
+### Installation & Run Instructions
+
+#### 1. Running the Backend Server
+1. Ensure your `.env` file contains valid API keys for:
+   ```env
+   GEMINI_API_KEY=your_gemini_api_key
+   GROQ_API_KEY=your_groq_api_key
+   HF_API_KEY=your_huggingface_api_key
+   ```
+2. Run the main server script:
+   ```bash
+   python app.py
+   ```
+   *The FastAPI server will start on [http://127.0.0.1:8000](http://127.0.0.1:8000).*
+
+#### 2. Running the Frontend Server
+1. Install project dependencies:
+   ```bash
+   npm install
+   ```
+2. Start the Vite dev server:
+   ```bash
+   npm run dev
+   ```
+   *The client interface will start on [http://localhost:5173/](http://localhost:5173/).*

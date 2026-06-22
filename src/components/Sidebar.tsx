@@ -85,17 +85,17 @@ export const Sidebar: React.FC = () => {
           <p className="text-[9px] text-white/40 font-extrabold tracking-wider uppercase px-1 mb-2 font-display">AI Autonomy Level</p>
           
           <div className="bg-white/5 p-1 rounded-lg border border-white/5 grid grid-cols-3 gap-1" role="radiogroup" aria-label="AI Autonomy Level Selection">
-            {([1, 3, 4] as const).map((level) => {
+            {([1, 2, 3] as const).map((level) => {
               const active = autonomyLevel === level;
               const labels = {
                 1: 'Lvl 1 (Ask)',
-                3: 'Lvl 3 (Auto)',
-                4: 'Lvl 4 (Act)'
+                2: 'Lvl 2 (Auto)',
+                3: 'Lvl 3 (Act)'
               };
               const activeColors = {
                 1: 'bg-white/10 text-white border border-white/10 shadow-sm',
-                3: 'bg-brand-blue/30 text-brand-cyan border border-brand-blue/40 shadow-glow-blue',
-                4: 'bg-brand-emerald/25 text-[#34d399] border border-brand-emerald/35 shadow-glow-emerald'
+                2: 'bg-brand-blue/30 text-brand-cyan border border-brand-blue/40 shadow-glow-blue',
+                3: 'bg-brand-emerald/25 text-[#34d399] border border-brand-emerald/35 shadow-glow-emerald'
               };
 
               return (
@@ -121,9 +121,9 @@ export const Sidebar: React.FC = () => {
             "{
               autonomyLevel === 1
                 ? "Level 1: Every recommendation requires manual human approval."
-                : autonomyLevel === 3
-                ? "Level 3: Low-risk tasks auto-approve; critical actions require review."
-                : "Level 4: AI executes all actions immediately and logs audit details."
+                : autonomyLevel === 2
+                ? "Level 2: Low-risk tasks auto-approve; critical actions require review."
+                : "Level 3: AI executes all actions immediately and logs audit details."
             }"
           </p>
         </div>

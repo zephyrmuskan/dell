@@ -5,7 +5,7 @@ import { supabase } from '../lib/supabaseClient';
 
 export type Severity = 'Critical' | 'High' | 'Medium';
 export type RecommendationStatus = 'Pending' | 'Approved' | 'Rejected' | 'Escalated' | 'Details Requested';
-export type AutonomyLevel = 1 | 2 | 3 | 4;
+export type AutonomyLevel = 1 | 2 | 3;
 
 export interface ShapFactor {
   feature: string;
@@ -1163,9 +1163,9 @@ The agent council has completed its review regarding **${rec.id}**.
     const isLowRiskAction = rec.action.toLowerCase().includes("patch") || 
                            rec.action.toLowerCase().includes("update") ||
                            rec.action.toLowerCase().includes("install");
-    if (autonomyLevel === 4) {
+    if (autonomyLevel === 3) {
       return { ...rec, status: rec.status === 'Pending' ? 'Approved' : rec.status } as Recommendation;
-    } else if (autonomyLevel === 3) {
+    } else if (autonomyLevel === 2) {
       if (isLowRiskAction) {
         return { ...rec, status: rec.status === 'Pending' ? 'Approved' : rec.status } as Recommendation;
       }

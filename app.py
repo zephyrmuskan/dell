@@ -115,8 +115,8 @@ def get_autonomy_level(db=Depends(get_db)):
 def post_autonomy_level(req: AutonomyLevelRequest, db=Depends(get_db)):
     """Update the global AI autonomy level configuration."""
     try:
-        if req.level not in [1, 2, 3, 4]:
-            raise HTTPException(status_code=400, detail="Invalid autonomy level. Must be 1, 2, 3, or 4.")
+        if req.level not in [1, 2, 3]:
+            raise HTTPException(status_code=400, detail="Invalid autonomy level. Must be 1, 2, or 3.")
         updated_level = autonomy_service.set_autonomy_level(db, req.level)
         return {
             "status": "updated",

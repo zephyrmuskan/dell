@@ -191,9 +191,9 @@ export const DashboardScreen: React.FC = () => {
 
                   let displayStatus = rec.status as string;
                   if (rec.status === 'Approved') {
-                    if (autonomyLevel === 4) {
+                    if (autonomyLevel === 3) {
                       displayStatus = 'Auto-Executed';
-                    } else if (autonomyLevel === 3 && rec.severity === 'Medium') {
+                    } else if (autonomyLevel === 2) {
                       displayStatus = 'Auto-Resolved';
                     } else {
                       displayStatus = 'Approved';
